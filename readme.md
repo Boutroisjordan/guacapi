@@ -3,9 +3,6 @@
 L'api guacapi est un projet CUBE du CESI.
 
 
-___
-
-
 ## Pré-requis
 
 ### Environnements
@@ -14,7 +11,7 @@ L'api nécessite l'envrionement suivant:
 
 + .NET 6.0
 + AspNetCore
-+ Entity Framework 7.0
++ Entity Framework 6.4.4
 
 
 ### Packages
