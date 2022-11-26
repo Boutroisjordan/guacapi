@@ -29,9 +29,9 @@ Pour le moment la base de données étant en local, vous devrez vous créer votr
 
 Indented code
 
-    // Some comments
+    
     "ConnectionStrings": {
-    "DefaultConnection": "Ici votre connection string"
+        "DefaultConnection": "Ici votre connection string"
     }
 
 
