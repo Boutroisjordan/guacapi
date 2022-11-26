@@ -32,6 +32,6 @@ Indented code
     // Some comments
     "ConnectionStrings": {
     "DefaultConnection": "Ici votre connection string"
-  }
+    }
 
 
