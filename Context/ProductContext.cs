@@ -1,11 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using GuacAPI.Context.TypeConfigurations;
 using GuacAPI.Models;
+using GuacAPI.Interface;
 
 
 namespace GuacAPI.Context;
 
-public class ProductContext : DbContext
+public class ProductContext : DbContext, IUnitOfWork
 {
     #region Constructor
      public ProductContext(DbContextOptions<ProductContext> options) : base(options)
@@ -20,6 +21,12 @@ public class ProductContext : DbContext
 
         modelBuilder.ApplyConfiguration(new ProductEntityConfiguration());
     }
+
+    public  IUnitOfWork SaveChnages()
+    {
+        throw new NotImplementedException();
+    }
+
     public DbSet<Product> Products {get; set;} = null!;
     public DbSet<Furnisher> Furnishers {get; set;} = null!;
 }

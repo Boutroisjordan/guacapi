@@ -1,24 +1,24 @@
 using GuacAPI.Models;
 using GuacAPI.Context;
 using Microsoft.AspNetCore.Mvc;
-
+using GuacAPI.Repositories;
+using GuacAPI.Interface;
+using GuacAPI.DTOs;
 namespace GuacAPI.Controllers;
 
-[ApiController]
 [Route("api/[controller]")]
-
+[ApiController]
 public class ProductsController : ControllerBase
 {
     #region Fields
-        private ProductContext _context;
+        private IProductRepository _repository;
     #endregion
 
     #region Constructors
-    public ProductsController(ProductContext context)
+    public ProductsController(IProductRepository repository)
     {
-        this._context = context;
+        this._repository = repository;
     }
-    
     #endregion
 
     #region Public methods
@@ -28,18 +28,39 @@ public class ProductsController : ControllerBase
         // var model = Enumerable.Range(1,10).Select(item => new Product() {ProductId = item});
         // return this.Ok(model);
 
-        var model = this._context.Products.ToList();
-        //var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
-        
+        var productsList = this._repository.GetAll();
 
-        // var query = from Product in this._context.Products
-        // select Product;s
-
+        // var model = productsList.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId});
+        var model = productsList.Select(item => new ProductResumeDto() { Title = item.Name, Price = item.Price, FurnisherId = item.FurnisherId});
         return this.Ok(model);
-        // return this.Ok(query.ToList());
+    }
+
+    [HttpPost]
+    public IActionResult AddOne(ProductDto dto)
+    {
+         IActionResult result = this.BadRequest();
+
+         Product addProduct = this._repository.AddOne(new Product() 
+         {
+             Name = dto.Name,
+             Category = dto.Category,
+             Price = dto.Price,
+             FurnisherId = dto.FurnisherId
+         });
+
+         if (addProduct != null)
+         {
+            dto.Id = addProduct.ProductId;
+             result = this.Ok(dto);
+         }
+
+        this._repository.UnitOfWork.SaveChanges();
+
+        return this.Ok(result);
     }
     #endregion
 
+    // [Route("api/[controller]/{id}")]
     //GET: api/Products
     /*[HttpGet]
     public async Task<ActionResult<IEnumerable<Product>>> GetProducts()

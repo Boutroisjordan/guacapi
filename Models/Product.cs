@@ -9,10 +9,8 @@ public class Product
     public string? Category { get; set; }
     public decimal Price { get; set; }
     public string? Reference {get; set;}
-
     public int FurnisherId {get; set;}
     public Furnisher? furnisher;
-
 
     #endregion
 }
