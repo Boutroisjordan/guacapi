@@ -1,7 +1,7 @@
 namespace GuacAPI.Models;
 using System.Text.Json.Serialization;
 
-// Répresente une bouteille de vin
+// fournisseur de vin, revendeur
 public class Furnisher
 {
     #region Properties

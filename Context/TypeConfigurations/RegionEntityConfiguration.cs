@@ -4,16 +4,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace GuacAPI.Context.TypeConfigurations;
 
-class FurnisherEntityConfiguration : IEntityTypeConfiguration<Furnisher>
+class RegionEntityConfiguration : IEntityTypeConfiguration<Region>
 {
     #region Public methods
-    public void Configure(EntityTypeBuilder<Furnisher> builder)
+    public void Configure(EntityTypeBuilder<Region> builder)
     {
         //Nom de la tabmle
-        builder.ToTable("Furnisher");
+        builder.ToTable("Region");
         //Primary key de la table
-        builder.HasKey(item => item.FurnisherId);
-        
+        builder.HasKey(item => item.RegionID);
+
     }
     #endregion
 

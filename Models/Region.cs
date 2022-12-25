@@ -1,12 +1,14 @@
 namespace GuacAPI.Models;
 using System.Text.Json.Serialization;
 
-// Le domiane qui l'a produit
-public class Domain
+// Région d'ou vient le vin
+public class Region
 {
     #region Properties
-    public int DomainId { get; set; }
-    public string? Name { get; set; }
+    public int RegionID { get; set; }
+    public string? Name { get; set;}
+
     public List<Product>? Products {get; set;}
+
     #endregion
 }

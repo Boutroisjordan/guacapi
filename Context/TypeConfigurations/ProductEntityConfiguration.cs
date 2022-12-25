@@ -15,6 +15,21 @@ class ProductEntityConfiguration : IEntityTypeConfiguration<Product>
          builder.HasOne(item => item.furnisher)
              .WithMany(item => item.Products);
 
+         builder.HasOne(item => item.domain)
+         .WithMany(item => item.Products);
+
+         builder.HasOne(item => item.region)
+         .WithMany(item => item.Products);
+
+         builder.HasOne(item => item.millesime)
+         .WithMany(item => item.Products);
+
+         builder.HasOne(item => item.alcoholType)
+         .WithMany(item => item.Products);
+
+         builder.HasOne(item => item.appellation)
+         .WithMany(item => item.Products);
+
     }
     #endregion
 

@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuacAPI.Migrations
 {
     [DbContext(typeof(ProductContext))]
-    [Migration("20221126171153_AddFurnisher")]
-    partial class AddFurnisher
+    [Migration("20221225154945_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,6 +23,22 @@ namespace GuacAPI.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("GuacAPI.Models.Domain", b =>
+                {
+                    b.Property<int>("DomainId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DomainId"));
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("DomainId");
+
+                    b.ToTable("Domains");
+                });
 
             modelBuilder.Entity("GuacAPI.Models.Furnisher", b =>
                 {
@@ -52,6 +68,22 @@ namespace GuacAPI.Migrations
                     b.ToTable("Furnishers");
                 });
 
+            modelBuilder.Entity("GuacAPI.Models.Millesime", b =>
+                {
+                    b.Property<int>("MillesimeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MillesimeId"));
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("MillesimeId");
+
+                    b.ToTable("Millesimes");
+                });
+
             modelBuilder.Entity("GuacAPI.Models.Product", b =>
                 {
                     b.Property<int>("ProductId")
@@ -62,6 +94,9 @@ namespace GuacAPI.Migrations
 
                     b.Property<string>("Category")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DomainId")
+                        .HasColumnType("int");
 
                     b.Property<int>("FurnisherId")
                         .HasColumnType("int");
@@ -77,6 +112,8 @@ namespace GuacAPI.Migrations
 
                     b.HasKey("ProductId");
 
+                    b.HasIndex("DomainId");
+
                     b.HasIndex("FurnisherId");
 
                     b.ToTable("Product", (string)null);
@@ -84,13 +121,26 @@ namespace GuacAPI.Migrations
 
             modelBuilder.Entity("GuacAPI.Models.Product", b =>
                 {
+                    b.HasOne("GuacAPI.Models.Domain", "domain")
+                        .WithMany("Products")
+                        .HasForeignKey("DomainId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("GuacAPI.Models.Furnisher", "furnisher")
                         .WithMany("Products")
                         .HasForeignKey("FurnisherId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("domain");
+
                     b.Navigation("furnisher");
+                });
+
+            modelBuilder.Entity("GuacAPI.Models.Domain", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Furnisher", b =>

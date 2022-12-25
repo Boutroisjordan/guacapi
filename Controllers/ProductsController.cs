@@ -23,7 +23,7 @@ public class ProductsController : ControllerBase
 
     #region Public methods
     [HttpGet]
-    public IActionResult Get()
+    public IActionResult GetAll([FromQuery] int furnisherId)
     {
         // var model = Enumerable.Range(1,10).Select(item => new Product() {ProductId = item});
         // return this.Ok(model);
@@ -31,7 +31,7 @@ public class ProductsController : ControllerBase
         var productsList = this._repository.GetAll();
 
         // var model = productsList.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId});
-        var model = productsList.Select(item => new ProductResumeDto() { Title = item.Name, Price = item.Price, FurnisherId = item.FurnisherId});
+        var model = productsList.Select(item => new ProductDto() { Name = item.Name, Price = item.Price, Category = item.Category, Reference = item.Reference, FurnisherId = item.FurnisherId});
         return this.Ok(model);
     }
 
@@ -46,6 +46,7 @@ public class ProductsController : ControllerBase
              Category = dto.Category,
              Price = dto.Price,
              FurnisherId = dto.FurnisherId
+            //  DomainId = dto.DomainId
          });
 
          if (addProduct != null)

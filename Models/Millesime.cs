@@ -1,12 +1,14 @@
 namespace GuacAPI.Models;
 using System.Text.Json.Serialization;
 
-// Le domiane qui l'a produit
-public class Domain
+// Répresente une bouteille de vin
+public class Millesime
 {
     #region Properties
-    public int DomainId { get; set; }
-    public string? Name { get; set; }
+    public int MillesimeId { get; set; }
+    public int Year { get; set; }
+
     public List<Product>? Products {get; set;}
+
     #endregion
 }

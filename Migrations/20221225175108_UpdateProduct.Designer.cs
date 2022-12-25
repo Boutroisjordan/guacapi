@@ -4,6 +4,7 @@ using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuacAPI.Migrations
 {
     [DbContext(typeof(ProductContext))]
-    partial class ProductContextModelSnapshot : ModelSnapshot
+    [Migration("20221225175108_UpdateProduct")]
+    partial class UpdateProduct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -125,9 +128,6 @@ namespace GuacAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductId"));
 
-                    b.Property<decimal>("AlcoholDegree")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<int>("AlcoholTypeId")
                         .HasColumnType("int");
 
@@ -144,9 +144,6 @@ namespace GuacAPI.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("FurnisherId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MillesimeId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -173,8 +170,6 @@ namespace GuacAPI.Migrations
                     b.HasIndex("DomainId");
 
                     b.HasIndex("FurnisherId");
-
-                    b.HasIndex("MillesimeId");
 
                     b.HasIndex("RegionId");
 
@@ -221,12 +216,6 @@ namespace GuacAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GuacAPI.Models.Millesime", "millesime")
-                        .WithMany("Products")
-                        .HasForeignKey("MillesimeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("GuacAPI.Models.Region", "region")
                         .WithMany("Products")
                         .HasForeignKey("RegionId")
@@ -240,8 +229,6 @@ namespace GuacAPI.Migrations
                     b.Navigation("domain");
 
                     b.Navigation("furnisher");
-
-                    b.Navigation("millesime");
 
                     b.Navigation("region");
                 });
@@ -262,11 +249,6 @@ namespace GuacAPI.Migrations
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Furnisher", b =>
-                {
-                    b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("GuacAPI.Models.Millesime", b =>
                 {
                     b.Navigation("Products");
                 });
