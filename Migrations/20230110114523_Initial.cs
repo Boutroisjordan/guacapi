@@ -5,7 +5,7 @@
 namespace GuacAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,7 +16,6 @@ namespace GuacAPI.Migrations
                 {
                     AlcoholTypeId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    codetype = table.Column<string>(name: "code_type", type: "nvarchar(max)", nullable: true),
                     label = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -68,19 +67,6 @@ namespace GuacAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Millesimes",
-                columns: table => new
-                {
-                    MillesimeId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Year = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Millesimes", x => x.MillesimeId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Regions",
                 columns: table => new
                 {
@@ -100,15 +86,14 @@ namespace GuacAPI.Migrations
                     ProductId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Category = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Stock = table.Column<int>(type: "int", nullable: false),
+                    Millesime = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AlcoholDegree = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Reference = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FurnisherId = table.Column<int>(type: "int", nullable: false),
                     DomainId = table.Column<int>(type: "int", nullable: false),
                     RegionId = table.Column<int>(type: "int", nullable: false),
-                    MillesimeId = table.Column<int>(type: "int", nullable: false),
                     AlcoholTypeId = table.Column<int>(type: "int", nullable: false),
                     AppellationId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -140,12 +125,6 @@ namespace GuacAPI.Migrations
                         principalColumn: "FurnisherId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Product_Millesimes_MillesimeId",
-                        column: x => x.MillesimeId,
-                        principalTable: "Millesimes",
-                        principalColumn: "MillesimeId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_Product_Regions_RegionId",
                         column: x => x.RegionId,
                         principalTable: "Regions",
@@ -174,11 +153,6 @@ namespace GuacAPI.Migrations
                 column: "FurnisherId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Product_MillesimeId",
-                table: "Product",
-                column: "MillesimeId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Product_RegionId",
                 table: "Product",
                 column: "RegionId");
@@ -201,9 +175,6 @@ namespace GuacAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "Furnishers");
-
-            migrationBuilder.DropTable(
-                name: "Millesimes");
 
             migrationBuilder.DropTable(
                 name: "Regions");
