@@ -3,16 +3,19 @@ using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
 namespace GuacAPI.Migrations
 {
-    [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(ProductContext))]
+    [Migration("20230110080411_UpdateProduct2")]
+    partial class UpdateProduct2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,6 +31,9 @@ namespace GuacAPI.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AlcoholTypeId"));
+
+                    b.Property<string>("code_type")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("label")
                         .HasColumnType("nvarchar(max)");
@@ -97,6 +103,22 @@ namespace GuacAPI.Migrations
                     b.ToTable("Furnishers");
                 });
 
+            modelBuilder.Entity("GuacAPI.Models.Millesime", b =>
+                {
+                    b.Property<int>("MillesimeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MillesimeId"));
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("MillesimeId");
+
+                    b.ToTable("Millesimes");
+                });
+
             modelBuilder.Entity("GuacAPI.Models.Product", b =>
                 {
                     b.Property<int>("ProductId")
@@ -114,14 +136,17 @@ namespace GuacAPI.Migrations
                     b.Property<int>("AppellationId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Category")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("DomainId")
                         .HasColumnType("int");
 
                     b.Property<int>("FurnisherId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Millesime")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("MillesimeId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -147,6 +172,8 @@ namespace GuacAPI.Migrations
                     b.HasIndex("DomainId");
 
                     b.HasIndex("FurnisherId");
+
+                    b.HasIndex("MillesimeId");
 
                     b.HasIndex("RegionId");
 
@@ -195,6 +222,12 @@ namespace GuacAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("GuacAPI.Models.Millesime", "millesime")
+                        .WithMany("Products")
+                        .HasForeignKey("MillesimeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("GuacAPI.Models.Region", "region")
                         .WithMany("Products")
                         .HasForeignKey("RegionId")
@@ -208,6 +241,8 @@ namespace GuacAPI.Migrations
                     b.Navigation("domain");
 
                     b.Navigation("furnisher");
+
+                    b.Navigation("millesime");
 
                     b.Navigation("region");
                 });
@@ -228,6 +263,11 @@ namespace GuacAPI.Migrations
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Furnisher", b =>
+                {
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("GuacAPI.Models.Millesime", b =>
                 {
                     b.Navigation("Products");
                 });
