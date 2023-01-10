@@ -21,9 +21,6 @@ class ProductEntityConfiguration : IEntityTypeConfiguration<Product>
          builder.HasOne(item => item.region)
          .WithMany(item => item.Products);
 
-         builder.HasOne(item => item.millesime)
-         .WithMany(item => item.Products);
-
          builder.HasOne(item => item.alcoholType)
          .WithMany(item => item.Products);
 

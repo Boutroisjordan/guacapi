@@ -6,10 +6,10 @@ using GuacAPI.Interface;
 
 namespace GuacAPI.Context;
 
-public class ProductContext : DbContext, IUnitOfWork
+public class DataContext : DbContext
 {
     #region Constructor
-     public ProductContext(DbContextOptions<ProductContext> options) : base(options)
+     public DataContext(DbContextOptions<DataContext> options) : base(options)
      {
 
      }
@@ -22,15 +22,10 @@ public class ProductContext : DbContext, IUnitOfWork
         modelBuilder.ApplyConfiguration(new ProductEntityConfiguration());
     }
 
-    public  IUnitOfWork SaveChnages()
-    {
-        throw new NotImplementedException();
-    }
 
     public DbSet<Product> Products {get; set;} = null!;
     public DbSet<Furnisher> Furnishers {get; set;} = null!;
     public DbSet<Domain> Domains {get; set;} = null!;
-    public DbSet<Millesime> Millesimes {get; set;} = null!;
     public DbSet<Region> Regions {get; set;} = null!;
     public DbSet<AlcoholType> AlcoholTypes {get; set;} = null!;
     public DbSet<Appellation> Appellations {get; set;} = null!;
