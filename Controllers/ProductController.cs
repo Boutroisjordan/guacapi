@@ -3,7 +3,7 @@ using GuacAPI.Context;
 using Microsoft.AspNetCore.Mvc;
 using GuacAPI.Services;
 
-using GuacAPI.DTOs;
+
 namespace GuacAPI.Controllers;
 
 [Route("[controller]")]
@@ -61,11 +61,11 @@ public class ProductController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult AddOne(Product request)
+    public async Task<IActionResult> AddOne(Product request)
     {
         IActionResult result = this.BadRequest();
 
-        Product addProduct = this._productService.AddProduct(new Product()
+        var addedProduct = await _productService.AddProduct(new Product()
         {
             Name = request.Name,
             Price = request.Price,
@@ -80,32 +80,43 @@ public class ProductController : ControllerBase
             AppellationId = request.AppellationId,
 
 
-            //  DomainId = dto.DomainId
         });
 
 
-        if (addProduct != null)
-        {
-            request.ProductId = addProduct.ProductId;
-            result = this.Ok(result);
-        }
+        // if (addedProduct != null)
+        // {
+        //     request.ProductId = addedProduct.ProductId;
+        //     result = this.Ok(result);
+        // }
 
-        // this._repository.UnitOfWork.SaveChanges();
-        this._productService.SaveChanges();
+        // // this._repository.UnitOfWork.SaveChanges();
+        // this._productService.SaveChanges();
 
-        return this.Ok(result);
+        return this.Ok(addedProduct);
     }
 
     [HttpPut]
     [Route("{id}")]
 
-    public IActionResult UpdateProduct(int id, Product request)
+    public async Task<IActionResult> UpdateProduct(int id, Product request)
     {
-        Product? updatedProduct = this._productService.UpdateProduct(id, request);
+        var updatedProduct = await _productService.UpdateProduct(id, request);
 
+        if(updatedProduct == null) {
+            BadRequest();
+        }
 
         this._productService.SaveChanges();
         return Ok(updatedProduct);
     }
+
+     [HttpDelete]
+     [Route("{id}")]
+     public async Task<IActionResult> DeleteProduct(int id)
+     {
+         var productList =  await this._productService.DeleteProduct(id);
+
+         return Ok(productList);
+     }
 }
 

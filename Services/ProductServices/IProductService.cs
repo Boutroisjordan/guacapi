@@ -12,9 +12,13 @@ public interface IProductService
 
     ICollection<Product> GetAllProducts();
     Product? GetOne(int id);
-    Product AddProduct(Product item);
-    Product? UpdateProduct(int id, Product product);
+    Task<List<Product>> AddProduct(Product item);
+    Task<Product?> UpdateProduct(int id, Product product);
+    // ICollection<Product>? DeleteProduct(int id);
+    Task<List<Product>?> DeleteProduct(int id);
     void SaveChanges();
+
+
 
     // Task<List<Product>> GetAllProducts();
     

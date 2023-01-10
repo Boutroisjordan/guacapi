@@ -3,7 +3,7 @@ using GuacAPI.Context;
 using Microsoft.AspNetCore.Mvc;
 using GuacAPI.Services;
 
-using GuacAPI.DTOs;
+
 namespace GuacAPI.Controllers;
 
 [Route("[controller]")]

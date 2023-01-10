@@ -1,5 +1,6 @@
 using GuacAPI.Models;
 using GuacAPI.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace GuacAPI.Services;
 
@@ -15,13 +16,6 @@ public class ProductService : IProductService
         this._context = context;
     }
 
-    // public async Task<List<Product>> GetAllProducts()
-    // {
-    //     //var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
-    //     // var query = from Product in this._context.Products
-    //         var products = await _context.Products;
-    //         return products ;
-    // }
     public ICollection<Product> GetAllProducts()
     {
         //var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
@@ -41,20 +35,24 @@ public class ProductService : IProductService
 
      }
 
-     public Product AddProduct(Product product)
+     public async Task<List<Product>> AddProduct(Product product)
      {
     //    this._context.Products.Add(product);
     //     _context.SaveChanges();
-        return  this._context.Products.Add(product).Entity;
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync();
+
+        return await _context.Products.ToListAsync();
      }
 
     public void SaveChanges() {
         this._context.SaveChanges();
     }
-     public Product? UpdateProduct(int id, Product request)
+
+     public async Task<Product?> UpdateProduct(int id, Product request)
      {
 
-        var product =  this._context.Products.Find(id);
+        var product = await _context.Products.FindAsync(id);
 
         if(product != null) {
 
@@ -77,50 +75,18 @@ public class ProductService : IProductService
 
         return null;
      }
-    // public Product AddOne()
-    // {
-    //     //var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
-    //     // var query = from Product in this._context.Products
-    //         var products =  _context.Products.ToList();
-    //         return products;
-    // }
 
-        // public List<Product> DeleteBook(int id)
-        // {
-        //     var product = products.Find(x => x.Id == id);
-        //     if (product is null)
-        //         return null;
+         public async Task<List<Product>?> DeleteProduct(int id)
+         {
+             var product =  await _context.Products.FindAsync(id);
+             if (product is null)
+                 return null;
 
-        //     productss.Remove(product);
+             _context.Products.Remove(product);
 
-        //     return products;
-        // }
+             await _context.SaveChangesAsync();
 
-        // public List<Product> GetAllProducts()
-        // {
-        //     return products;
-        // }
-
-        // public Product? GetProduct(int id)
-        // {
-        //     var product = products.Find(x => x.ProductId == id);
-        //     if (product is null)
-        //         return null;
-
-        //     return product;
-        // }
-
-        // public List<Product> UpdateBook(int id, Product request)
-        // {
-        //     var product = products.Find(x => x.Id == id);
-        //     if (product is null)
-        //         return null;
-
-        //     product.Author = request.Author;
-        //     product.Title = request.Title;
-        //     product.Category = request.Category;
-        //     product.Year = request.Year;
-
-        //     return products;
-        // }
+             return _context.Products.ToList();
+         }
+    
 }
