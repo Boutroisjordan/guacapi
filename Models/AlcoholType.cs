@@ -1,7 +1,7 @@
 namespace GuacAPI.Models;
 using System.Text.Json.Serialization;
 
-// Répresente une bouteille de vin
+// la couleur du vin (rouge, blanc etc)
 public class AlcoholType
 {
     #region Properties

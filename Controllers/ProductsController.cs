@@ -23,7 +23,18 @@ public class ProductsController : ControllerBase
 
     #region Public methods
     [HttpGet]
-    public IActionResult GetAll([FromQuery] int furnisherId)
+    public IActionResult GetAll()
+    {
+        // var model = Enumerable.Range(1,10).Select(item => new Product() {ProductId = item});
+        // return this.Ok(model);
+
+        var productsList = this._repository.GetAll();
+
+        // var model = productsList.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId});
+        var model = productsList.Select(item => new ProductDto() { Name = item.Name, Price = item.Price, Category = item.Category, Reference = item.Reference, FurnisherId = item.FurnisherId});
+        return this.Ok(model);
+    }
+    public IActionResult GetOne([FromQuery] int furnisherId)
     {
         // var model = Enumerable.Range(1,10).Select(item => new Product() {ProductId = item});
         // return this.Ok(model);
@@ -63,7 +74,7 @@ public class ProductsController : ControllerBase
 
     // [Route("api/[controller]/{id}")]
     //GET: api/Products
-    /*[HttpGet]
+   /* [HttpGet]
     public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
     {
         if (_dbContext.Products == null)
@@ -71,17 +82,17 @@ public class ProductsController : ControllerBase
             return NotFound();
         }
         return await _dbContext.Products.ToListAsync();
-    }
+    }*/
 
     //GET: api/Products/5
-    [HttpGet("{id}")]
+   /* [HttpGet("{id}")]
     public async Task<ActionResult<Product>> GetProduct(int id)
     {
-        if (_dbContext == null)
+        if (_repository == null)
         {
             return NotFound();
         }
-        var product = await _dbContext.Products.FindAsync(id);
+        var product = await _repository.Products.FindAsync(id);
 
         if (product == null)
         {

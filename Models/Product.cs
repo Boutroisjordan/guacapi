@@ -23,7 +23,7 @@ public class Product
     public Millesime? millesime;
     public int AlcoholTypeId {get; set;}
     public AlcoholType? alcoholType;
-    public int Appellationd {get; set;}
+    public int AppellationId {get; set;}
     public Appellation? appellation;
 
     #endregion
