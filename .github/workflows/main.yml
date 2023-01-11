@@ -26,13 +26,11 @@ jobs:
         script: |
           # Stop the systemd service
           sudo systemctl stop guacapi.service
-          # move to the application folder
-          cd /guacapi
           # Update the code
-          git pull origin main
+          sudo git pull
           # rebuild the application
-          dotnet build --configuration Release
+          sudo dotnet build --configuration Release
           # republish the application
-          dotnet publish
+          sudo dotnet publish
           # restart the application 
           sudo systemctl start guacapi.service
