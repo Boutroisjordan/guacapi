@@ -2,7 +2,7 @@ using GuacAPI.Models;
 using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace GuacAPI.Services.AppellationServices;
+namespace GuacAPI.Services;
 
 public class AppellationService : IAppellationService
 {
@@ -18,83 +18,84 @@ public class AppellationService : IAppellationService
         this._context = context;
     }
 
-    public async Task<ICollection<Appellation>> GetAppellations()
+    public async Task<List<Appellation>?> GetAppellations()
     {
-        //var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
-        // var query = from Product in this._context.Products
         var appellations = await _context.Appellations.ToListAsync();
+
+
         return appellations;
     }
 
-    public async Task<Appellation> GetAppellationById(int id)
+    public async Task<Appellation?> GetAppellationById(int id)
     {
         var appellationByid = await _context.Appellations.Include(p => p.Products).Where(a => a.AppellationId == id)
             .FirstOrDefaultAsync();
         if (appellationByid == null)
         {
-            throw new Exception("Alcohol not found");
+            return null;
+            // throw new Exception("Alcohol not found");
         }
 
         return appellationByid;
     }
 
-    public async Task<Appellation> GetAppellationByName(string name)
+    public async Task<Appellation?> GetAppellationByName(string name)
     {
         var appelationName = await _context.Appellations.FirstOrDefaultAsync(a => a.Name == name);
         if (appelationName == null)
         {
-            throw new Exception("Alcohol not found");
+            return null;
+            // throw new Exception("Alcohol not found");
         }
 
         return appelationName;
     }
 
-    public async Task<Appellation> CreateAppellation(Appellation appellation)
+    public async Task<Appellation?> CreateAppellation(Appellation appellation)
     {
         if (appellation is null)
         {
-            throw new ArgumentNullException(nameof(appellation));
+            return null;
+            // throw new ArgumentNullException(nameof(appellation));
         }
 
-        _context.Appellations.Add(appellation);
+        var addedAppellation = _context.Appellations.Add(appellation).Entity;
         await _context.SaveChangesAsync();
-        return appellation;
+        return addedAppellation;
     }
 
 
-    public async Task<Appellation> UpdateAppellation(int id, Appellation request)
+    public async Task<Appellation?> UpdateAppellation(int id, Appellation request)
     {
-        return await Task.Run(() =>
-        {
+        // return await Task.Run(() =>
+        // {
             var appellation = _context.Appellations.Find(id);
             if (appellation == null)
             {
-                throw new ArgumentException("Alcohol not found");
+                return null;
+                // throw new ArgumentException("Alcohol not found");
             }
 
             appellation.Name = request.Name;
+            await _context.SaveChangesAsync();
             return appellation;
-        });
+        // });
     }
 
-    public async Task<Appellation> DeleteAppellation(int id)
+    public async Task<Appellation?> DeleteAppellation(int id)
     {
-        return await Task.Run(() =>
-        {
-            var appellation = _context.Appellations.Find(id);
+        // return await Task.Run(() =>
+        // {
+            var appellation = await _context.Appellations.FindAsync(id);
             if (appellation == null)
             {
                 throw new ArgumentException("Alcohol not found");
             }
 
             _context.Appellations.Remove(appellation);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return appellation;
-        });
+        // });
     }
 
-    public void SaveChanges()
-    {
-        _context.SaveChanges();
-    }
 }

@@ -33,7 +33,7 @@ public class FurnisherController : ControllerBase
     }
 
     [HttpGet]
-    [Route("{id}}")]
+    [Route("{id}")]
     public IActionResult GetFurnisherById(int id)
     {
         if (id <= 0)
@@ -60,7 +60,7 @@ public class FurnisherController : ControllerBase
     public IActionResult CreateFurnisher(Furnisher furnisher)
     {
         var createFurnisher = this._furnisherService.CreateFurnisher(furnisher);
-        return Created("Furnisher Created", createFurnisher);
+        return Ok(createFurnisher);
     }
 
     [HttpPut]

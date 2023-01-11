@@ -41,7 +41,7 @@ public class DomainController : ControllerBase
     }
 
     [HttpGet]
-    [Route("ByName/{id}")]
+    [Route("{name}")]
     public IActionResult GetDomainByName(string name)
     {
         var domain = this._domainService.GetDomainByName(name);

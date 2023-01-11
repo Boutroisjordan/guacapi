@@ -2,7 +2,7 @@ using GuacAPI.Models;
 using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace GuacAPI.Services.AlcoholServices;
+namespace GuacAPI.Services;
 
 public class AlcoholService : IAlcoholService
 {
@@ -18,17 +18,9 @@ public class AlcoholService : IAlcoholService
         this._context = context;
     }
 
-    // public async Task<List<Product>> GetAllProducts()
-    // {
-    //     //var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
-    //     // var query = from Product in this._context.Products
-    //         var products = await _context.Products;
-    //         return products ;
-    // }
-    public async Task<ICollection<AlcoholType>> GetAllTypes()
+
+    public async Task<List<AlcoholType>?> GetAllTypes()
     {
-        //var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
-        // var query = from Product in this._context.Products
         var alcohol = await _context.AlcoholTypes.ToListAsync();
         return alcohol;
     }
@@ -56,52 +48,50 @@ public class AlcoholService : IAlcoholService
         return alcoholName;
     }
 
-    public async Task<AlcoholType> AddAlcoholType(AlcoholType alcohol)
+    public async Task<AlcoholType?> AddAlcoholType(AlcoholType alcohol)
     {
         if (alcohol is null)
         {
-            throw new ArgumentNullException(nameof(alcohol));
+            return null;
         }
 
-        _context.AlcoholTypes.Add(alcohol);
+        var addedAlcohol = _context.AlcoholTypes.Add(alcohol).Entity;
         await _context.SaveChangesAsync();
-        return alcohol;
+        return addedAlcohol;
     }
 
-    public async Task<AlcoholType> UpdateAlcoholType(int id, AlcoholType request)
+    public async Task<AlcoholType?> UpdateAlcoholType(int id, AlcoholType request)
     {
-        return await Task.Run(() =>
-        {
-            var alcohol = _context.AlcoholTypes.Find(id);
+
+        // return await Task.Run(() =>
+        // {}
+            var alcohol = await _context.AlcoholTypes.FindAsync(id);
             if (alcohol == null)
             {
-                throw new ArgumentException("Alcohol not found");
+                return null;
             }
 
             alcohol.label = request.label;
-            alcohol.AlcoholTypeId = request.AlcoholTypeId;
+            // alcohol.AlcoholTypeId = request.AlcoholTypeId;
+            await _context.SaveChangesAsync();
             return alcohol;
-        });
     }
 
-    public async Task<AlcoholType> DeleteAlcoholType(int id)
+    public async Task<AlcoholType?> DeleteAlcoholType(int id)
     {
-        return await Task.Run(() =>
-        {
-            var alcohol = _context.AlcoholTypes.Find(id);
+        // return await Task.Run(() =>
+        // {
+            var alcohol = await _context.AlcoholTypes.FindAsync(id);
             if (alcohol == null)
             {
-                throw new ArgumentException("Alcohol not found");
+                return null;
+                // throw new ArgumentException("Alcohol not found");
+
             }
 
             _context.AlcoholTypes.Remove(alcohol);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return alcohol;
-        });
-    }
-
-    public void SaveChanges()
-    {
-        _context.SaveChanges();
+        // });
     }
 }

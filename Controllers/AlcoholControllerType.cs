@@ -27,70 +27,84 @@ public class AlcoholControllerType : ControllerBase
     #region methods
 
     [HttpGet]
-    public ActionResult<AlcoholType> GetAllTypes()
+    public async Task<IActionResult> GetAllTypes()
     {
-        var types = _alcoholService.GetAllTypes();
+        var types = await _alcoholService.GetAllTypes();
+
+        if(types == null) {
+            return BadRequest();
+        } else if(types.Count == 0) {
+            return NoContent();
+        }
 
         return Ok(types);
     }
 
     [HttpGet]
     [Route("{id}")]
-    public ActionResult<AlcoholType> GetAlcoholTypeById(int id)
+    public async Task<IActionResult> GetAlcoholTypeById(int id)
     {
         if (id <= 0)
         {
             return BadRequest("Id must be greater than 0");
         }
 
-        var type = _alcoholService.GetAlcoholTypeById(id);
+        var type = await _alcoholService.GetAlcoholTypeById(id);
         return Ok(type);
     }
 
     [HttpGet]
-    [Route("ByLabel/{label}")]
-    public ActionResult<AlcoholType> GetAlcoholByLabel(string label)
+    [Route("GetByLabel/{label}")]
+    public async Task<IActionResult> GetAlcoholByLabel(string label)
     {
         if (label == "")
         {
             return BadRequest("Label cannot be empty");
         }
 
-        var typeLabel = _alcoholService.GetAlcoholByLabel(label);
+        var typeLabel = await _alcoholService.GetAlcoholByLabel(label);
         return Ok(typeLabel);
     }
 
     [HttpPost]
-    [Route("{id}")]
-    public ActionResult<AlcoholType> AddAlcoholType(AlcoholType type)
+    public async Task<IActionResult> AddAlcoholType(AlcoholType type)
     {
-        var addAlcohol = _alcoholService.AddAlcoholType(type);
-        return Created($"/api/alcohol/{type.AlcoholTypeId}", addAlcohol);
+        var addAlcohol = await _alcoholService.AddAlcoholType(type);
+
+        if(addAlcohol == null) {
+            return BadRequest();
+        }
+        return Ok(addAlcohol);
     }
 
     [HttpPut]
     [Route("{id}")]
-    public ActionResult<AlcoholType> UpdateAlcoholType(int id, AlcoholType type)
+    public async Task<IActionResult> UpdateAlcoholType(int id, AlcoholType type)
     {
         if (id <= 0)
         {
             return BadRequest("Id must be greater than 0");
         }
 
-        var updateAlcohol = _alcoholService.UpdateAlcoholType(id, type);
+        var updateAlcohol = await _alcoholService.UpdateAlcoholType(id, type);
+
+        if(updateAlcohol == null) {
+            return BadRequest();
+        }
+
         return Ok(updateAlcohol);
     }
 
     [HttpDelete]
     [Route("{id}")]
-    public ActionResult<AlcoholType> DeleteAlcoholType(int id)
+    public async Task<IActionResult> DeleteAlcoholType(int id)
     {
         if (id <= 0)
         {
             return BadRequest("Id must be greater than 0");
         }
 
-        var deletAlcohol = _alcoholService.DeleteAlcoholType(id);
+        var deletAlcohol = await _alcoholService.DeleteAlcoholType(id);
         return Ok(deletAlcohol);
     }
 

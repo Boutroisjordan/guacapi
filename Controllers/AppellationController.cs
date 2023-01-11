@@ -26,50 +26,77 @@ public class AppellationController : ControllerBase
     #region Methods
 
     [HttpGet]
-    [Route("{id}")]
-    public IActionResult GetAppellations()
+    public async Task<IActionResult> GetAppellations()
     {
-        var result = _appellationService.GetAppellations();
+        var result = await _appellationService.GetAppellations();
+
+        if(result == null)
+        {
+            return BadRequest();
+        } else if (result.Count == 0) {
+            return NoContent();
+        }
         return Ok(result);
     }
 
     [HttpGet]
     [Route("{id}")]
-    public IActionResult GetAppellationById(int id)
+    public async Task<IActionResult> GetAppellationById(int id)
     {
-        var result = _appellationService.GetAppellationById(id);
+        var result = await _appellationService.GetAppellationById(id);
+
+        if(result == null)
+        {
+            return BadRequest();
+        }
         return Ok(result);
     }
 
     [HttpGet]
-    [Route("ByName/{id}")]
-    public IActionResult GetAppellationByName(string name)
+    [Route("GetByName/{name}")]
+    public async Task<IActionResult> GetAppellationByName(string name)
     {
-        var result = _appellationService.GetAppellationByName(name);
+        var result = await _appellationService.GetAppellationByName(name);
+
+        if(result == null) {
+            return BadRequest();
+        }
         return Ok(result);
     }
 
     [HttpPost]
-    [Route("{id}")]
-    public IActionResult CreateAppellation(Appellation appellation)
+    public async Task<IActionResult> CreateAppellation(Appellation appellation)
     {
-        var result = _appellationService.CreateAppellation(appellation);
+        var result = await _appellationService.CreateAppellation(appellation);
+
+        if(result == null) {
+            return BadRequest();
+        }
+
         return Ok(result);
     }
 
     [HttpPut]
     [Route("{id}")]
-    public IActionResult UpdateAppellation(int id, Appellation appellation)
+    public async Task<IActionResult> UpdateAppellation(int id, Appellation appellation)
     {
-        var result = _appellationService.UpdateAppellation(id, appellation);
+        var result = await _appellationService.UpdateAppellation(id, appellation);
+
+        if(result == null) {
+            return BadRequest();
+        }
         return Ok(result);
     }
 
     [HttpDelete]
     [Route("{id}")]
-    public IActionResult DeleteAppellation(int id)
+    public async Task<IActionResult> DeleteAppellation(int id)
     {
-        var result = _appellationService.DeleteAppellation(id);
+        var result = await _appellationService.DeleteAppellation(id);
+
+        if(result == null) {
+            return BadRequest();
+        }
         return Ok(result);
     }
 

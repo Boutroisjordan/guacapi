@@ -28,6 +28,8 @@ public class ProductController : ControllerBase
         if (productList == null) 
         {
             return BadRequest();
+        } else if (productList.Count == 0) {
+            return NoContent();
         }
          return Ok(productList);
     }
