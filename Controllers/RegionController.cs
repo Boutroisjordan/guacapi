@@ -29,10 +29,14 @@ public class RegionController : ControllerBase
     public async Task<IActionResult> GetAllFunishers()
     {
         var regionList = await _regionService.GetAllRegions();
-    if(regionList == null)
-     {
-        return BadRequest();
-     }
+        if (regionList == null)
+        {
+            return BadRequest();
+        }
+        else if (regionList.Count == 0)
+        {
+            return NoContent();
+        }
         return Ok(regionList);
     }
 
@@ -42,10 +46,10 @@ public class RegionController : ControllerBase
     {
         var region = await _regionService.GetOne(id);
 
-        if(region == null)
+        if (region == null)
         {
             return BadRequest();
-        }  
+        }
         return this.Ok(region);
     }
 
@@ -59,10 +63,10 @@ public class RegionController : ControllerBase
             Name = request.Name
         });
 
-        if(addedRegion == null)
+        if (addedRegion == null)
         {
             return BadRequest();
-        }  
+        }
         return Ok(addedRegion);
     }
 
@@ -87,10 +91,10 @@ public class RegionController : ControllerBase
     {
         var regionList = await this._regionService.DeleteRegion(id);
 
-        if(regionList == null)
+        if (regionList == null)
         {
             return BadRequest();
-        }  
+        }
 
         return Ok(regionList);
     }

@@ -19,14 +19,4 @@ public interface IDomainService
     Task<Domain?> UpdateDomain(int id, Domain domain);
     Task<Domain?> DeleteDomain(int id);
 
-    void SaveChanges();
-
-    //  Product? GetOne(int id);
-    //  Product AddOne(Product item);
-    // Task<List<Product>> GetAllProducts();
-
-    // Product? GetProduct(int id);
-    // List<Product> AddProduct(Product product);
-    // List<Product> UpdateProduct(int id, Product request);
-    // List<Product> DeleteProduct(int id);
 }
