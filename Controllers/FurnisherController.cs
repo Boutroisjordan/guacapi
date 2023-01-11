@@ -3,47 +3,76 @@ using GuacAPI.Context;
 using Microsoft.AspNetCore.Mvc;
 using GuacAPI.Services;
 
-
 namespace GuacAPI.Controllers;
 
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 public class FurnisherController : ControllerBase
 {
     #region Fields
-        private IFurnisherService _furnisherService;
+
+    private IFurnisherService _furnisherService;
+
     #endregion
 
     #region Constructors
+
     public FurnisherController(IFurnisherService furnisherService)
     {
         this._furnisherService = furnisherService;
     }
+
     #endregion
 
 
-    [HttpGet]
-        public IActionResult GetAllFunishers()
+    [HttpGet("[controller]")]
+    public IActionResult GetAllFunishers()
+    {
+        var furnisherList = this._furnisherService.GetAllFurnishers();
+        return Ok(furnisherList);
+    }
+
+    [HttpGet("[controller]/{id}")]
+    public IActionResult GetFurnisherById(int id)
+    {
+        if (id <= 0)
         {
-            var furnisherList = this._furnisherService.GetAllFurnishers();
-            return Ok(furnisherList);
+            return BadRequest("Id must be greater than 0");
         }
 
-        //  public ActionResult<Product> GetOne(int id)
-        //  {
-        //      var product = _productService.GetOne(id);
-        //      return Ok(product);
-        //  }
+        var furnisher = this._furnisherService.GetFurnisherById(id);
+        return Ok(furnisher);
+    }
 
-    
-      /*  [HttpGet]
-        [Route("{id}")]
-         public IActionResult GetOneProduct(int id)
-         {
+    [HttpGet("[controller]/{name}")]
+    public IActionResult GetFurnisherByName(string name)
+    {
+        if (name == "")
+            return BadRequest("Name must be not empty");
+        var furnisher = this._furnisherService.GetFurnisherByName(name);
+        return Ok(furnisher);
+    }
 
-            var product = _productService.GetOne(id);
+    [HttpPost("[controller]")]
+    public IActionResult CreateFurnisher(Furnisher furnisher)
+    {
+        var createFurnisher = this._furnisherService.CreateFurnisher(furnisher);
+        return Created("Furnisher Created", createFurnisher);
+    }
 
-            return this.Ok(product);
-         } */
+    [HttpPut("[controller]/{id}")]
+    public IActionResult UpdateFurnisher(int id, Furnisher furnisher)
+    {
+        if (id <= 0) return BadRequest("Id must be greater than 0");
+        var updateFurnisher = this._furnisherService.UpdateFurnisher(id, furnisher);
+        return Ok(updateFurnisher);
+    }
+
+    [HttpDelete("[controller]/{id}")]
+    public IActionResult DeleteFurnisher(int id)
+    {
+        if (id <= 0) return BadRequest("Id must be greater than 0");
+        var deleteFurnisher = this._furnisherService.DeleteFurnisher(id);
+        return Ok(deleteFurnisher);
+    }
 }
-

@@ -3,10 +3,9 @@ using GuacAPI.Context;
 using Microsoft.AspNetCore.Mvc;
 using GuacAPI.Services;
 
-
 namespace GuacAPI.Controllers;
 
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 public class ProductController : ControllerBase
 {
@@ -23,7 +22,7 @@ public class ProductController : ControllerBase
 
 
     [HttpGet]
-    public async Task<IActionResult> GetAllProducts()
+     public async Task<IActionResult> GetAllProducts()
     {
         var productList = await _productService.GetAllProducts();
         if (productList == null) 
@@ -46,7 +45,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddOne(Product request)
+  public async Task<IActionResult> AddOne(Product request)
     {
 
         var addedProduct = await _productService.AddProduct(request);
@@ -72,8 +71,7 @@ public class ProductController : ControllerBase
 
         return Ok(updatedProduct);
     }
-
-     [HttpDelete]
+         [HttpDelete]
      [Route("{id}")]
      public async Task<IActionResult> DeleteProduct(int id)
      {
