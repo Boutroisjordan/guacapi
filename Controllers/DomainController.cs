@@ -5,7 +5,7 @@ using GuacAPI.Services;
 
 namespace GuacAPI.Controllers;
 
-[Route("/api/")]
+[Route("[controller]")]
 [ApiController]
 public class DomainController : ControllerBase
 {
@@ -25,7 +25,7 @@ public class DomainController : ControllerBase
     #endregion
 
 
-    [HttpGet("GetAllDomains")]
+    [HttpGet]
     public IActionResult GetAllDomains()
     {
         var domainList = this._domainService.GetAllDomains();

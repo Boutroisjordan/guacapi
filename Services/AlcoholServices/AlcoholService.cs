@@ -2,7 +2,7 @@ using GuacAPI.Models;
 using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace GuacAPI.Services;
+namespace GuacAPI.Services.AlcoholServices;
 
 public class AlcoholService : IAlcoholService
 {
@@ -35,7 +35,8 @@ public class AlcoholService : IAlcoholService
 
     public async Task<AlcoholType> GetAlcoholTypeById(int id)
     {
-        var alcoholById = await _context.AlcoholTypes.FindAsync(id);
+        var alcoholById = await _context.AlcoholTypes.Include(p => p.Products).Where(a => a.AlcoholTypeId == id)
+            .FirstOrDefaultAsync();
         if (alcoholById == null)
         {
             throw new Exception("Alcohol not found");
