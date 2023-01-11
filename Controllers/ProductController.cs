@@ -5,7 +5,7 @@ using GuacAPI.Services;
 
 namespace GuacAPI.Controllers;
 
-[Route("api/[controller]")]
+[Route("[controller]")]
 [ApiController]
 public class ProductController : ControllerBase
 {

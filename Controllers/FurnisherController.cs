@@ -5,7 +5,7 @@ using GuacAPI.Services;
 
 namespace GuacAPI.Controllers;
 
-[Route("api/[controller]")]
+[Route("[controller]")]
 [ApiController]
 public class FurnisherController : ControllerBase
 {
@@ -25,14 +25,15 @@ public class FurnisherController : ControllerBase
     #endregion
 
 
-    [HttpGet("[controller]")]
+    [HttpGet]
     public IActionResult GetAllFunishers()
     {
         var furnisherList = this._furnisherService.GetAllFurnishers();
         return Ok(furnisherList);
     }
 
-    [HttpGet("[controller]/{id}")]
+    [HttpGet]
+    [Route("{id}}")]
     public IActionResult GetFurnisherById(int id)
     {
         if (id <= 0)
@@ -44,7 +45,8 @@ public class FurnisherController : ControllerBase
         return Ok(furnisher);
     }
 
-    [HttpGet("[controller]/{name}")]
+    [HttpGet]
+    [Route("ByName/{name}")]
     public IActionResult GetFurnisherByName(string name)
     {
         if (name == "")
@@ -53,14 +55,16 @@ public class FurnisherController : ControllerBase
         return Ok(furnisher);
     }
 
-    [HttpPost("[controller]")]
+    [HttpPost]
+
     public IActionResult CreateFurnisher(Furnisher furnisher)
     {
         var createFurnisher = this._furnisherService.CreateFurnisher(furnisher);
         return Created("Furnisher Created", createFurnisher);
     }
 
-    [HttpPut("[controller]/{id}")]
+    [HttpPut]
+    [Route("{id}")]
     public IActionResult UpdateFurnisher(int id, Furnisher furnisher)
     {
         if (id <= 0) return BadRequest("Id must be greater than 0");
@@ -68,7 +72,8 @@ public class FurnisherController : ControllerBase
         return Ok(updateFurnisher);
     }
 
-    [HttpDelete("[controller]/{id}")]
+    [HttpDelete]
+    [Route("{id}")]
     public IActionResult DeleteFurnisher(int id)
     {
         if (id <= 0) return BadRequest("Id must be greater than 0");

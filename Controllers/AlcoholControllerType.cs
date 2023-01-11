@@ -5,9 +5,9 @@ namespace GuacAPI.Controllers;
 
 using GuacAPI.Services;
 
-[Route("api/[controller]")]
+[Route("[controller]")]
 [ApiController]
-public class AlcoholController : ControllerBase
+public class AlcoholControllerType : ControllerBase
 {
     #region Fields
 
@@ -17,7 +17,7 @@ public class AlcoholController : ControllerBase
 
     #region Constructor
 
-    public AlcoholController(IAlcoholService alcoholService)
+    public AlcoholControllerType(IAlcoholService alcoholService)
     {
         _alcoholService = alcoholService;
     }
@@ -26,7 +26,7 @@ public class AlcoholController : ControllerBase
 
     #region methods
 
-    [HttpGet("GetAllAlcoholTypes")]
+    [HttpGet]
     public ActionResult<AlcoholType> GetAllTypes()
     {
         var types = _alcoholService.GetAllTypes();
@@ -34,7 +34,8 @@ public class AlcoholController : ControllerBase
         return Ok(types);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet]
+    [Route("{id}")]
     public ActionResult<AlcoholType> GetAlcoholTypeById(int id)
     {
         if (id <= 0)
@@ -46,7 +47,8 @@ public class AlcoholController : ControllerBase
         return Ok(type);
     }
 
-    [HttpGet("{label}")]
+    [HttpGet]
+    [Route("ByLabel/{label}")]
     public ActionResult<AlcoholType> GetAlcoholByLabel(string label)
     {
         if (label == "")
@@ -58,14 +60,16 @@ public class AlcoholController : ControllerBase
         return Ok(typeLabel);
     }
 
-    [HttpPost("addAlcoholType")]
+    [HttpPost]
+    [Route("{id}")]
     public ActionResult<AlcoholType> AddAlcoholType(AlcoholType type)
     {
         var addAlcohol = _alcoholService.AddAlcoholType(type);
         return Created($"/api/alcohol/{type.AlcoholTypeId}", addAlcohol);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut]
+    [Route("{id}")]
     public ActionResult<AlcoholType> UpdateAlcoholType(int id, AlcoholType type)
     {
         if (id <= 0)
@@ -77,7 +81,8 @@ public class AlcoholController : ControllerBase
         return Ok(updateAlcohol);
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete]
+    [Route("{id}")]
     public ActionResult<AlcoholType> DeleteAlcoholType(int id)
     {
         if (id <= 0)

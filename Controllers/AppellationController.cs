@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GuacAPI.Controllers;
 
-[Route("api/[controller]")]
+[Route("[controller]")]
 [ApiController]
 public class AppellationController : ControllerBase
 {
@@ -25,42 +25,48 @@ public class AppellationController : ControllerBase
 
     #region Methods
 
-    [HttpGet("GetAllAppellations")]
+    [HttpGet]
+    [Route("{id}")]
     public IActionResult GetAppellations()
     {
         var result = _appellationService.GetAppellations();
         return Ok(result);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet]
+    [Route("{id}")]
     public IActionResult GetAppellationById(int id)
     {
         var result = _appellationService.GetAppellationById(id);
         return Ok(result);
     }
 
-    [HttpGet("{name}")]
+    [HttpGet]
+    [Route("ByName/{id}")]
     public IActionResult GetAppellationByName(string name)
     {
         var result = _appellationService.GetAppellationByName(name);
         return Ok(result);
     }
 
-    [HttpPost("AddAppellation")]
+    [HttpPost]
+    [Route("{id}")]
     public IActionResult CreateAppellation(Appellation appellation)
     {
         var result = _appellationService.CreateAppellation(appellation);
         return Ok(result);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut]
+    [Route("{id}")]
     public IActionResult UpdateAppellation(int id, Appellation appellation)
     {
         var result = _appellationService.UpdateAppellation(id, appellation);
         return Ok(result);
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete]
+    [Route("{id}")]
     public IActionResult DeleteAppellation(int id)
     {
         var result = _appellationService.DeleteAppellation(id);

@@ -32,21 +32,24 @@ public class DomainController : ControllerBase
         return Ok(domainList);
     }
 
-    [HttpGet("[controller]/{id}")]
+    [HttpGet]
+    [Route("{id}")]
     public IActionResult GetDomainById(int id)
     {
         var domain = this._domainService.GetDomainById(id);
         return Ok(domain);
     }
 
-    [HttpGet("[controller]/{name}")]
+    [HttpGet]
+    [Route("ByName/{id}")]
     public IActionResult GetDomainByName(string name)
     {
         var domain = this._domainService.GetDomainByName(name);
         return Ok(domain);
     }
 
-    [HttpPost("[controller]/domain")]
+    [HttpPost]
+     [Route("{id}")]
     public IActionResult AddDomain(Domain request)
     {
         IActionResult response = BadRequest();
@@ -61,7 +64,8 @@ public class DomainController : ControllerBase
         return response;
     }
 
-    [HttpPut("[controller]/{id}")]
+    [HttpPut]
+    [Route("{id}")]
     public IActionResult UpdateDomain(int id, Domain request)
     {
         IActionResult response = BadRequest();
@@ -76,7 +80,8 @@ public class DomainController : ControllerBase
         return response;
     }
 
-    [HttpDelete("[controller]/{id}")]
+    [HttpDelete]
+    [Route("{id}")]
     public IActionResult DeleteDomain(int id)
     {
         IActionResult response = BadRequest();
