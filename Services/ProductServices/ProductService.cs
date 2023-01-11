@@ -16,33 +16,42 @@ public class ProductService : IProductService
         this._context = context;
     }
 
-    public ICollection<Product> GetAllProducts()
+    public async Task<List<Product>?> GetAllProducts()
     {
-        //var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
-        // var query = from Product in this._context.Products
-            var products =  _context.Products.ToList();
+            var products =  await _context.Products.ToListAsync();
             return products;
     }
-     public Product? GetOne(int id)
+     public async Task<Product?> GetOne(int id)
      {
-        // var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
-
-              var product =  this._context.Products.Find(id);
+               var product =  await _context.Products.FindAsync(id);
               return product;
-            //  if(product == null)
-            //      return null;
-            //  return product;
-
      }
 
-     public async Task<List<Product>> AddProduct(Product product)
+     public async Task<Product> AddProduct(Product request)
      {
-    //    this._context.Products.Add(product);
-    //     _context.SaveChanges();
-        _context.Products.Add(product);
+
+        var furnisherById = await _context.Furnishers.FindAsync(request.FurnisherId);
+
+        Product addedProduct = new Product() {
+            Name = request.Name,
+            Price = request.Price,
+            Stock = request.Stock,
+            Millesime = request.Millesime,
+            AlcoholDegree = request.AlcoholDegree,
+            AlcoholTypeId = request.AlcoholTypeId,
+            Reference = request.Reference,
+            FurnisherId = request.FurnisherId,
+            DomainId = request.DomainId,
+            RegionId = request.RegionId,
+            AppellationId = request.AppellationId,
+            furnisher = furnisherById
+        };
+
+    
+        var saveProduct = _context.Products.Add(addedProduct).Entity;
         await _context.SaveChangesAsync();
 
-        return await _context.Products.ToListAsync();
+        return saveProduct;
      }
 
     public void SaveChanges() {
@@ -69,6 +78,12 @@ public class ProductService : IProductService
         product.AppellationId = request.AppellationId;
 
         product.ProductId = id;
+
+        var furnisher = await _context.Furnishers.FindAsync(request.FurnisherId);
+
+        product.furnisher = furnisher;
+
+        await _context.SaveChangesAsync();
 
         return product;
         }

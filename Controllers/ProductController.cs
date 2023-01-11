@@ -23,76 +23,40 @@ public class ProductController : ControllerBase
 
 
     [HttpGet]
-    public IActionResult GetAllProducts()
+    public async Task<IActionResult> GetAllProducts()
     {
-        var productList = this._productService.GetAllProducts();
-        return Ok(productList);
+        var productList = await _productService.GetAllProducts();
+        if (productList == null) 
+        {
+            return BadRequest();
+        }
+         return Ok(productList);
     }
-
-    //  public ActionResult<Product> GetOne(int id)
-    //  {
-    //      var product = _productService.GetOne(id);
-    //      return Ok(product);
-    //  }
-
 
     [HttpGet]
     [Route("{id}")]
-    public IActionResult GetOneProduct(int id)
+    public async Task<IActionResult> GetOneProduct(int id)
     {
+        var product = await _productService.GetOne(id);
 
-        var product = _productService.GetOne(id);
-        // var model = productsList.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId});
-        // var model = productList.Select(item => new Product() { 
-        //     Name = item.Name, 
-        //     Price = item.Price, 
-        //     alcoholType = item.alcoholType, 
-        //     Reference = item.Reference, 
-        //     Millesime = item.Millesime, 
-        //     FurnisherId = item.FurnisherId,
-        //     AppellationId = item.AppellationId,
-        //     DomainId = item.DomainId,
-        //     RegionId = item.RegionId,
-        //     AlcoholDegree = item.AlcoholDegree,
-        //     Stock = item.Stock
-        // }
-        // );
-        return this.Ok(product);
+        if(product == null) {
+            return BadRequest();
+        }
+         return Ok(product);
     }
 
     [HttpPost]
     public async Task<IActionResult> AddOne(Product request)
     {
-        IActionResult result = this.BadRequest();
 
-        var addedProduct = await _productService.AddProduct(new Product()
+        var addedProduct = await _productService.AddProduct(request);
+
+        if (addedProduct == null) 
         {
-            Name = request.Name,
-            Price = request.Price,
-            Stock = request.Stock,
-            Millesime = request.Millesime,
-            AlcoholDegree = request.AlcoholDegree,
-            AlcoholTypeId = request.AlcoholTypeId,
-            Reference = request.Reference,
-            FurnisherId = request.FurnisherId,
-            DomainId = request.DomainId,
-            RegionId = request.RegionId,
-            AppellationId = request.AppellationId,
+            return BadRequest();
+        }
 
-
-        });
-
-
-        // if (addedProduct != null)
-        // {
-        //     request.ProductId = addedProduct.ProductId;
-        //     result = this.Ok(result);
-        // }
-
-        // // this._repository.UnitOfWork.SaveChanges();
-        // this._productService.SaveChanges();
-
-        return this.Ok(addedProduct);
+        return Ok(addedProduct);
     }
 
     [HttpPut]
@@ -103,10 +67,9 @@ public class ProductController : ControllerBase
         var updatedProduct = await _productService.UpdateProduct(id, request);
 
         if(updatedProduct == null) {
-            BadRequest();
+            return BadRequest();
         }
 
-        this._productService.SaveChanges();
         return Ok(updatedProduct);
     }
 
@@ -115,6 +78,11 @@ public class ProductController : ControllerBase
      public async Task<IActionResult> DeleteProduct(int id)
      {
          var productList =  await this._productService.DeleteProduct(id);
+
+        if(productList == null) 
+        {
+            return BadRequest();
+        }
 
          return Ok(productList);
      }

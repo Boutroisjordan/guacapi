@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 public class Furnisher
 {
     #region Properties
+    
     public int FurnisherId { get; set; }
     public string? Name { get; set; }
     public string? City { get; set;}

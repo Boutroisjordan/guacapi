@@ -18,6 +18,7 @@ public static class DIMethods
             services.AddScoped<IFurnisherService, FurnisherService>();
             services.AddScoped<IRegionService, RegionService>();
             services.AddScoped<IDomainService, DomainService>();
+            services.AddScoped<IRegionService, RegionService>();
         }
     #endregion
 

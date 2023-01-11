@@ -10,11 +10,10 @@ public interface IProductService
     //Ad one Product in database
     // Product AddOne(Product item);
 
-    ICollection<Product> GetAllProducts();
-    Product? GetOne(int id);
-    Task<List<Product>> AddProduct(Product item);
+    Task<List<Product>?> GetAllProducts();
+    Task<Product?> GetOne(int id);
+    Task<Product> AddProduct(Product item);
     Task<Product?> UpdateProduct(int id, Product product);
-    // ICollection<Product>? DeleteProduct(int id);
     Task<List<Product>?> DeleteProduct(int id);
     void SaveChanges();
 
