@@ -1,16 +1,19 @@
 using GuacAPI.Models;
 using GuacAPI.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace GuacAPI.Services;
 
 public class ProductService : IProductService
 {
     #region Fields
-        private readonly DataContext _context;
+
+    private readonly DataContext _context;
+
     #endregion
 
     // #region Constructors
-    public ProductService(DataContext context) 
+    public ProductService(DataContext context)
     {
         this._context = context;
     }
@@ -26,37 +29,45 @@ public class ProductService : IProductService
     {
         //var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
         // var query = from Product in this._context.Products
-            var products =  _context.Products.ToList();
-            return products;
+        var products = _context.Products.ToList();
+        return products;
     }
-     public Product? GetOne(int id)
-     {
+
+    public Product? GetOne(int id)
+    {
         // var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
 
-              var product =  this._context.Products.Find(id);
-              return product;
-            //  if(product == null)
-            //      return null;
-            //  return product;
+        var product = this._context.Products.Find(id);
+        return product;
+        //  if(product == null)
+        //      return null;
+        //  return product;
+    }
+    
+    public async Task<Product?> GetProductByName(string name)
+    {
+        var product = await _context.Products.FirstOrDefaultAsync(p => p.Name == name);
+        return product;
+    }
 
-     }
+    public Product AddProduct(Product product)
+    {
+        //    this._context.Products.Add(product);
+        //     _context.SaveChanges();
+        return this._context.Products.Add(product).Entity;
+    }
 
-     public Product AddProduct(Product product)
-     {
-    //    this._context.Products.Add(product);
-    //     _context.SaveChanges();
-        return  this._context.Products.Add(product).Entity;
-     }
-
-    public void SaveChanges() {
+    public void SaveChanges()
+    {
         this._context.SaveChanges();
     }
-     public Product? UpdateProduct(int id, Product request)
-     {
 
-        var product =  this._context.Products.Find(id);
+    public Product? UpdateProduct(int id, Product request)
+    {
+        var product = this._context.Products.Find(id);
 
-        if(product != null) {
+        if (product == null)
+            return null;
 
         product.Name = request.Name;
         product.Price = request.Price;
@@ -69,14 +80,10 @@ public class ProductService : IProductService
         product.DomainId = request.DomainId;
         product.RegionId = request.RegionId;
         product.AppellationId = request.AppellationId;
-
         product.ProductId = id;
 
         return product;
-        }
-
-        return null;
-     }
+    }
     // public Product AddOne()
     // {
     //     //var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
@@ -85,42 +92,42 @@ public class ProductService : IProductService
     //         return products;
     // }
 
-        // public List<Product> DeleteBook(int id)
-        // {
-        //     var product = products.Find(x => x.Id == id);
-        //     if (product is null)
-        //         return null;
+    // public List<Product> DeleteBook(int id)
+    // {
+    //     var product = products.Find(x => x.Id == id);
+    //     if (product is null)
+    //         return null;
 
-        //     productss.Remove(product);
+    //     productss.Remove(product);
 
-        //     return products;
-        // }
+    //     return products;
+    // }
 
-        // public List<Product> GetAllProducts()
-        // {
-        //     return products;
-        // }
+    // public List<Product> GetAllProducts()
+    // {
+    //     return products;
+    // }
 
-        // public Product? GetProduct(int id)
-        // {
-        //     var product = products.Find(x => x.ProductId == id);
-        //     if (product is null)
-        //         return null;
+    // public Product? GetProduct(int id)
+    // {
+    //     var product = products.Find(x => x.ProductId == id);
+    //     if (product is null)
+    //         return null;
 
-        //     return product;
-        // }
+    //     return product;
+    // }
 
-        // public List<Product> UpdateBook(int id, Product request)
-        // {
-        //     var product = products.Find(x => x.Id == id);
-        //     if (product is null)
-        //         return null;
+    // public List<Product> UpdateBook(int id, Product request)
+    // {
+    //     var product = products.Find(x => x.Id == id);
+    //     if (product is null)
+    //         return null;
 
-        //     product.Author = request.Author;
-        //     product.Title = request.Title;
-        //     product.Category = request.Category;
-        //     product.Year = request.Year;
+    //     product.Author = request.Author;
+    //     product.Title = request.Title;
+    //     product.Category = request.Category;
+    //     product.Year = request.Year;
 
-        //     return products;
-        // }
+    //     return products;
+    // }
 }

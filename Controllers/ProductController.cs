@@ -3,10 +3,9 @@ using GuacAPI.Context;
 using Microsoft.AspNetCore.Mvc;
 using GuacAPI.Services;
 
-using GuacAPI.DTOs;
 namespace GuacAPI.Controllers;
 
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 public class ProductController : ControllerBase
 {
@@ -22,7 +21,7 @@ public class ProductController : ControllerBase
     #endregion
 
 
-    [HttpGet]
+    [HttpGet("GetAllProducts")]
     public IActionResult GetAllProducts()
     {
         var productList = this._productService.GetAllProducts();
@@ -60,7 +59,7 @@ public class ProductController : ControllerBase
         return this.Ok(product);
     }
 
-    [HttpPost]
+    [HttpPost("AddProduct")]
     public IActionResult AddOne(Product request)
     {
         IActionResult result = this.BadRequest();
@@ -107,5 +106,7 @@ public class ProductController : ControllerBase
         this._productService.SaveChanges();
         return Ok(updatedProduct);
     }
+    
+   
 }
 

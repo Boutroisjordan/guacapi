@@ -1,16 +1,20 @@
 using GuacAPI.Models;
 using GuacAPI.Context;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace GuacAPI.Services;
 
 public class FurnisherService : IFurnisherService
 {
     #region Fields
-        private readonly DataContext _context;
+
+    private readonly DataContext _context;
+
     #endregion
 
     // #region Constructors
-    public FurnisherService(DataContext context) 
+    public FurnisherService(DataContext context)
     {
         this._context = context;
     }
@@ -22,69 +26,73 @@ public class FurnisherService : IFurnisherService
     //         var products = await _context.Products;
     //         return products ;
     // }
-    public ICollection<Furnisher> GetAllFurnishers()
+    public async Task<ICollection<Furnisher>> GetAllFurnishers()
     {
         //var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
         // var query = from Product in this._context.Products
-            var furnishers =  _context.Furnishers.ToList();
-            return furnishers;
+        var furnishers = await _context.Furnishers.ToListAsync();
+        return furnishers;
     }
-     /*public Product? GetOne(int id)
-     {
-        // var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
 
-              var product =  this._context.Products.Find(id);
-              return product;
-            //  if(product == null)
-            //      return null;
-            //  return product;
+    public async Task<Furnisher> GetFurnisherById(int id)
+    {
+        var furnisher = await _context.Furnishers.FindAsync(id);
+        if (furnisher is null)
+        {
+            throw new Exception("Furnisher not found");
+        }
 
-     }
-     */
-    // public Product AddOne()
-    // {
-    //     //var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
-    //     // var query = from Product in this._context.Products
-    //         var products =  _context.Products.ToList();
-    //         return products;
-    // }
+        return furnisher;
+    }
 
-        // public List<Product> DeleteBook(int id)
-        // {
-        //     var product = products.Find(x => x.Id == id);
-        //     if (product is null)
-        //         return null;
+    public async Task<Furnisher> GetFurnisherByName(string name)
+    {
+        var furnisher = await _context.Furnishers.FirstOrDefaultAsync(f => f.Name == name);
+        if (furnisher is null)
+        {
+            throw new Exception("Furnisher not found");
+        }
 
-        //     productss.Remove(product);
+        return furnisher;
+    }
 
-        //     return products;
-        // }
+    public async Task<Furnisher> CreateFurnisher(Furnisher furnisher)
+    {
+        _context.Furnishers.Add(furnisher);
+        await _context.SaveChangesAsync();
+        return furnisher;
+    }
 
-        // public List<Product> GetAllProducts()
-        // {
-        //     return products;
-        // }
+    public async Task<Furnisher> UpdateFurnisher(int id, Furnisher furnisher)
+    {
+        var furnisherToUpdate = await _context.Furnishers.FindAsync(id);
+        if (furnisherToUpdate is null)
+        {
+            throw new Exception("Furnisher not found");
+        }
 
-        // public Product? GetProduct(int id)
-        // {
-        //     var product = products.Find(x => x.ProductId == id);
-        //     if (product is null)
-        //         return null;
+        furnisherToUpdate.Name = furnisher.Name;
+        furnisherToUpdate.City = furnisher.City;
+        furnisherToUpdate.Street = furnisher.Street;
+        furnisherToUpdate.PostalCode = furnisher.PostalCode;
+        furnisherToUpdate.Siret = furnisher.Siret;
 
-        //     return product;
-        // }
+        _context.Furnishers.Update(furnisherToUpdate);
+        await _context.SaveChangesAsync();
+        return furnisher;
+    }
 
-        // public List<Product> UpdateBook(int id, Product request)
-        // {
-        //     var product = products.Find(x => x.Id == id);
-        //     if (product is null)
-        //         return null;
 
-        //     product.Author = request.Author;
-        //     product.Title = request.Title;
-        //     product.Category = request.Category;
-        //     product.Year = request.Year;
+    public async Task<Furnisher> DeleteFurnisher(int id)
+    {
+        var furnisherToDelete = await _context.Furnishers.FindAsync(id);
+        if (furnisherToDelete is null)
+        {
+            throw new Exception("Furnisher not found");
+        }
 
-        //     return products;
-        // }
+        _context.Furnishers.Remove(furnisherToDelete);
+        await _context.SaveChangesAsync();
+        return furnisherToDelete;
+    }
 }
