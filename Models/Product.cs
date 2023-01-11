@@ -8,7 +8,7 @@ public class Product
     public string? Name { get; set; }
     public decimal Price { get; set; }
     public int Stock {get; set;}
-    public int Millesime { get; set; }
+    public string? Millesime { get; set; }
     public decimal AlcoholDegree {get; set;}
     public string? Reference {get; set;}
     public int FurnisherId {get; set;}
