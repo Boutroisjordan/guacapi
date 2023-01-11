@@ -1,0 +1,153 @@
+using GuacAPI.Models;
+using GuacAPI.Context;
+using Microsoft.EntityFrameworkCore;
+
+namespace GuacAPI.Services;
+
+public class DomainService : IDomainService
+{
+    #region Fields
+
+    private readonly DataContext _context;
+
+    #endregion
+
+    // #region Constructors
+    public DomainService(DataContext context)
+    {
+        this._context = context;
+    }
+
+    // public async Task<List<Product>> GetAllProducts()
+    // {
+    //     //var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
+    //     // var query = from Product in this._context.Products
+    //         var products = await _context.Products;
+    //         return products ;
+    // }
+    public async Task<ICollection<Domain>> GetAllDomains()
+    {
+        //var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
+        // var query = from Product in this._context.Products
+        var domains = await _context.Domains.ToListAsync();
+        return domains;
+    }
+
+    public async Task<Domain?> GetDomainById(int id)
+    {
+        var domainById = await _context.Domains.FindAsync(id);
+        return domainById;
+    }
+
+    public async Task<Domain?> GetDomainByName(string name)
+    {
+        var domainName = await _context.Domains.FirstOrDefaultAsync(x => x.Name == name);
+        return domainName;
+    }
+
+    public async Task<Domain?> AddDomain(Domain domain)
+    {
+        return await Task.Run(() =>
+        {
+            _context.Domains.Add(domain);
+            _context.SaveChanges();
+            return domain;
+        });
+    }
+
+    public async Task<Domain?> UpdateDomain(int id, Domain request)
+    {
+        return await Task.Run(() =>
+        {
+            var domain = _context.Domains.Find(id);
+            if (domain == null)
+            {
+                return null;
+            }
+
+            domain.Name = request.Name;
+            domain.DomainId = request.DomainId;
+            return domain;
+        });
+    }
+
+    public async Task<Domain?> DeleteDomain(int id)
+    {
+        return await Task.Run(() =>
+        {
+            var domain = _context.Domains.Find(id);
+            if (domain == null)
+            {
+                return null;
+            }
+
+            _context.Domains.Remove(domain);
+            _context.SaveChanges();
+            return domain;
+        });
+    }
+
+    public void SaveChanges()
+    {
+        _context.SaveChanges();
+    }
+
+    /*public Product? GetOne(int id)
+    {
+       // var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
+
+             var product =  this._context.Products.Find(id);
+             return product;
+           //  if(product == null)
+           //      return null;
+           //  return product;
+
+    }
+    */
+    // public Product AddOne()
+    // {
+    //     //var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
+    //     // var query = from Product in this._context.Products
+    //         var products =  _context.Products.ToList();
+    //         return products;
+    // }
+
+    // public List<Product> DeleteBook(int id)
+    // {
+    //     var product = products.Find(x => x.Id == id);
+    //     if (product is null)
+    //         return null;
+
+    //     productss.Remove(product);
+
+    //     return products;
+    // }
+
+    // public List<Product> GetAllProducts()
+    // {
+    //     return products;
+    // }
+
+    // public Product? GetProduct(int id)
+    // {
+    //     var product = products.Find(x => x.ProductId == id);
+    //     if (product is null)
+    //         return null;
+
+    //     return product;
+    // }
+
+    // public List<Product> UpdateBook(int id, Product request)
+    // {
+    //     var product = products.Find(x => x.Id == id);
+    //     if (product is null)
+    //         return null;
+
+    //     product.Author = request.Author;
+    //     product.Title = request.Title;
+    //     product.Category = request.Category;
+    //     product.Year = request.Year;
+
+    //     return products;
+    // }
+}

@@ -8,5 +8,11 @@ public class Domain
     public int DomainId { get; set; }
     public string? Name { get; set; }
     public List<Product>? Products {get; set;}
+    
+    public  Domain()
+    {
+        Products = new List<Product>();
+    }
+    
     #endregion
 }
