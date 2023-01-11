@@ -5,7 +5,7 @@ namespace GuacAPI.Services;
 public interface IFurnisherService
 {
     //Get all product in Database
-    Task<ICollection<Furnisher>> GetAllFurnishers();
+    Task<List<Furnisher>> GetAllFurnishers();
 
     //Get furnisher by Id
     Task<Furnisher> GetFurnisherById(int id);
@@ -14,11 +14,11 @@ public interface IFurnisherService
     Task<Furnisher> GetFurnisherByName(string name);
 
 //Add new furnisher
-    Task<Furnisher> CreateFurnisher(Furnisher furnisher);
+    Task<Furnisher?> CreateFurnisher(Furnisher furnisher);
 
     //Update furnisher
-    Task<Furnisher> UpdateFurnisher(int id, Furnisher furnisher);
+    Task<Furnisher?> UpdateFurnisher(int id, Furnisher furnisher);
 
     //Delete furnisher
-    Task<Furnisher> DeleteFurnisher(int id);
+    Task<Furnisher?> DeleteFurnisher(int id);
 }

@@ -26,22 +26,30 @@ public class DomainController : ControllerBase
 
 
     [HttpGet]
-    public IActionResult GetAllDomains()
+    public async Task<IActionResult> GetAllDomains()
     {
-        var domainList = this._domainService.GetAllDomains();
+        var domainList = await _domainService.GetAllDomains();
+        if(domainList.Count == 0)
+        {
+            return NoContent();
+        }
         return Ok(domainList);
     }
 
     [HttpGet]
     [Route("{id}")]
-    public IActionResult GetDomainById(int id)
+    public async Task<IActionResult> GetDomainById(int id)
     {
-        var domain = this._domainService.GetDomainById(id);
+        var domain = await _domainService.GetDomainById(id);
+        if(domain == null)
+        {
+            return BadRequest();
+        }
         return Ok(domain);
     }
 
     [HttpGet]
-    [Route("{name}")]
+    [Route("GetByName/{name}")]
     public IActionResult GetDomainByName(string name)
     {
         var domain = this._domainService.GetDomainByName(name);
@@ -49,50 +57,47 @@ public class DomainController : ControllerBase
     }
 
     [HttpPost]
-     [Route("{id}")]
-    public IActionResult AddDomain(Domain request)
+    public async Task<IActionResult> AddDomain(Domain request)
     {
-        IActionResult response = BadRequest();
 
-        if (ModelState.IsValid)
-        {
-            var domain = this._domainService.AddDomain(request);
-            response = Ok(domain);
-        }
+        var domain = await _domainService.AddDomain(request);
 
-        this._domainService.SaveChanges();
-        return response;
+            if(domain is null) 
+            {
+                return BadRequest();
+            }
+
+        return Ok(domain);
     }
 
     [HttpPut]
     [Route("{id}")]
-    public IActionResult UpdateDomain(int id, Domain request)
+    public async Task<IActionResult> UpdateDomain(int id, Domain request)
     {
-        IActionResult response = BadRequest();
 
-        if (ModelState.IsValid)
-        {
-            var domain = this._domainService.UpdateDomain(id, request);
-            response = Ok(domain);
-        }
+        var domain = await _domainService.UpdateDomain(id, request);
 
-        this._domainService.SaveChanges();
-        return response;
+            if(domain is null) 
+            {
+                return BadRequest();
+            }
+        return Ok(domain);
     }
 
     [HttpDelete]
     [Route("{id}")]
-    public IActionResult DeleteDomain(int id)
+    public async Task<IActionResult> DeleteDomain(int id)
     {
         IActionResult response = BadRequest();
 
-        if (ModelState.IsValid)
-        {
-            var domain = this._domainService.DeleteDomain(id);
-            response = Ok(domain);
-        }
+            var domain = await _domainService.DeleteDomain(id);
 
-        this._domainService.SaveChanges();
-        return response;
+            if(domain is null) 
+            {
+                return BadRequest();
+            }
+
+
+        return Ok(domain);
     }
 }

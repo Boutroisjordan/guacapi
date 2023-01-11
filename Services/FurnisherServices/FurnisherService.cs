@@ -26,7 +26,7 @@ public class FurnisherService : IFurnisherService
     //         var products = await _context.Products;
     //         return products ;
     // }
-    public async Task<ICollection<Furnisher>> GetAllFurnishers()
+    public async Task<List<Furnisher>> GetAllFurnishers()
     {
         //var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
         // var query = from Product in this._context.Products
@@ -36,7 +36,8 @@ public class FurnisherService : IFurnisherService
 
     public async Task<Furnisher> GetFurnisherById(int id)
     {
-        var furnisher = await _context.Furnishers.FindAsync(id);
+        var furnisher = await _context.Furnishers.Include(p => p.Products).Where(p => p.FurnisherId == id)
+            .FirstOrDefaultAsync();
         if (furnisher is null)
         {
             throw new Exception("Furnisher not found");
@@ -56,14 +57,19 @@ public class FurnisherService : IFurnisherService
         return furnisher;
     }
 
-    public async Task<Furnisher> CreateFurnisher(Furnisher furnisher)
+    public async Task<Furnisher?> CreateFurnisher(Furnisher furnisher)
     {
-        _context.Furnishers.Add(furnisher);
+        if (furnisher is null)
+        {
+            throw new Exception("Furnisher is null");
+        }
+
+        var createFurnisher = _context.Furnishers.Add(furnisher).Entity;
         await _context.SaveChangesAsync();
-        return furnisher;
+        return createFurnisher;
     }
 
-    public async Task<Furnisher> UpdateFurnisher(int id, Furnisher furnisher)
+    public async Task<Furnisher?> UpdateFurnisher(int id, Furnisher furnisher)
     {
         var furnisherToUpdate = await _context.Furnishers.FindAsync(id);
         if (furnisherToUpdate is null)
@@ -77,13 +83,12 @@ public class FurnisherService : IFurnisherService
         furnisherToUpdate.PostalCode = furnisher.PostalCode;
         furnisherToUpdate.Siret = furnisher.Siret;
 
-        _context.Furnishers.Update(furnisherToUpdate);
         await _context.SaveChangesAsync();
-        return furnisher;
+        return furnisherToUpdate;
     }
 
 
-    public async Task<Furnisher> DeleteFurnisher(int id)
+    public async Task<Furnisher?> DeleteFurnisher(int id)
     {
         var furnisherToDelete = await _context.Furnishers.FindAsync(id);
         if (furnisherToDelete is null)

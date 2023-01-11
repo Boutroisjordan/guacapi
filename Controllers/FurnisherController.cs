@@ -26,58 +26,120 @@ public class FurnisherController : ControllerBase
 
 
     [HttpGet]
-    public IActionResult GetAllFunishers()
+    public async Task<IActionResult> GetAllFunishers()
     {
-        var furnisherList = this._furnisherService.GetAllFurnishers();
+        var furnisherList = await _furnisherService.GetAllFurnishers();
+        if (furnisherList.Count == 0)
+        {
+            return NoContent();
+        }
+
         return Ok(furnisherList);
     }
 
     [HttpGet]
     [Route("{id}")]
-    public IActionResult GetFurnisherById(int id)
+    public async Task<IActionResult> GetFurnisherById(int id)
     {
-        if (id <= 0)
+        try
         {
-            return BadRequest("Id must be greater than 0");
-        }
+            if (id != 0)
+            {
+                var furnisher = await _furnisherService.GetFurnisherById(id);
 
-        var furnisher = this._furnisherService.GetFurnisherById(id);
-        return Ok(furnisher);
+                return Ok(furnisher);
+            }
+
+            return BadRequest();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpGet]
     [Route("ByName/{name}")]
-    public IActionResult GetFurnisherByName(string name)
+    public async Task<IActionResult> GetFurnisherByName(string name)
     {
-        if (name == "")
+        try
+        {
+            if (name != "")
+            {
+                var furnisher = await _furnisherService.GetFurnisherByName(name);
+                return Ok(furnisher);
+            }
+
             return BadRequest("Name must be not empty");
-        var furnisher = this._furnisherService.GetFurnisherByName(name);
-        return Ok(furnisher);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
     }
 
     [HttpPost]
-
-    public IActionResult CreateFurnisher(Furnisher furnisher)
+    public async Task<IActionResult> CreateFurnisher(Furnisher furnisher)
     {
-        var createFurnisher = this._furnisherService.CreateFurnisher(furnisher);
-        return Ok(createFurnisher);
+        try
+        {
+            var createFurnisher = await _furnisherService.CreateFurnisher(furnisher);
+            if (createFurnisher != null)
+            {
+                return Ok(createFurnisher);
+            }
+
+            return BadRequest("Furnisher not created");
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
     }
 
     [HttpPut]
     [Route("{id}")]
-    public IActionResult UpdateFurnisher(int id, Furnisher furnisher)
+    public async Task<IActionResult> UpdateFurnisher(int id, Furnisher furnisher)
     {
-        if (id <= 0) return BadRequest("Id must be greater than 0");
-        var updateFurnisher = this._furnisherService.UpdateFurnisher(id, furnisher);
-        return Ok(updateFurnisher);
+        try
+        {
+            if (id != 0)
+            {
+                var updateFurnisher = await _furnisherService.UpdateFurnisher(id, furnisher);
+                if (updateFurnisher != null)
+                {
+                    return Ok(updateFurnisher);
+                }
+
+                return BadRequest("Furnisher not updated");
+            }
+
+            return BadRequest("Id must be not empty");
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
     }
 
     [HttpDelete]
     [Route("{id}")]
-    public IActionResult DeleteFurnisher(int id)
+    public async Task<IActionResult> DeleteFurnisher(int id)
     {
-        if (id <= 0) return BadRequest("Id must be greater than 0");
-        var deleteFurnisher = this._furnisherService.DeleteFurnisher(id);
-        return Ok(deleteFurnisher);
+        try
+        {
+            if (id <= 0) return BadRequest("Id must be greater than 0");
+            var deleteFurnisher = await _furnisherService.DeleteFurnisher(id);
+            if (deleteFurnisher == null)
+            {
+                return BadRequest("Furnisher does not exist");
+            }
+
+            return Ok(deleteFurnisher);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
     }
 }
