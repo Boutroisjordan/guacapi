@@ -80,11 +80,6 @@ public class ProductService : IProductService
             product.RegionId = request.RegionId;
             product.AppellationId = request.AppellationId;
 
-            product.ProductId = id;
-
-            // var furnisher = await _context.Furnishers.FindAsync(request.FurnisherId);
-
-            // product.furnisher = furnisher;
 
             await _context.SaveChangesAsync();
 
