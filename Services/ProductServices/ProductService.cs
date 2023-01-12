@@ -82,9 +82,9 @@ public class ProductService : IProductService
 
             product.ProductId = id;
 
-            var furnisher = await _context.Furnishers.FindAsync(request.FurnisherId);
+            // var furnisher = await _context.Furnishers.FindAsync(request.FurnisherId);
 
-            product.furnisher = furnisher;
+            // product.furnisher = furnisher;
 
             await _context.SaveChangesAsync();
 
