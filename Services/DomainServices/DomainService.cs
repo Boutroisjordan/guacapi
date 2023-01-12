@@ -40,9 +40,17 @@ public class DomainService : IDomainService
     {
         // return await Task.Run(() =>
         // {
-            var addedDomain = _context.Domains.Add(domain).Entity;
+           
+
+            var addedDomain = new Domain {
+                Name = domain.Name 
+            };
+
+            var savedDomain = _context.Domains.Add(addedDomain).Entity;
+
+
             await _context.SaveChangesAsync();
-            return addedDomain;
+            return savedDomain;
         // });
     }
 
@@ -57,7 +65,6 @@ public class DomainService : IDomainService
             }
 
             domain.Name = request.Name;
-            domain.DomainId = request.DomainId;
             await _context.SaveChangesAsync();
             return domain;
         // });

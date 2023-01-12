@@ -55,9 +55,14 @@ public class AlcoholService : IAlcoholService
             return null;
         }
 
-        var addedAlcohol = _context.AlcoholTypes.Add(alcohol).Entity;
+        var addedAlcohol = new AlcoholType {
+            label = alcohol.label
+        };
+        
+
+        var savedAlcohol = _context.AlcoholTypes.Add(addedAlcohol).Entity;
         await _context.SaveChangesAsync();
-        return addedAlcohol;
+        return savedAlcohol;
     }
 
     public async Task<AlcoholType?> UpdateAlcoholType(int id, AlcoholType request)

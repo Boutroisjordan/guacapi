@@ -55,9 +55,17 @@ public class FurnisherService : IFurnisherService
             throw new Exception("Furnisher is null");
         }
 
-        var createFurnisher = _context.Furnishers.Add(furnisher).Entity;
+        var addedFurnisher = new Furnisher {
+            City = furnisher.City,
+            Street = furnisher.Street,
+            Name = furnisher.Name,
+            PostalCode = furnisher.PostalCode,
+            Siret = furnisher.Siret,  
+        };
+
+        var savedFurnisher = _context.Furnishers.Add(addedFurnisher).Entity;
         await _context.SaveChangesAsync();
-        return createFurnisher;
+        return savedFurnisher;
     }
 
     public async Task<Furnisher?> UpdateFurnisher(int id, Furnisher furnisher)
