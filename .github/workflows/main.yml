@@ -26,6 +26,8 @@ jobs:
         script: |
           # Stop the systemd service
           sudo systemctl stop guacapi.service
+          # Fetch the Repo
+          sudo git fetch
           # Update the code
           sudo git pull
           # rebuild the application
