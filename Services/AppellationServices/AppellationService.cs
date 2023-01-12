@@ -45,7 +45,6 @@ public class AppellationService : IAppellationService
         if (appelationName == null)
         {
             return null;
-            // throw new Exception("Alcohol not found");
         }
 
         return appelationName;
@@ -56,30 +55,30 @@ public class AppellationService : IAppellationService
         if (appellation is null)
         {
             return null;
-            // throw new ArgumentNullException(nameof(appellation));
         }
 
-        var addedAppellation = _context.Appellations.Add(appellation).Entity;
+        var addedAppellation = new Appellation {
+            Name = appellation.Name 
+        };
+
+        var saveAppellation = _context.Appellations.Add(addedAppellation).Entity;
         await _context.SaveChangesAsync();
-        return addedAppellation;
+        return saveAppellation;
     }
 
 
     public async Task<Appellation?> UpdateAppellation(int id, Appellation request)
     {
-        // return await Task.Run(() =>
-        // {
+
             var appellation = _context.Appellations.Find(id);
             if (appellation == null)
             {
                 return null;
-                // throw new ArgumentException("Alcohol not found");
             }
 
             appellation.Name = request.Name;
             await _context.SaveChangesAsync();
             return appellation;
-        // });
     }
 
     public async Task<Appellation?> DeleteAppellation(int id)

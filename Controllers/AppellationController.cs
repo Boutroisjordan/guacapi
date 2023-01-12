@@ -70,7 +70,7 @@ public class AppellationController : ControllerBase
         var result = await _appellationService.CreateAppellation(appellation);
 
         if(result == null) {
-            return BadRequest();
+            return BadRequest("probleme");
         }
 
         return Ok(result);

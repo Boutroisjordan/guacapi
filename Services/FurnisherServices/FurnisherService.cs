@@ -19,17 +19,8 @@ public class FurnisherService : IFurnisherService
         this._context = context;
     }
 
-    // public async Task<List<Product>> GetAllProducts()
-    // {
-    //     //var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
-    //     // var query = from Product in this._context.Products
-    //         var products = await _context.Products;
-    //         return products ;
-    // }
     public async Task<List<Furnisher>> GetAllFurnishers()
     {
-        //var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
-        // var query = from Product in this._context.Products
         var furnishers = await _context.Furnishers.ToListAsync();
         return furnishers;
     }
@@ -64,9 +55,17 @@ public class FurnisherService : IFurnisherService
             throw new Exception("Furnisher is null");
         }
 
-        var createFurnisher = _context.Furnishers.Add(furnisher).Entity;
+        var addedFurnisher = new Furnisher {
+            City = furnisher.City,
+            Street = furnisher.Street,
+            Name = furnisher.Name,
+            PostalCode = furnisher.PostalCode,
+            Siret = furnisher.Siret,  
+        };
+
+        var savedFurnisher = _context.Furnishers.Add(addedFurnisher).Entity;
         await _context.SaveChangesAsync();
-        return createFurnisher;
+        return savedFurnisher;
     }
 
     public async Task<Furnisher?> UpdateFurnisher(int id, Furnisher furnisher)
