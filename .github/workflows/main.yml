@@ -24,7 +24,6 @@ jobs:
         username: ${{ secrets.SERVER_USERNAME }} # nom d'utilisateur pour se connecter au serveur
         password: ${{ secrets.SERVER_PASSWORD }} # mot de passe pour se connecter au serveur
         script: |
-          pwd
           # Stop the systemd service
           sudo systemctl stop guacapi.service
           # Fetch the Repo
