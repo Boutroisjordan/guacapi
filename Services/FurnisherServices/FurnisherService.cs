@@ -19,17 +19,8 @@ public class FurnisherService : IFurnisherService
         this._context = context;
     }
 
-    // public async Task<List<Product>> GetAllProducts()
-    // {
-    //     //var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
-    //     // var query = from Product in this._context.Products
-    //         var products = await _context.Products;
-    //         return products ;
-    // }
     public async Task<List<Furnisher>> GetAllFurnishers()
     {
-        //var model = this._context.Products.Select(item => new { Name = item.Name, Price = item.Price, Furnisher = item.FurnisherId}).ToList();
-        // var query = from Product in this._context.Products
         var furnishers = await _context.Furnishers.ToListAsync();
         return furnishers;
     }
