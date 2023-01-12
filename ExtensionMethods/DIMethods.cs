@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using GuacAPI.Interface;
 using GuacAPI.Services;
 
 
@@ -18,6 +17,9 @@ public static class DIMethods
             services.AddScoped<IFurnisherService, FurnisherService>();
             services.AddScoped<IRegionService, RegionService>();
             services.AddScoped<IDomainService, DomainService>();
+            services.AddScoped<IAlcoholService, AlcoholService>();
+            services.AddScoped<IDomainService, DomainService>();
+            services.AddScoped<IAppellationService, AppellationService>();
         }
     #endregion
 

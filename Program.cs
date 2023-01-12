@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using GuacAPI.Models;
 using GuacAPI.Context;
-using GuacAPI.Interface;
 using GuacAPI.ExtensionMethods;
 
 

@@ -20,8 +20,8 @@ Avant de lancer l'application, assurez-vous d'avoir installer les packages suiva
 https://www.nuget.org/
 
 + Microsoft.EntityFrameworkCore.Design
-+ Microsoft.EntityFrameWork.sqlServer
-+ Microsoft.EntityFrameWork.tools
++ Microsoft.EntityFrameworkCore.SqlServer
++ Microsoft.EntityFrameworkCore.tools
 
 ### Connection String
 
