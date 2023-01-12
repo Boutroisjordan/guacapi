@@ -6,7 +6,7 @@ on:
 
 jobs:
   build_and_deploy:
-    runs-on: debian-latest # exécution sur un serveur ubuntu
+    runs-on: ubuntu-latest # exécution sur un serveur ubuntu
 
     steps:
     - name: Checkout code # vérifie le code
