@@ -16,7 +16,7 @@ namespace GuacAPI.Migrations
                 {
                     AlcoholTypeId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    label = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    label = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -34,6 +34,19 @@ namespace GuacAPI.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Appellations", x => x.AppellationId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Countries",
+                columns: table => new
+                {
+                    CountryId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Countries", x => x.CountryId);
                 });
 
             migrationBuilder.CreateTable(
@@ -55,11 +68,11 @@ namespace GuacAPI.Migrations
                 {
                     FurnisherId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    City = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Street = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PostalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Siret = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Street = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PostalCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Siret = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -72,7 +85,7 @@ namespace GuacAPI.Migrations
                 {
                     RegionID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -85,15 +98,16 @@ namespace GuacAPI.Migrations
                 {
                     ProductId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Stock = table.Column<int>(type: "int", nullable: false),
-                    Millesime = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Millesime = table.Column<int>(type: "int", nullable: false),
                     AlcoholDegree = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Reference = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Reference = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FurnisherId = table.Column<int>(type: "int", nullable: false),
                     DomainId = table.Column<int>(type: "int", nullable: false),
                     RegionId = table.Column<int>(type: "int", nullable: false),
+                    CountryId = table.Column<int>(type: "int", nullable: false),
                     AlcoholTypeId = table.Column<int>(type: "int", nullable: false),
                     AppellationId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -111,6 +125,12 @@ namespace GuacAPI.Migrations
                         column: x => x.AppellationId,
                         principalTable: "Appellations",
                         principalColumn: "AppellationId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Product_Countries_CountryId",
+                        column: x => x.CountryId,
+                        principalTable: "Countries",
+                        principalColumn: "CountryId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Product_Domains_DomainId",
@@ -143,6 +163,11 @@ namespace GuacAPI.Migrations
                 column: "AppellationId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Product_CountryId",
+                table: "Product",
+                column: "CountryId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Product_DomainId",
                 table: "Product",
                 column: "DomainId");
@@ -169,6 +194,9 @@ namespace GuacAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "Appellations");
+
+            migrationBuilder.DropTable(
+                name: "Countries");
 
             migrationBuilder.DropTable(
                 name: "Domains");

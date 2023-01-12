@@ -27,6 +27,9 @@ class ProductEntityConfiguration : IEntityTypeConfiguration<Product>
          builder.HasOne(item => item.appellation)
          .WithMany(item => item.Products);
 
+         builder.HasOne(item => item.country)
+         .WithMany(item => item.Products);
+
     }
     #endregion
 

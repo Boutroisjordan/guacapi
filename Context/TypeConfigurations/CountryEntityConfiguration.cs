@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace GuacAPI.Context.TypeConfigurations;
 
-public class CountryEntityConfiguration : IEntityTypeConfiguration<Country>
+class CountryEntityConfiguration : IEntityTypeConfiguration<Country>
 {
     #region Public Methods
 

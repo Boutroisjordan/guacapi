@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuacAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230110114523_Initial")]
+    [Migration("20230112141933_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -33,6 +33,7 @@ namespace GuacAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AlcoholTypeId"));
 
                     b.Property<string>("label")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("AlcoholTypeId");
@@ -54,6 +55,23 @@ namespace GuacAPI.Migrations
                     b.HasKey("AppellationId");
 
                     b.ToTable("Appellations");
+                });
+
+            modelBuilder.Entity("GuacAPI.Models.Country", b =>
+                {
+                    b.Property<int>("CountryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CountryId"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("CountryId");
+
+                    b.ToTable("Countries");
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Domain", b =>
@@ -81,18 +99,23 @@ namespace GuacAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FurnisherId"));
 
                     b.Property<string>("City")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PostalCode")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Siret")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Street")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("FurnisherId");
@@ -117,22 +140,27 @@ namespace GuacAPI.Migrations
                     b.Property<int>("AppellationId")
                         .HasColumnType("int");
 
+                    b.Property<int>("CountryId")
+                        .HasColumnType("int");
+
                     b.Property<int>("DomainId")
                         .HasColumnType("int");
 
                     b.Property<int>("FurnisherId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Millesime")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Millesime")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Reference")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RegionId")
@@ -146,6 +174,8 @@ namespace GuacAPI.Migrations
                     b.HasIndex("AlcoholTypeId");
 
                     b.HasIndex("AppellationId");
+
+                    b.HasIndex("CountryId");
 
                     b.HasIndex("DomainId");
 
@@ -165,6 +195,7 @@ namespace GuacAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RegionID"));
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("RegionID");
@@ -183,6 +214,12 @@ namespace GuacAPI.Migrations
                     b.HasOne("GuacAPI.Models.Appellation", "appellation")
                         .WithMany("Products")
                         .HasForeignKey("AppellationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GuacAPI.Models.Country", "country")
+                        .WithMany("Products")
+                        .HasForeignKey("CountryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -208,6 +245,8 @@ namespace GuacAPI.Migrations
 
                     b.Navigation("appellation");
 
+                    b.Navigation("country");
+
                     b.Navigation("domain");
 
                     b.Navigation("furnisher");
@@ -221,6 +260,11 @@ namespace GuacAPI.Migrations
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Appellation", b =>
+                {
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("GuacAPI.Models.Country", b =>
                 {
                     b.Navigation("Products");
                 });

@@ -19,6 +19,8 @@ public class Product
     public Domain? domain;
     public int RegionId {get; set;}
     public Region? region;
+    public int CountryId {get; set;}
+    public Country? country;
     public int AlcoholTypeId {get; set;}
     public AlcoholType? alcoholType;
     public int AppellationId {get; set;}

@@ -54,6 +54,23 @@ namespace GuacAPI.Migrations
                     b.ToTable("Appellations");
                 });
 
+            modelBuilder.Entity("GuacAPI.Models.Country", b =>
+                {
+                    b.Property<int>("CountryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CountryId"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("CountryId");
+
+                    b.ToTable("Countries");
+                });
+
             modelBuilder.Entity("GuacAPI.Models.Domain", b =>
                 {
                     b.Property<int>("DomainId")
@@ -120,6 +137,9 @@ namespace GuacAPI.Migrations
                     b.Property<int>("AppellationId")
                         .HasColumnType("int");
 
+                    b.Property<int>("CountryId")
+                        .HasColumnType("int");
+
                     b.Property<int>("DomainId")
                         .HasColumnType("int");
 
@@ -151,6 +171,8 @@ namespace GuacAPI.Migrations
                     b.HasIndex("AlcoholTypeId");
 
                     b.HasIndex("AppellationId");
+
+                    b.HasIndex("CountryId");
 
                     b.HasIndex("DomainId");
 
@@ -192,6 +214,12 @@ namespace GuacAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("GuacAPI.Models.Country", "country")
+                        .WithMany("Products")
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("GuacAPI.Models.Domain", "domain")
                         .WithMany("Products")
                         .HasForeignKey("DomainId")
@@ -214,6 +242,8 @@ namespace GuacAPI.Migrations
 
                     b.Navigation("appellation");
 
+                    b.Navigation("country");
+
                     b.Navigation("domain");
 
                     b.Navigation("furnisher");
@@ -227,6 +257,11 @@ namespace GuacAPI.Migrations
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Appellation", b =>
+                {
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("GuacAPI.Models.Country", b =>
                 {
                     b.Navigation("Products");
                 });

@@ -32,7 +32,12 @@ public class CountryService : ICountryService
    
    public async Task<Country> AddCountry(Country country)
    {
-      var savedCountry = _context.Countries.Add(country).Entity;
+
+      var addedCountry = new Country {
+         Name = country.Name,
+      };
+
+      var savedCountry = _context.Countries.Add(addedCountry).Entity;
       await _context.SaveChangesAsync();
       return savedCountry;
    }

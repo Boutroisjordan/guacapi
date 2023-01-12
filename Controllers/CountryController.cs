@@ -26,6 +26,11 @@ public class CountryController : ControllerBase
     public async Task<IActionResult> Get()
     {
         var countries = await _countryService.GetAllCountries();
+
+        if(countries.Count == 0)
+        {
+            return NoContent();
+        }
         return Ok(countries);
     }
 
