@@ -26,7 +26,7 @@ public class ProductController : ControllerBase
 
     #endregion
 
-    [HttpGet]
+    [HttpGet,AllowAnonymous]
     public async Task<IActionResult> GetAllProducts()
     {
         var productList = await _productService.GetAllProducts();
@@ -42,7 +42,7 @@ public class ProductController : ControllerBase
         return Ok(productList);
     }
 
-    [HttpGet, Authorize]
+    [HttpGet]
     [Route("{id}")]
     public async Task<IActionResult> GetOneProduct(int id)
     {

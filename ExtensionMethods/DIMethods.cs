@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using GuacAPI.Interface;
 using GuacAPI.Services;
+using GuacAPI.Services.UserServices;
 
 
 //DIMethod for Dependancy Injection Method
@@ -21,6 +22,7 @@ public static class DIMethods
             services.AddScoped<IAlcoholService, AlcoholService>();
             services.AddScoped<IDomainService, DomainService>();
             services.AddScoped<IAppellationService, AppellationService>();
+            services.AddScoped<IUserService, UserService>();
         }
     #endregion
 

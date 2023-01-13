@@ -3,6 +3,8 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using GuacAPI.Models;
+using GuacAPI.Services.UserServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -15,10 +17,21 @@ namespace guacapi.Controllers
         public static User user = new User();
         private readonly IConfiguration _configuration;
         public static User.UserReturnDto userReturnDto = new User.UserReturnDto();
+        private readonly IUserService _userService;
 
-        public AuthController(IConfiguration configuration)
+        public AuthController(IConfiguration configuration, IUserService userService)
         {
             _configuration = configuration;
+            _userService = userService;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult<object> GetUser()
+        {
+            // on peut aussi faire un FindFirstValue(ClaimTypes.NameIdentifier)
+
+            var infos = _userService.GetUserInfos();
+            return Ok(infos);
         }
 
         [HttpPost("register")]
@@ -33,8 +46,11 @@ namespace guacapi.Controllers
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
             user.Username = request.Username;
-            userReturnDto.FirstName = user.Username;
-            userReturnDto.LastName = user.Username;
+            userReturnDto.FirstName = request.FirstName;
+            userReturnDto.LastName = request.LastName;
+            userReturnDto.Username = request.Username;
+
+           // await _userService.Register(user);
             return Ok(userReturnDto);
         }
 
@@ -58,7 +74,71 @@ namespace guacapi.Controllers
             }
 
             string token = CreateToken(user);
+
+            var refreshToken = GenerateRefreshToken();
+            SetRefreshToken(refreshToken);
+
             return Ok(token);
+        }
+
+        [HttpPost("refreshToken")]
+        public async Task<ActionResult<string>> RefreshToken()
+        {
+            var refreshToken = Request.Cookies["refreshToken"];
+            if (user.RefreshToken != null && !user.RefreshToken.Equals(refreshToken))
+            {
+                return Unauthorized("Invalid refresh token");
+            }
+            else if (user.TokenExpires < DateTime.Now)
+            {
+                return Unauthorized("Token expired");
+            }
+
+            string token = CreateToken(user);
+            var newRefreshToken = GenerateRefreshToken();
+            SetRefreshToken(newRefreshToken);
+            return Ok(token);
+        }
+
+        [HttpPost("logout")]
+        public async Task<ActionResult> Logout()
+        {
+            user.RefreshToken = null;
+            user.TokenExpires = DateTime.Now;
+            return Ok();
+        }
+
+
+        [HttpDelete("delete")]
+        public async Task<ActionResult> Delete()
+        {
+            user = await _userService.DeleteUser(user.Id) ?? throw new InvalidOperationException();
+            return Ok(user);
+        }
+
+        private RefreshToken GenerateRefreshToken()
+        {
+            var refreshToken = new RefreshToken()
+            {
+                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+                Expires = DateTime.UtcNow.AddDays(7),
+                Created = DateTime.UtcNow
+            };
+            return refreshToken;
+        }
+
+        private void SetRefreshToken(RefreshToken newRefreshToken)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                //enlever en https
+                HttpOnly = true,
+                Expires = newRefreshToken.Expires,
+            };
+            Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
+            user.RefreshToken = newRefreshToken.Token;
+            user.TokenCreatedAt = newRefreshToken.Created;
+            user.TokenExpires = newRefreshToken.Expires;
         }
 
         // Claims properties are used to store user information anything you want to store in the token

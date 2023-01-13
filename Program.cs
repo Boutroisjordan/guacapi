@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using GuacAPI.Models;
 using GuacAPI.Context;
-using GuacAPI.Interface;
 using GuacAPI.ExtensionMethods;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -27,38 +26,43 @@ builder.Services.AddInjections(); //Inject all injection depandencies
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
+//permet d'ajouter du context http 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.AddSecurityDefinition("Authorization", new OpenApiSecurityScheme
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
     {
-        Description = "Standard Authorization header using the Bearer scheme. Example: \"bearer {token}\"",
+        Description = "Standard Authorization header using the Bearer scheme. Example: (\"bearer {token}\")",
         In = ParameterLocation.Header,
         Name = "Authorization",
         Type = SecuritySchemeType.ApiKey
     });
-
     options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey =
-                new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(builder.Configuration.GetSection("AppSettings:Secret").Value)),
-            ValidateIssuer = false,
-            ValidateAudience = false,
-        };
+        var value = builder.Configuration.GetSection("AppSettings:Secret").Value;
+        if (value != null)
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey =
+                    new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(value)),
+                ValidateIssuer = false,
+                ValidateAudience = false
+            };
     });
-//  builder.Services.AddCors(options =>
-//      options.AddDefaultPolicy(builder => {
-//          builder
-//              .AllowAnyOrigin()
-//              .AllowAnyHeader()
-//              .AllowAnyMethod();
-//      }));
+builder.Services.AddCors(options =>
+    options.AddDefaultPolicy(cors =>
+    {
+        cors
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    }));
 
 var app = builder.Build();
 
@@ -67,12 +71,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    //  app.UseHttpsRedirection();
+    //app.UseHttpsRedirection();
 }
 
-// app.UseCors();
+app.UseCors();
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthentication();
 

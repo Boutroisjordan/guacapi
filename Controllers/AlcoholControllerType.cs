@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using GuacAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GuacAPI.Controllers;
 
@@ -27,13 +28,17 @@ public class AlcoholControllerType : ControllerBase
     #region methods
 
     [HttpGet]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAllTypes()
     {
         var types = await _alcoholService.GetAllTypes();
 
-        if(types == null) {
+        if (types == null)
+        {
             return BadRequest();
-        } else if(types.Count == 0) {
+        }
+        else if (types.Count == 0)
+        {
             return NoContent();
         }
 
@@ -71,9 +76,11 @@ public class AlcoholControllerType : ControllerBase
     {
         var addAlcohol = await _alcoholService.AddAlcoholType(type);
 
-        if(addAlcohol == null) {
+        if (addAlcohol == null)
+        {
             return BadRequest();
         }
+
         return Ok(addAlcohol);
     }
 
@@ -88,7 +95,8 @@ public class AlcoholControllerType : ControllerBase
 
         var updateAlcohol = await _alcoholService.UpdateAlcoholType(id, type);
 
-        if(updateAlcohol == null) {
+        if (updateAlcohol == null)
+        {
             return BadRequest();
         }
 
