@@ -3,6 +3,7 @@ using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuacAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230112160826_AddOffers")]
+    partial class AddOffers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -111,13 +114,7 @@ namespace GuacAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OfferId"));
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("Price")
@@ -189,24 +186,6 @@ namespace GuacAPI.Migrations
                     b.ToTable("Product", (string)null);
                 });
 
-            modelBuilder.Entity("GuacAPI.Models.ProductOffer", b =>
-                {
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OfferId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("QuantityProduct")
-                        .HasColumnType("int");
-
-                    b.HasKey("ProductId", "OfferId");
-
-                    b.HasIndex("OfferId");
-
-                    b.ToTable("ProductOffers");
-                });
-
             modelBuilder.Entity("GuacAPI.Models.Region", b =>
                 {
                     b.Property<int>("RegionID")
@@ -222,6 +201,21 @@ namespace GuacAPI.Migrations
                     b.HasKey("RegionID");
 
                     b.ToTable("Region", (string)null);
+                });
+
+            modelBuilder.Entity("OfferProduct", b =>
+                {
+                    b.Property<int>("OffersOfferId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductsProductId")
+                        .HasColumnType("int");
+
+                    b.HasKey("OffersOfferId", "ProductsProductId");
+
+                    b.HasIndex("ProductsProductId");
+
+                    b.ToTable("OfferProduct");
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Product", b =>
@@ -267,23 +261,19 @@ namespace GuacAPI.Migrations
                     b.Navigation("region");
                 });
 
-            modelBuilder.Entity("GuacAPI.Models.ProductOffer", b =>
+            modelBuilder.Entity("OfferProduct", b =>
                 {
-                    b.HasOne("GuacAPI.Models.Offer", "Offer")
-                        .WithMany("ProductOffers")
-                        .HasForeignKey("OfferId")
+                    b.HasOne("GuacAPI.Models.Offer", null)
+                        .WithMany()
+                        .HasForeignKey("OffersOfferId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GuacAPI.Models.Product", "Product")
-                        .WithMany("ProductOffers")
-                        .HasForeignKey("ProductId")
+                    b.HasOne("GuacAPI.Models.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductsProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Offer");
-
-                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("GuacAPI.Models.AlcoholType", b =>
@@ -304,16 +294,6 @@ namespace GuacAPI.Migrations
             modelBuilder.Entity("GuacAPI.Models.Furnisher", b =>
                 {
                     b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("GuacAPI.Models.Offer", b =>
-                {
-                    b.Navigation("ProductOffers");
-                });
-
-            modelBuilder.Entity("GuacAPI.Models.Product", b =>
-                {
-                    b.Navigation("ProductOffers");
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Region", b =>

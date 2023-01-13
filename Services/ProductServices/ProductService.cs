@@ -55,11 +55,6 @@ public class ProductService : IProductService
         return saveProduct;
     }
 
-    public void SaveChanges()
-    {
-        this._context.SaveChanges();
-    }
-
     public async Task<Product?> UpdateProduct(int id, Product request)
     {
 
@@ -102,4 +97,13 @@ public class ProductService : IProductService
         return _context.Products.ToList();
     }
 
+    public async Task<int?> CheckStock(int id)
+    {
+        var product = await _context.Products.FindAsync(id);
+
+        if(product is null)
+            return null;
+
+        return product.Stock;
+    }
 }

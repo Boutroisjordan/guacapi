@@ -6,7 +6,7 @@ namespace GuacAPI.Context.TypeConfigurations;
 
 class ProductEntityConfiguration : IEntityTypeConfiguration<Product>
 {
-    #region Public methods
+
     public void Configure(EntityTypeBuilder<Product> builder)
     {
         builder.ToTable("Product");
@@ -27,8 +27,11 @@ class ProductEntityConfiguration : IEntityTypeConfiguration<Product>
          builder.HasOne(item => item.appellation)
          .WithMany(item => item.Products);
 
+        //  builder.HasMany(item => item.Offers)
+        //  .WithMany(item => item.Products);
+
     }
-    #endregion
+
 
 }
 

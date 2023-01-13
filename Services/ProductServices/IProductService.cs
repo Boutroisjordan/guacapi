@@ -11,7 +11,7 @@ public interface IProductService
     Task<Product> AddProduct(Product item);
     Task<Product?> UpdateProduct(int id, Product product);
     Task<List<Product>?> DeleteProduct(int id);
-    void SaveChanges();
+    Task<int?> CheckStock(int id);
 
 
 }
