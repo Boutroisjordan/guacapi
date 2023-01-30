@@ -8,6 +8,8 @@ public class ProductOffer
 
 {
     #region Properties
+
+    // public int ProductOfferId {get; set;}
     public int QuantityProduct {get; set;}
 
     public int ProductId { get; set; }

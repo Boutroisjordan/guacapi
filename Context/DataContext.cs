@@ -26,12 +26,12 @@ public class DataContext : DbContext
         modelBuilder.ApplyConfiguration(new FurnisherEntityConfiguration());
         modelBuilder.ApplyConfiguration(new OfferEntityConfiguration());
         modelBuilder.ApplyConfiguration(new RegionEntityConfiguration());
-        // modelBuilder.ApplyConfiguration(new ProductOfferEntityConfiguration());
+         modelBuilder.ApplyConfiguration(new ProductOfferEntityConfiguration());
 
 
 
-            modelBuilder.Entity<ProductOffer>()
-            .HasKey(po => new { po.ProductId, po.OfferId });
+        modelBuilder.Entity<ProductOffer>()
+        .HasKey(po => new { po.ProductId, po.OfferId });
 
         modelBuilder.Entity<ProductOffer>()
             .HasOne(po => po.Product)

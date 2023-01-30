@@ -11,7 +11,6 @@ public interface IOfferService
      Task<Offer> AddOffer(Offer offer);
       Task<Offer?> UpdateOffer(int id, Offer offer);
      Task<Offer?> DeleteOffer(int id);
-    // void SaveChanges();
 
      Task<List<Offer>> GetAvailableOffers();
      Task<List<Offer>> GetUnavailableOffers();

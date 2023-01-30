@@ -79,33 +79,6 @@ public class OfferService : IOfferService
         return offer;
     }
 
-    //  public async Task<Offer> AddOffer(Offer request)
-    //  {
-
-    //      var newOffer = new Offer
-    //         {
-    //             Name = request.Name,
-    //             Description = request.Description,
-    //             Price = request.Price
-    //         };
-    //         var saveOffer = _context.Offers.Add(newOffer).Entity;
-    //         await _context.SaveChangesAsync();
-
-    //         if(request.ProductOffers != null)
-    //         {
-    //             var newProductOffer = new ProductOffer
-    //             {
-    //                 OfferId = saveOffer.OfferId,
-    //                 ProductId = request.ProductOffers[0].ProductId
-    //             };
-
-    //             await _context.SaveChangesAsync();
-    //         }
-
-
-    //      return saveOffer;
-    //  }
-
 
     public async Task<Offer> AddOffer(Offer offer)
     {
@@ -133,31 +106,47 @@ public class OfferService : IOfferService
      public async Task<Offer?> UpdateOffer(int id, Offer request)
      {
 
-         var offer = await _context.Offers.FindAsync(id);
 
-         if (offer != null)
-         {
+        var offer = await _context.Offers
+            .Include(o => o.ProductOffers)
+            .FirstOrDefaultAsync(o => o.OfferId == id);
 
-             offer.Name = request.Name;
-             offer.Description = request.Description;
-             offer.Price = request.Price;
-             offer.ImageUrl = request.ImageUrl;
-             offer.ProductOffers = request.ProductOffers;
+        if (offer == null)
+        {
+            throw new Exception("Offre introuvable");
+        }
 
-            foreach (var productOffer in offer.ProductOffers)
+        offer.Name = request.Name;
+        offer.Description = request.Description;
+        offer.Price = request.Price;
+        offer.ImageUrl = request.ImageUrl;
+
+        foreach (var productOffer in request.ProductOffers)
+        {
+            var existingProductOffer = offer.ProductOffers
+                .FirstOrDefault(po => po.OfferId == id && po.ProductId == productOffer.ProductId);
+
+            if (existingProductOffer != null)
             {
-                var productOfferUp = await _context.ProductOffers.FindAsync(productOffer.OfferId, productOffer.ProductId);
-                _context.ProductOffers.Update(productOffer);
-                
+                existingProductOffer.QuantityProduct = productOffer.QuantityProduct;
+                existingProductOffer.ProductId = productOffer.ProductId;
+                existingProductOffer.OfferId = id;
             }
+            else
+            {
+                offer.ProductOffers.Add(new ProductOffer
+                {
+                    QuantityProduct = productOffer.QuantityProduct,
+                    ProductId = productOffer.ProductId,
+                    OfferId = id
+                });
+            }
+        }
 
-             await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
 
-             return offer;
-         }
-
-         return null;
-     }
+        return offer;
+}
 
     public async Task<Offer?> DeleteOffer(int id)
     {
