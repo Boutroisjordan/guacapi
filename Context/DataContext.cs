@@ -30,23 +30,6 @@ public class DataContext : DbContext
 
 
 
-
-    // modelBuilder.Entity<ProductOffer>()
-    //     .HasKey(bc => new { bc.ProductId, bc.OfferId });  
-    // modelBuilder.Entity<ProductOffer>()
-    //     .HasOne(bc => bc.Product)
-    //     .WithMany(b => b.ProductOffers)
-    //     .HasForeignKey(bc => bc.ProductId);  
-    // modelBuilder.Entity<ProductOffer>()
-    //     .HasOne(bc => bc.Offer)
-    //     .WithMany(c => c.ProductOffers)
-    //     .HasForeignKey(bc => bc.OfferId);
-
-    // modelBuilder.Entity<Product>()
-    // .HasMany(p => p.Offers)
-    // .WithMany(o => o.Products)
-    // .UsingEntity(po => po.ToTable("ProductOffers"));
-
             modelBuilder.Entity<ProductOffer>()
             .HasKey(po => new { po.ProductId, po.OfferId });
 

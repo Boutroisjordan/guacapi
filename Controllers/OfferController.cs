@@ -52,6 +52,31 @@ public class OfferController : ControllerBase
          return this.Ok(offer);
      }
 
+      [HttpGet]
+      [Route("availableOffer")]
+      public async Task<IActionResult> GetAvailableOffer()
+      {
+          var offer = await _offerService.GetAvailableOffers();
+
+        //    if (offer == null)
+        //    {
+        //        return BadRequest();
+        //    }
+          return this.Ok(offer);
+      }
+      [HttpGet]
+      [Route("unavailableOffer")]
+      public async Task<IActionResult> GetUnavailableOffer()
+      {
+          var offer = await _offerService.GetUnavailableOffers();
+
+        //    if (offer == null)
+        //    {
+        //        return BadRequest();
+        //    }
+          return this.Ok(offer);
+      }
+
      [HttpPost]
      public async Task<IActionResult> AddOne(Offer offer)
      {
@@ -65,19 +90,19 @@ public class OfferController : ControllerBase
          return Ok(addedOffer);
      }
 
-    // [HttpPut]
-    // [Route("{id}")]
-    // public async Task<IActionResult> UpdateRegion(int id, Region request)
-    // {
-    //     var updatedRegion = await _regionService.UpdateRegion(id, request);
+     [HttpPut]
+     [Route("{id}")]
+     public async Task<IActionResult> UpdateOffer(int id, Offer request)
+     {
+         var updatedOffer = await _offerService.UpdateOffer(id, request);
 
-    //     if (updatedRegion == null)
-    //     {
-    //         BadRequest();
-    //     }
+         if (updatedOffer == null)
+         {
+             BadRequest();
+         }
 
-    //     return Ok(updatedRegion);
-    // }
+         return Ok(updatedOffer);
+     }
 
      [HttpDelete]
      [Route("{id}")]

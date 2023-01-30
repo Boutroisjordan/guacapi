@@ -20,7 +20,7 @@ public class Offer
     // public ICollection<Product>? Products {get; set;}
 
     // [JsonIgnore]
-     public List<ProductOffer>? ProductOffers {get; set;}
+     public List<ProductOffer> ProductOffers {get; set;} = new List<ProductOffer>();
 
     #endregion
 

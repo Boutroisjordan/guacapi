@@ -21,5 +21,11 @@ public class ProductOfferService : IProductOfferService
          var offers = await _context.ProductOffers.ToListAsync();
          return offers;
      }
+     public async Task<List<ProductOffer>?> GetProductOffersByOfferId(int id)
+     {
+         var offers = await _context.ProductOffers.Include(p => p.Product).Where(p => p.OfferId == id).ToListAsync();
+        //  var offers = await _context.ProductOffers.Where(p => p.OfferId == id).ToListAsync();
+         return offers;
+     }
 
 }

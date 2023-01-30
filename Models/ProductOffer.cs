@@ -12,7 +12,7 @@ public class ProductOffer
 
     public int ProductId { get; set; }
     
-    [JsonIgnore]
+    // [JsonIgnore]
     public Product? Product { get; set; }
 
     public int OfferId {get; set;}

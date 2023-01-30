@@ -46,6 +46,14 @@ public class ProductController : ControllerBase
          return Ok(product);
     }
 
+    [HttpGet]
+    [Route("stock/{id}")]
+        public async Task<IActionResult> GetStock(int id)
+        {
+            var productStock = await _productService.CheckStock(id);
+
+            return Ok(productStock);
+        }
     [HttpPost]
   public async Task<IActionResult> AddOne(Product request)
     {
@@ -73,7 +81,8 @@ public class ProductController : ControllerBase
 
         return Ok(updatedProduct);
     }
-         [HttpDelete]
+
+    [HttpDelete]
      [Route("{id}")]
      public async Task<IActionResult> DeleteProduct(int id)
      {
