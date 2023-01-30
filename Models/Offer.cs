@@ -14,7 +14,6 @@ public class Offer
     public string? Name {get; set;}
     public string? Description {get; set;}
     public double Price {get; set;}
-    public int Quantity {get; set;}
     public string? ImageUrl {get; set;}
 
     // public ICollection<Product>? Products {get; set;}
@@ -24,5 +23,4 @@ public class Offer
 
     #endregion
 
-    // https://www.youtube.com/watch?v=FHx6AGVF_IE patrick god
 }
