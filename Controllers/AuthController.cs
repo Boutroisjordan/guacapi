@@ -34,6 +34,58 @@ namespace guacapi.Controllers
             return Ok(infos);
         }
 
+        [HttpGet, Authorize]
+        [Route("GetAllUsers")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var infos = await _userService.GetAllUsers();
+            if (infos == null)
+            {
+                return BadRequest();
+            }
+
+            return Ok(infos);
+        }
+
+        [HttpGet, Authorize]
+        [Route("GetUserById/{id}")]
+        public async Task<IActionResult> GetUserById(int id)
+        {
+            var infos = await _userService.GetUserById(id);
+            if (infos == null)
+            {
+                return BadRequest();
+            }
+
+            return Ok(infos);
+        }
+
+        [HttpGet, Authorize]
+        [Route("GetUserByUsername/{username}")]
+        public async Task<IActionResult> GetUserByUsername(string username)
+        {
+            var infos = await _userService.GetUserByUsername(username);
+            if (infos == null)
+            {
+                return BadRequest();
+            }
+
+            return Ok(infos);
+        }
+
+        [HttpGet, Authorize]
+        [Route("GetUserByEmail/{email}")]
+        public async Task<IActionResult> GetUserByEmail(string email)
+        {
+            var infos = await _userService.GetUserByEmail(email);
+            if (infos == null)
+            {
+                return BadRequest();
+            }
+
+            return Ok(infos);
+        }
+
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register(User.UserDtoRegister request)
         {
@@ -50,7 +102,7 @@ namespace guacapi.Controllers
             userReturnDto.LastName = request.LastName;
             userReturnDto.Username = request.Username;
 
-           // await _userService.Register(user);
+            await _userService.Register(user);
             return Ok(userReturnDto);
         }
 
@@ -99,6 +151,7 @@ namespace guacapi.Controllers
             SetRefreshToken(newRefreshToken);
             return Ok(token);
         }
+
 
         [HttpPost("logout")]
         public async Task<ActionResult> Logout()
@@ -181,8 +234,5 @@ namespace guacapi.Controllers
             var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
             return computedHash.SequenceEqual(passwordHash);
         }
-
-        // suite du tuto: https://youtu.be/v7q3pEK1EA0?t=618
-        // url + /swagger pour la doc api
     }
 }
