@@ -15,4 +15,5 @@ public interface IUserService
     Task<User?> UpdateUser(User user, int id);
     Task<User?> DeleteUser(int id);
     Task<User?> Register(User user);
+    Task<User?> updateToken(User request);
 }

@@ -42,6 +42,24 @@ public class UserService : IUserService
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
         return user;
     }
+    public async Task<User?> updateToken(User request)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+
+        if(user is null) {
+            throw new Exception("User doesn't exist");
+        }
+
+        user.Token = request.Token;
+        user.RefreshToken = request.RefreshToken;
+        user.TokenExpires = request.TokenExpires;
+        user.TokenCreatedAt = request.CreatedAt;
+        
+        await _context.SaveChangesAsync();
+        return user;
+    }
+
+    //todo verifier si email deja existant
 
     public async Task<User?> GetUserByUsername(string username)
     {

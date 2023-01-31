@@ -98,16 +98,22 @@ namespace guacapi.Controllers
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
             user.Username = request.Username;
+            user.Email = request.Email;
+            user.FirstName = request.FirstName;
+            user.Phone = request.Phone;
+            user.Role = "Admin";
+            user.LastName = request.LastName;
             userReturnDto.FirstName = request.FirstName;
             userReturnDto.LastName = request.LastName;
             userReturnDto.Username = request.Username;
+            userReturnDto.Role = "Admin";
 
-            await _userService.Register(user);
+            user = await _userService.Register(user) ?? throw new InvalidOperationException();
             return Ok(userReturnDto);
         }
 
         [HttpPost("login")]
-        public ActionResult<User> Login(User.UserDtoLogin request)
+        public async Task<ActionResult<User>> Login(User.UserDtoLogin request)
         {
             if (request.Password == null)
             {
@@ -126,16 +132,19 @@ namespace guacapi.Controllers
             }
 
             string token = CreateToken(user);
-
             var refreshToken = GenerateRefreshToken();
             SetRefreshToken(refreshToken);
+            user.TokenExpires = DateTime.Now.AddMinutes(5);
+            user.TokenCreatedAt = DateTime.Now;
 
-
-            return Ok(user.Id);
+            // refresh token expires in 7 days
+            // user = await _userService.Register(user) ?? throw new InvalidOperationException();
+            user = await _userService.updateToken(user) ?? throw new InvalidOperationException();
+            return Ok(token);
         }
 
         [HttpPost("refreshToken")]
-        public ActionResult<string> RefreshToken()
+        public async Task<ActionResult<string>> RefreshToken()
         {
             var refreshToken = Request.Cookies["refreshToken"];
             if (user.RefreshToken != null && !user.RefreshToken.Equals(refreshToken))
@@ -150,12 +159,16 @@ namespace guacapi.Controllers
             string token = CreateToken(user);
             var newRefreshToken = GenerateRefreshToken();
             SetRefreshToken(newRefreshToken);
+            user.TokenExpires = DateTime.Now.AddDays(7);
+            user.TokenCreatedAt = DateTime.Now;
+            user.RefreshToken = newRefreshToken.Token;
+            user = await _userService.Register(user) ?? throw new InvalidOperationException();
             return Ok(token);
         }
 
 
         [HttpPost("logout")]
-        public async Task<ActionResult> Logout()
+        public ActionResult Logout()
         {
             user.RefreshToken = null;
             user.TokenExpires = DateTime.Now;
