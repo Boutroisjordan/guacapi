@@ -22,7 +22,12 @@ public static class DIMethods
             services.AddScoped<IAlcoholService, AlcoholService>();
             services.AddScoped<IDomainService, DomainService>();
             services.AddScoped<IAppellationService, AppellationService>();
+
             services.AddScoped<IUserService, UserService>();
+
+            services.AddScoped<IOfferService, OfferService>();
+            services.AddScoped<IProductOfferService, ProductOfferService>();
+
         }
     #endregion
 

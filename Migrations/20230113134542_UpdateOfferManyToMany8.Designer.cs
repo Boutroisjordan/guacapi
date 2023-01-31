@@ -3,6 +3,7 @@ using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuacAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230113134542_UpdateOfferManyToMany8")]
+    partial class UpdateOfferManyToMany8
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -204,7 +207,7 @@ namespace GuacAPI.Migrations
 
                     b.HasIndex("OfferId");
 
-                    b.ToTable("ProductOffer", (string)null);
+                    b.ToTable("ProductOffers");
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Region", b =>

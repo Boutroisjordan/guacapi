@@ -27,6 +27,7 @@ builder.Services.AddInjections(); //Inject all injection depandencies
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
+
 //permet d'ajouter du context http 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSwaggerGen(options =>
@@ -64,6 +65,7 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     }));
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -74,11 +76,13 @@ if (app.Environment.IsDevelopment())
     //app.UseHttpsRedirection();
 }
 
+
 app.UseCors();
 
 //app.UseHttpsRedirection();
 
 app.UseAuthentication();
+
 
 app.UseAuthorization();
 

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace GuacAPI.Models;
 
@@ -23,6 +24,11 @@ public class Product
     public AlcoholType? alcoholType;
     public int AppellationId {get; set;}
     public Appellation? appellation;
+
+    // public ICollection<Offer>? Offers {get; set;}
+
+    [JsonIgnore]
+     public List<ProductOffer>? ProductOffers {get; set;}
 
     #endregion
 }

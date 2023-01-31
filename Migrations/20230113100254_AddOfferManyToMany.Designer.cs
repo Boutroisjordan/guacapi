@@ -3,6 +3,7 @@ using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuacAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230113100254_AddOfferManyToMany")]
+    partial class AddOfferManyToMany
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -111,13 +114,7 @@ namespace GuacAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OfferId"));
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("Price")
@@ -197,14 +194,17 @@ namespace GuacAPI.Migrations
                     b.Property<int>("OfferId")
                         .HasColumnType("int");
 
-                    b.Property<int>("QuantityProduct")
+                    b.Property<int>("ProductOfferId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.HasKey("ProductId", "OfferId");
 
                     b.HasIndex("OfferId");
 
-                    b.ToTable("ProductOffer", (string)null);
+                    b.ToTable("ProductOffer");
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Region", b =>

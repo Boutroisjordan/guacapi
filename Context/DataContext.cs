@@ -12,6 +12,7 @@ public class DataContext : DbContext
 
     public DataContext(DbContextOptions<DataContext> options) : base(options)
     {
+
     }
 
     #endregion
@@ -21,6 +22,29 @@ public class DataContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfiguration(new ProductEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new AlcoholTypeEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new AppellationEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new DomainEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new FurnisherEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new OfferEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new RegionEntityConfiguration());
+         modelBuilder.ApplyConfiguration(new ProductOfferEntityConfiguration());
+
+
+
+        modelBuilder.Entity<ProductOffer>()
+        .HasKey(po => new { po.ProductId, po.OfferId });
+
+        modelBuilder.Entity<ProductOffer>()
+            .HasOne(po => po.Product)
+            .WithMany(p => p.ProductOffers)
+            .HasForeignKey(po => po.ProductId);
+
+        modelBuilder.Entity<ProductOffer>()
+            .HasOne(po => po.Offer)
+            .WithMany(o => o.ProductOffers)
+            .HasForeignKey(po => po.OfferId);
+
     }
 
 
@@ -31,9 +55,14 @@ public class DataContext : DbContext
     public DbSet<AlcoholType> AlcoholTypes { get; set; } = null!;
     public DbSet<Appellation> Appellations { get; set; } = null!;
 
+
     public DbSet<User.UserDtoRegister> UsersDtoRegisters { get; set; } = null!;
     public DbSet<User.UserDtoLogin> UserLogins { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
+
+    public DbSet<Offer> Offers { get; set; } = null!;
+    public DbSet<ProductOffer> ProductOffers {get; set;} = null!;
+
 }
 
 //https://medium.com/net-core/build-a-restful-web-api-with-asp-net-core-6-30747197e229 le blog
