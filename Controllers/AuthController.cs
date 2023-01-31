@@ -107,7 +107,7 @@ namespace guacapi.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<User>> Login(User.UserDtoLogin request)
+        public ActionResult<User> Login(User.UserDtoLogin request)
         {
             if (request.Password == null)
             {
@@ -130,11 +130,12 @@ namespace guacapi.Controllers
             var refreshToken = GenerateRefreshToken();
             SetRefreshToken(refreshToken);
 
-            return Ok(token);
+
+            return Ok(user.Id);
         }
 
         [HttpPost("refreshToken")]
-        public async Task<ActionResult<string>> RefreshToken()
+        public ActionResult<string> RefreshToken()
         {
             var refreshToken = Request.Cookies["refreshToken"];
             if (user.RefreshToken != null && !user.RefreshToken.Equals(refreshToken))
@@ -188,10 +189,16 @@ namespace guacapi.Controllers
                 HttpOnly = true,
                 Expires = newRefreshToken.Expires,
             };
-            Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
-            user.RefreshToken = newRefreshToken.Token;
-            user.TokenCreatedAt = newRefreshToken.Created;
-            user.TokenExpires = newRefreshToken.Expires;
+
+            if (newRefreshToken.Token != null)
+            {
+                Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
+                user.RefreshToken = newRefreshToken.Token;
+                user.TokenCreatedAt = newRefreshToken.Created;
+                user.TokenExpires = newRefreshToken.Expires;
+            }
+
+
         }
 
         // Claims properties are used to store user information anything you want to store in the token
