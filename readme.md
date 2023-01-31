@@ -35,3 +35,15 @@ Indented code
     }
 
 
+### Salt key
+
+Juste en dessous de la connection string, n'oublier pas d'ajouter votre salt key.
+
+Indented code
+
+    
+  "AppSettings": {
+    "Secret": "my top secret key"
+  }
+
+

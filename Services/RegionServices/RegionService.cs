@@ -51,7 +51,6 @@ public class RegionService : IRegionService
 
             region.Name = request.Name;
 
-            region.RegionID = id;
 
             await _context.SaveChangesAsync();
 

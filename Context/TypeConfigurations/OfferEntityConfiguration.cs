@@ -4,19 +4,17 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace GuacAPI.Context.TypeConfigurations;
 
-class FurnisherEntityConfiguration : IEntityTypeConfiguration<Furnisher>
+class OfferEntityConfiguration : IEntityTypeConfiguration<Offer>
 {
     #region Public methods
-    public void Configure(EntityTypeBuilder<Furnisher> builder)
+    public void Configure(EntityTypeBuilder<Offer> builder)
     {
         //Nom de la tabmle
-        builder.ToTable("Furnisher");
+        builder.ToTable("Offer");
         //Primary key de la table
-        builder.HasKey(item => item.FurnisherId);
+        builder.HasKey(item => item.OfferId);
 
     }
-
-    // protected override void OnModelCreating()
     #endregion
 
 }

@@ -2,36 +2,44 @@ using GuacAPI.Models;
 using GuacAPI.Context;
 using Microsoft.AspNetCore.Mvc;
 using GuacAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GuacAPI.Controllers;
 
 [Route("[controller]")]
 [ApiController]
+[Authorize]
 public class ProductController : ControllerBase
 {
     #region Fields
+
     private IProductService _productService;
+
     #endregion
 
     #region Constructors
+
     public ProductController(IProductService productService)
     {
         this._productService = productService;
     }
+
     #endregion
 
-
-    [HttpGet]
-     public async Task<IActionResult> GetAllProducts()
+    [HttpGet,AllowAnonymous]
+    public async Task<IActionResult> GetAllProducts()
     {
         var productList = await _productService.GetAllProducts();
-        if (productList == null) 
+        if (productList == null)
         {
             return BadRequest();
-        } else if (productList.Count == 0) {
+        }
+        else if (productList.Count == 0)
+        {
             return NoContent();
         }
-         return Ok(productList);
+
+        return Ok(productList);
     }
 
     [HttpGet]
@@ -40,19 +48,28 @@ public class ProductController : ControllerBase
     {
         var product = await _productService.GetOne(id);
 
-        if(product == null) {
+        if (product == null)
+        {
             return BadRequest();
         }
-         return Ok(product);
+
+        return Ok(product);
     }
 
-    [HttpPost]
-  public async Task<IActionResult> AddOne(Product request)
-    {
+    [HttpGet]
+    [Route("stock/{id}")]
+        public async Task<IActionResult> GetStock(int id)
+        {
+            var productStock = await _productService.CheckStock(id);
 
+            return Ok(productStock);
+        }
+    [HttpPost]
+    public async Task<IActionResult> AddOne(Product request)
+    {
         var addedProduct = await _productService.AddProduct(request);
 
-        if (addedProduct == null) 
+        if (addedProduct == null)
         {
             return BadRequest();
         }
@@ -62,29 +79,30 @@ public class ProductController : ControllerBase
 
     [HttpPut]
     [Route("{id}")]
-
     public async Task<IActionResult> UpdateProduct(int id, Product request)
     {
         var updatedProduct = await _productService.UpdateProduct(id, request);
 
-        if(updatedProduct == null) {
+        if (updatedProduct == null)
+        {
             return BadRequest();
         }
 
         return Ok(updatedProduct);
     }
-         [HttpDelete]
-     [Route("{id}")]
-     public async Task<IActionResult> DeleteProduct(int id)
-     {
-         var productList =  await this._productService.DeleteProduct(id);
 
-        if(productList == null) 
+
+    [HttpDelete]
+    [Route("{id}")]
+    public async Task<IActionResult> DeleteProduct(int id)
+    {
+        var productList = await this._productService.DeleteProduct(id);
+
+        if (productList == null)
         {
             return BadRequest();
         }
 
-         return Ok(productList);
-     }
+        return Ok(productList);
+    }
 }
-
