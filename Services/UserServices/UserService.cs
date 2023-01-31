@@ -2,6 +2,10 @@
 using GuacAPI.Context;
 using GuacAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace GuacAPI.Services.UserServices;
 
@@ -9,11 +13,13 @@ public class UserService : IUserService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly DataContext _context;
+    private readonly IConfiguration _configuration;
 
-    public UserService(IHttpContextAccessor httpContextAccessor, DataContext context)
+    public UserService(IHttpContextAccessor httpContextAccessor, DataContext context, IConfiguration configuration)
     {
         _httpContextAccessor = httpContextAccessor;
         _context = context;
+        _configuration = configuration;
     }
 
     // pas mettre de variable dans la function, mais utiliser le _httpContextAccessor
@@ -42,18 +48,20 @@ public class UserService : IUserService
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
         return user;
     }
-    public async Task<User?> updateToken(User request)
+    public async Task<User?> updateToken(User.UserDtoLogin request)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
 
         if(user is null) {
             throw new Exception("User doesn't exist");
         }
 
-        user.Token = request.Token;
-        user.RefreshToken = request.RefreshToken;
-        user.TokenExpires = request.TokenExpires;
-        user.TokenCreatedAt = request.CreatedAt;
+        string token = CreateToken(user);
+
+        user.Token = token;
+        // user.RefreshToken = request.RefreshToken;
+        // user.TokenExpires = request.TokenExpires;
+        // user.TokenCreatedAt = request.CreatedAt;
         
         await _context.SaveChangesAsync();
         return user;
@@ -109,4 +117,65 @@ public class UserService : IUserService
         await _context.SaveChangesAsync();
         return savedRegister;
     }
+
+     public async Task<bool> Login(string username, string password)
+     {
+
+         var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+
+
+         if(user is null) {
+            return false;
+         }
+         if(user.PasswordHash is null || user.PasswordSalt is null) {
+            return false;
+         }
+        
+        var result = VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt);
+        
+         return result;
+     }
+
+        public bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+        {
+            using var hmac = new HMACSHA512(passwordSalt);
+            var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+            return computedHash.SequenceEqual(passwordHash);
+        }
+        public async Task<bool> CheckUsernameAvailability(string username)
+        {
+            var checkUsername = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            if(checkUsername != null) {
+                return false;
+            }
+
+            return true;
+
+        }
+
+        public string CreateToken(User user)
+        {
+            if (user.Username != null)
+            {
+                List<Claim> claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.Role, "Admin")
+                };
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                    _configuration.GetSection("AppSettings:Secret").Value ?? throw new InvalidOperationException()));
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+                var token = new JwtSecurityToken(
+                    claims: claims,
+                    expires: DateTime.Now.AddDays(1),
+                    signingCredentials: creds);
+                var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+                return jwt;
+            }
+
+            return String.Empty;
+        }
+//todo création d'admin de base
+
 }

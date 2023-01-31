@@ -93,6 +93,16 @@ namespace guacapi.Controllers
             {
                 return BadRequest("Password is required");
             }
+            if (request.Username == null)
+            {
+                return BadRequest("Username is required");
+            }
+
+            var checkUsername = await _userService.CheckUsernameAvailability(request.Username);
+
+            if(checkUsername == false) {
+                return BadRequest("Username is already use, take another username");
+            }
 
             CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
             user.PasswordHash = passwordHash;
@@ -113,34 +123,56 @@ namespace guacapi.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<User>> Login(User.UserDtoLogin request)
+        public async Task<ActionResult> Login(User.UserDtoLogin request)
         {
-            if (request.Password == null)
-            {
-                return BadRequest("Password is required");
-            }
+             if (request.Password == null)
+             {
+                 return BadRequest("Password is required");
+             }
 
-            if (request.Username != user.Username)
-            {
-                return BadRequest("Username is incorrect");
-            }
+             if (request.Username == null)
+             {
+                 return BadRequest("Username is required");
+             }
 
-            if (user.PasswordSalt != null && user.PasswordHash != null &&
-                !VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
-            {
-                return BadRequest("Password is incorrect");
-            }
+            // if (request.Username != user.Username)
+            // {
+            //     return BadRequest("Username is incorrect");
+            // }
 
-            string token = CreateToken(user);
-            var refreshToken = GenerateRefreshToken();
-            SetRefreshToken(refreshToken);
-            user.TokenExpires = DateTime.Now.AddMinutes(5);
-            user.TokenCreatedAt = DateTime.Now;
+            // if (user.PasswordSalt != null && user.PasswordHash != null &&
+            //     !VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
+            // {
+            //     return BadRequest("Password is incorrect");
+            // }
 
-            // refresh token expires in 7 days
-            // user = await _userService.Register(user) ?? throw new InvalidOperationException();
-            user = await _userService.updateToken(user) ?? throw new InvalidOperationException();
-            return Ok(token);
+
+
+
+
+        //Todo : check all username pour pas pouvoir créer un usernam qui existe déjà pour pouvoir récupérer le user par son username.  
+        // Récupérer le password salt appelle verifyPassWordHash
+
+            
+
+             var result = await _userService.Login(request.Username, request.Password);
+
+              if(result is false) {
+                 return BadRequest("Bad credentials");
+              }
+
+
+            //  string token = CreateToken(user);
+
+            //Refresh token en attente 
+            //  var refreshToken = GenerateRefreshToken();
+            //  SetRefreshToken(refreshToken);
+            //  user.TokenExpires = DateTime.Now.AddMinutes(5);
+            //  user.TokenCreatedAt = DateTime.Now;
+
+            //  refresh token expires in 7 days
+             var upToken = await _userService.updateToken(request);
+            return Ok(upToken);
         }
 
         [HttpPost("refreshToken")]
@@ -248,11 +280,6 @@ namespace guacapi.Controllers
             }
         }
 
-        private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
-        {
-            using var hmac = new HMACSHA512(passwordSalt);
-            var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return computedHash.SequenceEqual(passwordHash);
-        }
+
     }
 }

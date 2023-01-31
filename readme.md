@@ -13,6 +13,12 @@ L'api nécessite l'envrionement suivant:
 + AspNetCore 6.0
 + Entity Framework 6.4.4
 
+### télécharger automatiquement les package utiliser.
+
+
+
+
+
 ### Packages
 
 Avant de lancer l'application, assurez-vous d'avoir installer les packages suivant:
@@ -42,8 +48,12 @@ Juste en dessous de la connection string, n'oublier pas d'ajouter votre salt key
 Indented code
 
     
-  "AppSettings": {
-    "Secret": "my top secret key"
-  }
 
+
+Indented code
+
+    
+    "AppSettings": {
+        "Secret": "my top secret key"
+    }
 
