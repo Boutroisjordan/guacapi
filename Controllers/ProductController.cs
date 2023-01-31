@@ -93,13 +93,6 @@ public class ProductController : ControllerBase
 
 
     [HttpDelete]
-     [Route("{id}")]
-     public async Task<IActionResult> DeleteProduct(int id)
-     {
-         var productList =  await this._productService.DeleteProduct(id);
-
-
-    [HttpDelete]
     [Route("{id}")]
     public async Task<IActionResult> DeleteProduct(int id)
     {
