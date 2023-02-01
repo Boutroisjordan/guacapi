@@ -48,7 +48,7 @@ public class UserService : IUserService
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
         return user;
     }
-    public async Task<User?> updateToken(User.UserDtoLogin request)
+    public async Task<User?> updateToken(UserDtoLogin request)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
 

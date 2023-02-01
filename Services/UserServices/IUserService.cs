@@ -15,7 +15,7 @@ public interface IUserService
     Task<User?> UpdateUser(User user, int id);
     Task<User?> DeleteUser(int id);
     Task<User?> Register(User user);
-    Task<User?> updateToken(User.UserDtoLogin request);
+    Task<User?> updateToken(UserDtoLogin request);
     Task<bool> Login(string username, string password);
     bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt);
 

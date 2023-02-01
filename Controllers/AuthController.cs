@@ -16,7 +16,7 @@ namespace guacapi.Controllers
     {
         public static User user = new User();
         private readonly IConfiguration _configuration;
-        public static User.UserReturnDto userReturnDto = new User.UserReturnDto();
+        public static UserReturnDto userReturnDto = new UserReturnDto();
         private readonly IUserService _userService;
 
         public AuthController(IConfiguration configuration, IUserService userService)
@@ -87,7 +87,7 @@ namespace guacapi.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<User>> Register(User.UserDtoRegister request)
+        public async Task<ActionResult<User>> Register(UserDtoRegister request)
         {
             if (request.Password == null)
             {
@@ -123,7 +123,7 @@ namespace guacapi.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult> Login(User.UserDtoLogin request)
+        public async Task<ActionResult> Login(UserDtoLogin request)
         {
              if (request.Password == null)
              {
