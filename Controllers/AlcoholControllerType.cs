@@ -28,9 +28,12 @@ public class AlcoholControllerType : ControllerBase
     #region methods
 
     [HttpGet]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> GetAllTypes()
+    public async Task<IActionResult> GetAllTypes(string apiKey)
     {
+        if (apiKey != Configuration["ApiKey:Key"])
+        {
+            return Unauthorized();
+        }
         var types = await _alcoholService.GetAllTypes();
 
         if (types == null)
