@@ -9,7 +9,7 @@ public class Product
     #region Properties
     public int ProductId { get; set; }
     [Required] public string? Name { get; set; }
-    [Required] public decimal Price { get; set; }
+    [Required] public int Price { get; set; }
     [Required] public int Stock { get; set; }
     public int Millesime { get; set; }
     [Required] public decimal AlcoholDegree { get; set; }

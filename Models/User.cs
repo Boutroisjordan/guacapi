@@ -27,35 +27,35 @@ public class User
 
 
     //user data to object for form submission and validation
-    [Keyless]
-    public class UserDtoLogin
-    {
-        public string? Username { get; set; }
-        public string? Password { get; set; }
-    }
-
-    [Keyless]
-    public class UserDtoRegister
-    {
-        public string? Username { get; set; }
-        public string? Password { get; set; }
-        public string? Email { get; set; }
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public string? Phone { get; set; }
-    }
-
-    // return only the data needed for the user
-    [Keyless]
-    public class UserReturnDto
-    {
-        public string? FirstName { get; set; }
-        public string? Username { get; set; }
-        public string? LastName { get; set; }
-        public string? Token { get; set; }
-        public string? RefreshToken { get; set; }
-        public string? Role { get; set; }
-    }
 
     #endregion
+}
+[Keyless]
+public class UserDtoLogin
+{
+    public string? Username { get; set; }
+    public string? Password { get; set; }
+}
+
+[Keyless]
+public class UserDtoRegister
+{
+    public string? Username { get; set; }
+    public string? Password { get; set; }
+    public string? Email { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? Phone { get; set; }
+}
+
+// return only the data needed for the user
+[Keyless]
+public class UserReturnDto
+{
+    public string? FirstName { get; set; }
+    public string? Username { get; set; }
+    public string? LastName { get; set; }
+    public string? Token { get; set; }
+    public string? RefreshToken { get; set; }
+    public string? Role { get; set; }
 }

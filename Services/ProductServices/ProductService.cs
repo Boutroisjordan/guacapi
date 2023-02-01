@@ -32,20 +32,6 @@ public class ProductService : IProductService
         return product;
     }
 
-//TODO: problème je ne pas attendre avec foreach, trouve un moyen de récupérer le stock de chaque produit. PS productOffer qui est une table de relation n'est même pas inscrit sur la bdd wtf.
-    // public async Task<Product?> GetOneWithOffers(int id)
-    // {
-    //             // var furnisher = await _context.Furnishers.Include(p => p.Products).Where(p => p.FurnisherId == id)
-    //             //  var product = await _context.Products.Include(p => p.ProductOffers.Any(y => y.ProductId == id));
-    //     //
-    //  var product = await _context.Products.FindAsync(id);
-    //     //  var product = await _context.Products.Include(o => o.ProductOffers).FirstOrDefaultAsync();
-    // //      var product = await this.GetOne(id);
-
-    //      var offers = await _context.Offers.Where(x => x.ProductOffers.Any(y => y.ProductId == id)).ToListAsync();
-    // // return new ProductWithOffers(product, offers);
-    //      return product;
-    // }
     public async Task<Product> AddProduct(Product request)
     {
 

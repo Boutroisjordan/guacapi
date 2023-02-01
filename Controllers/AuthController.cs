@@ -16,7 +16,7 @@ namespace guacapi.Controllers
     {
         public static User user = new User();
         private readonly IConfiguration _configuration;
-        public static User.UserReturnDto userReturnDto = new User.UserReturnDto();
+        public static UserReturnDto userReturnDto = new UserReturnDto();
         private readonly IUserService _userService;
 
         public AuthController(IConfiguration configuration, IUserService userService)
@@ -87,50 +87,94 @@ namespace guacapi.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<User>> Register(User.UserDtoRegister request)
+        public async Task<ActionResult<User>> Register(UserDtoRegister request)
         {
             if (request.Password == null)
             {
                 return BadRequest("Password is required");
+            }
+            if (request.Username == null)
+            {
+                return BadRequest("Username is required");
+            }
+
+            var checkUsername = await _userService.CheckUsernameAvailability(request.Username);
+
+            if(checkUsername == false) {
+                return BadRequest("Username is already use, take another username");
             }
 
             CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
             user.Username = request.Username;
+            user.Email = request.Email;
+            user.FirstName = request.FirstName;
+            user.Phone = request.Phone;
+            user.Role = "Admin";
+            user.LastName = request.LastName;
             userReturnDto.FirstName = request.FirstName;
             userReturnDto.LastName = request.LastName;
             userReturnDto.Username = request.Username;
+            userReturnDto.Role = "Admin";
 
-            await _userService.Register(user);
+            user = await _userService.Register(user) ?? throw new InvalidOperationException();
             return Ok(userReturnDto);
         }
 
         [HttpPost("login")]
-        public ActionResult<User> Login(User.UserDtoLogin request)
+
+        public async Task<ActionResult> Login(UserDtoLogin request)
+
         {
-            if (request.Password == null)
-            {
-                return BadRequest("Password is required");
-            }
+             if (request.Password == null)
+             {
+                 return BadRequest("Password is required");
+             }
 
-            if (request.Username != user.Username)
-            {
-                return BadRequest("Username is incorrect");
-            }
+             if (request.Username == null)
+             {
+                 return BadRequest("Username is required");
+             }
 
-            if (user.PasswordSalt != null && user.PasswordHash != null &&
-                !VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
-            {
-                return BadRequest("Password is incorrect");
-            }
+            // if (request.Username != user.Username)
+            // {
+            //     return BadRequest("Username is incorrect");
+            // }
 
-            string token = CreateToken(user);
+            // if (user.PasswordSalt != null && user.PasswordHash != null &&
+            //     !VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
+            // {
+            //     return BadRequest("Password is incorrect");
+            // }
 
-            var refreshToken = GenerateRefreshToken();
-            SetRefreshToken(refreshToken);
 
-            return Ok(token);
+
+
+
+        //Todo : check all username pour pas pouvoir créer un usernam qui existe déjà pour pouvoir récupérer le user par son username.  
+        // Récupérer le password salt appelle verifyPassWordHash
+
+            
+
+             var result = await _userService.Login(request.Username, request.Password);
+
+              if(result is false) {
+                 return BadRequest("Bad credentials");
+              }
+
+
+            //  string token = CreateToken(user);
+
+            //Refresh token en attente 
+            //  var refreshToken = GenerateRefreshToken();
+            //  SetRefreshToken(refreshToken);
+            //  user.TokenExpires = DateTime.Now.AddMinutes(5);
+            //  user.TokenCreatedAt = DateTime.Now;
+
+            //  refresh token expires in 7 days
+             var upToken = await _userService.updateToken(request);
+            return Ok(upToken);
         }
 
         [HttpPost("refreshToken")]
@@ -149,6 +193,10 @@ namespace guacapi.Controllers
             string token = CreateToken(user);
             var newRefreshToken = GenerateRefreshToken();
             SetRefreshToken(newRefreshToken);
+            user.TokenExpires = DateTime.Now.AddDays(7);
+            user.TokenCreatedAt = DateTime.Now;
+            user.RefreshToken = newRefreshToken.Token;
+            user = await _userService.Register(user) ?? throw new InvalidOperationException();
             return Ok(token);
         }
 
@@ -188,15 +236,18 @@ namespace guacapi.Controllers
                 HttpOnly = true,
                 Expires = newRefreshToken.Expires,
             };
-            
+
             if (newRefreshToken.Token != null)
             {
                 Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
                 user.RefreshToken = newRefreshToken.Token;
+
+                user.TokenCreatedAt = newRefreshToken.Created;
+                user.TokenExpires = newRefreshToken.Expires;
             }
 
-            user.TokenCreatedAt = newRefreshToken.Created;
-            user.TokenExpires = newRefreshToken.Expires;
+
+
         }
 
         // Claims properties are used to store user information anything you want to store in the token
@@ -233,11 +284,6 @@ namespace guacapi.Controllers
             }
         }
 
-        private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
-        {
-            using var hmac = new HMACSHA512(passwordSalt);
-            var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return computedHash.SequenceEqual(passwordHash);
-        }
+
     }
 }
