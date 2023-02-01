@@ -1,11 +1,13 @@
-﻿using System.Security.Claims;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using AutoMapper;
+using GuacAPI.Authorization;
 using GuacAPI.Context;
+using GuacAPI.Helpers;
 using GuacAPI.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
-using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace GuacAPI.Services.UserServices;
 
@@ -14,12 +16,17 @@ public class UserService : IUserService
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly DataContext _context;
     private readonly IConfiguration _configuration;
+    private readonly IJwtUtils _jwtUtils;
+    private readonly IMapper _mapper;
 
-    public UserService(IHttpContextAccessor httpContextAccessor, DataContext context, IConfiguration configuration)
+    public UserService(IHttpContextAccessor httpContextAccessor, DataContext context, IConfiguration configuration,
+        IJwtUtils jwtUtils, IMapper mapper)
     {
         _httpContextAccessor = httpContextAccessor;
         _context = context;
         _configuration = configuration;
+        _jwtUtils = jwtUtils;
+        _mapper = mapper;
     }
 
     // pas mettre de variable dans la function, mais utiliser le _httpContextAccessor
@@ -33,7 +40,6 @@ public class UserService : IUserService
 
         //   var user = _context.Users.FirstOrDefault(u => u.Username == username);
 
-
         return new { username, role };
     }
 
@@ -45,14 +51,15 @@ public class UserService : IUserService
 
     public async Task<User?> GetUserById(int id)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
-        return user;
+        return getUser(id);
     }
+
     public async Task<User?> updateToken(UserDtoLogin request)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
 
-        if(user is null) {
+        if (user is null)
+        {
             throw new Exception("User doesn't exist");
         }
 
@@ -62,10 +69,11 @@ public class UserService : IUserService
         // user.RefreshToken = request.RefreshToken;
         // user.TokenExpires = request.TokenExpires;
         // user.TokenCreatedAt = request.CreatedAt;
-        
+
         await _context.SaveChangesAsync();
         return user;
     }
+
 
     //todo verifier si email deja existant
 
@@ -102,100 +110,89 @@ public class UserService : IUserService
 
     public async Task<User?> Register(User user)
     {
-        var register = new User
-        {
-            Username = user.Username,
-            Email = user.Email,
-            Phone = user.Phone,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            PasswordHash = user.PasswordHash,
-            PasswordSalt = user.PasswordSalt,
-            Role = user.Role
-        };
+        if (await _context.Users.AnyAsync(x => x.Username == user.Username))
+            throw new AppException("Username '" + user.Username + "' is already taken");
+
+        var register = _mapper.Map<User>(user);
+        register.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
         var savedRegister = _context.Users.Add(register).Entity;
         await _context.SaveChangesAsync();
         return savedRegister;
     }
 
-     public async Task<bool> Login(string username, string password)
-     {
+    public async Task<User?> Login(UserDtoLogin request)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
 
-         var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
-
-
-         if(user is null) {
-            return false;
-         }
-         if(user.PasswordHash is null || user.PasswordSalt is null) {
-            return false;
-         }
-        
-        var result = VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt);
-        
-         return result;
-     }
-
-        public bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+        if (request.Password is null)
         {
-            using var hmac = new HMACSHA512(passwordSalt);
-            var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return computedHash.SequenceEqual(passwordHash);
-        }
-        public async Task<bool> CheckUsernameAvailability(string username)
-        {
-            var checkUsername = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
-            if(checkUsername != null) {
-                return false;
-            }
-
-            return true;
-
+            throw new Exception("Password is null");
         }
 
-        public string CreateToken(User user)
+        var response = _mapper.Map<User>(user);
+        if (user != null)
         {
-            if (user.Username != null)
+            response.Token = _jwtUtils.GenerateToken(user);
+
+            var result = VerifyPasswordHash(request);
+            if (result == false)
             {
-                List<Claim> claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.Username),
-                    new Claim(ClaimTypes.Role, "Admin")
-                };
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes( _configuration.GetSection("AppSettings:Secret").Value ?? throw new InvalidOperationException()));
-                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-
-                var token = new JwtSecurityToken(
-                    claims: claims,
-                    expires: DateTime.Now.AddDays(1),
-                    signingCredentials: creds);
-                var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-                return jwt;
+                throw new Exception("Password is incorrect");
             }
 
-            return String.Empty;
+            return response;
         }
-        public string CreateApiToken(string apiKey)
+
+        throw new Exception("User doesn't exist");
+    }
+
+    public bool VerifyPasswordHash(UserDtoLogin request)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.Username == request.Username);
+        if (user == null) return false;
+        var result = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
+        return result;
+    }
+
+    public async Task<bool> CheckUsernameAvailability(string username)
+    {
+        var checkUsername = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+        if (checkUsername != null)
         {
-            if (apiKey != null)
-            {
-                List<Claim> claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, apiKey),
-                };
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes( _configuration.GetSection("ApiKey:Key").Value ?? throw new InvalidOperationException()));
-                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-
-                var token = new JwtSecurityToken(
-                    claims: claims,
-                    expires: DateTime.Now.AddDays(1),
-                    signingCredentials: creds);
-                var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-                return jwt;
-            }
-
-            return String.Empty;
+            return false;
         }
-//todo création d'admin de base
 
+        return true;
+    }
+
+    public string CreateToken(User user)
+    {
+        if (user.Username != null)
+        {
+            List<Claim> claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Role, "Admin")
+            };
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                _configuration.GetSection("AppSettings:Secret").Value ?? throw new InvalidOperationException()));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+            var token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: creds);
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+            return jwt;
+        }
+
+        return String.Empty;
+    }
+
+    private User getUser(int id)
+    {
+        var user = _context.Users.Find(id);
+        if (user == null) throw new KeyNotFoundException("User not found");
+        return user;
+    }
 }

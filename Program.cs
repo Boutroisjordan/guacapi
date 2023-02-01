@@ -1,8 +1,11 @@
 ﻿using System.Text;
+using GuacAPI.Authorization;
 using Microsoft.EntityFrameworkCore;
 using GuacAPI.Models;
 using GuacAPI.Context;
 using GuacAPI.ExtensionMethods;
+using GuacAPI.Helpers;
+using GuacAPI.Services.UserServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -28,7 +31,14 @@ builder.Services.AddInjections(); //Inject all injection depandencies
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddAutoMapper(typeof(Program));
 
+// configure strongly typed settings object
+builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
+
+// configure DI for application services
+builder.Services.AddScoped<IJwtUtils, JwtUtils>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 //permet d'ajouter du context http 
 builder.Services.AddHttpContextAccessor();
@@ -112,4 +122,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
