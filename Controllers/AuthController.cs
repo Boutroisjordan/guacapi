@@ -93,6 +93,7 @@ namespace guacapi.Controllers
             {
                 return BadRequest("Password is required");
             }
+
             if (request.Username == null)
             {
                 return BadRequest("Username is required");
@@ -100,19 +101,18 @@ namespace guacapi.Controllers
 
             var checkUsername = await _userService.CheckUsernameAvailability(request.Username);
 
-            if(checkUsername == false) {
+            if (checkUsername == false)
+            {
                 return BadRequest("Username is already use, take another username");
             }
 
-            CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
-            user.PasswordHash = passwordHash;
-            user.PasswordSalt = passwordSalt;
-            user.Username = request.Username;
             user.Email = request.Email;
+            user.Username = request.Username;
             user.FirstName = request.FirstName;
             user.Phone = request.Phone;
             user.Role = "Admin";
             user.LastName = request.LastName;
+            user.PasswordHash = request.Password;
             userReturnDto.FirstName = request.FirstName;
             userReturnDto.LastName = request.LastName;
             userReturnDto.Username = request.Username;
@@ -123,57 +123,27 @@ namespace guacapi.Controllers
         }
 
         [HttpPost("login")]
-
         public async Task<ActionResult> Login(UserDtoLogin request)
 
         {
-             if (request.Password == null)
-             {
-                 return BadRequest("Password is required");
-             }
+            if (request.Password == null)
+            {
+                return BadRequest("Password is required");
+            }
 
-             if (request.Username == null)
-             {
-                 return BadRequest("Username is required");
-             }
+            if (request.Username == null)
+            {
+                return BadRequest("Username is required");
+            }
 
-            // if (request.Username != user.Username)
-            // {
-            //     return BadRequest("Username is incorrect");
-            // }
+            var result = await _userService.Login(request);
 
-            // if (user.PasswordSalt != null && user.PasswordHash != null &&
-            //     !VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
-            // {
-            //     return BadRequest("Password is incorrect");
-            // }
+            if (result == null)
+            {
+                return BadRequest("Bad credentials");
+            }
 
-
-
-
-
-        //Todo : check all username pour pas pouvoir créer un usernam qui existe déjà pour pouvoir récupérer le user par son username.  
-        // Récupérer le password salt appelle verifyPassWordHash
-
-            
-
-             var result = await _userService.Login(request.Username, request.Password);
-
-              if(result is false) {
-                 return BadRequest("Bad credentials");
-              }
-
-
-            //  string token = CreateToken(user);
-
-            //Refresh token en attente 
-            //  var refreshToken = GenerateRefreshToken();
-            //  SetRefreshToken(refreshToken);
-            //  user.TokenExpires = DateTime.Now.AddMinutes(5);
-            //  user.TokenCreatedAt = DateTime.Now;
-
-            //  refresh token expires in 7 days
-             var upToken = await _userService.updateToken(request);
+            var upToken = await _userService.updateToken(request);
             return Ok(upToken);
         }
 
@@ -245,9 +215,6 @@ namespace guacapi.Controllers
                 user.TokenCreatedAt = newRefreshToken.Created;
                 user.TokenExpires = newRefreshToken.Expires;
             }
-
-
-
         }
 
         // Claims properties are used to store user information anything you want to store in the token
@@ -275,15 +242,9 @@ namespace guacapi.Controllers
             return String.Empty;
         }
 
-        private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        private void CreatePasswordHash(string password)
         {
-            using (var hmac = new HMACSHA512())
-            {
-                passwordSalt = hmac.Key;
-                passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-            }
+            password = BCrypt.Net.BCrypt.HashPassword(password);
         }
-
-
     }
 }
