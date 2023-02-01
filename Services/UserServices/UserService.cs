@@ -162,8 +162,28 @@ public class UserService : IUserService
                     new Claim(ClaimTypes.Name, user.Username),
                     new Claim(ClaimTypes.Role, "Admin")
                 };
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                    _configuration.GetSection("AppSettings:Secret").Value ?? throw new InvalidOperationException()));
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes( _configuration.GetSection("AppSettings:Secret").Value ?? throw new InvalidOperationException()));
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+                var token = new JwtSecurityToken(
+                    claims: claims,
+                    expires: DateTime.Now.AddDays(1),
+                    signingCredentials: creds);
+                var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+                return jwt;
+            }
+
+            return String.Empty;
+        }
+        public string CreateApiToken(string apiKey)
+        {
+            if (apiKey != null)
+            {
+                List<Claim> claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, apiKey),
+                };
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes( _configuration.GetSection("ApiKey:Key").Value ?? throw new InvalidOperationException()));
                 var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
                 var token = new JwtSecurityToken(

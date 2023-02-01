@@ -40,22 +40,26 @@ builder.Services.AddSwaggerGen(options =>
         Type = SecuritySchemeType.ApiKey
     });
     options.OperationFilter<SecurityRequirementsOperationFilter>();
+
 });
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        var value = builder.Configuration.GetSection("AppSettings:Secret").Value;
-        if (value != null)
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey =
-                    new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(value)),
-                ValidateIssuer = false,
-                ValidateAudience = false
-            };
-    });
+
+   builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+       .AddJwtBearer(options =>
+       {
+           var value = builder.Configuration.GetSection("AppSettings:Secret").Value;
+           if (value != null)
+               options.TokenValidationParameters = new TokenValidationParameters
+               {
+                   ValidateIssuerSigningKey = true,
+                   IssuerSigningKey =
+                       new SymmetricSecurityKey(
+                           Encoding.UTF8.GetBytes(value)),
+                   ValidateIssuer = false,
+                   ValidateAudience = false
+               };
+       });
+
+
 builder.Services.AddCors(options =>
     options.AddDefaultPolicy(cors =>
     {
@@ -81,6 +85,8 @@ app.UseCors();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+// app.UseMiddleware<APIKeyMiddleware>(builder.Configuration.GetSection("ApiKey:Key").Value);
 
 app.MapControllers();
 

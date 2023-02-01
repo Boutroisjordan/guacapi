@@ -26,7 +26,8 @@ public class ProductController : ControllerBase
 
     #endregion
 
-    [HttpGet,AllowAnonymous]
+    // [HttpGet,AllowAnonymous]
+    [HttpGet,Authorize]
     public async Task<IActionResult> GetAllProducts()
     {
         var productList = await _productService.GetAllProducts();

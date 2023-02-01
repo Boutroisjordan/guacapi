@@ -85,6 +85,18 @@ namespace guacapi.Controllers
 
             return Ok(infos);
         }
+        [HttpGet]
+        [Route("Getapikkey/")]
+        public IActionResult GetApiKey(string key)
+        {
+            var infos = _userService.CreateApiToken(key);
+            if (infos == null)
+            {
+                return BadRequest();
+            }
+
+            return Ok(infos);
+        }
 
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register(UserDtoRegister request)
@@ -137,19 +149,6 @@ namespace guacapi.Controllers
                  return BadRequest("Username is required");
              }
 
-            // if (request.Username != user.Username)
-            // {
-            //     return BadRequest("Username is incorrect");
-            // }
-
-            // if (user.PasswordSalt != null && user.PasswordHash != null &&
-            //     !VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
-            // {
-            //     return BadRequest("Password is incorrect");
-            // }
-
-
-
 
 
         //Todo : check all username pour pas pouvoir créer un usernam qui existe déjà pour pouvoir récupérer le user par son username.  
@@ -174,7 +173,11 @@ namespace guacapi.Controllers
 
             //  refresh token expires in 7 days
              var upToken = await _userService.updateToken(request);
-            return Ok(upToken);
+
+             if(upToken is null) {
+                return BadRequest("Token generation failed");
+             }
+            return Ok(upToken.Token);
         }
 
         // [HttpPost("refreshToken")]
@@ -210,10 +213,11 @@ namespace guacapi.Controllers
         }
 
 
-        [HttpDelete("delete")]
-        public async Task<ActionResult> Delete()
+        [HttpDelete("delete/{id}")]
+
+        public async Task<ActionResult> Delete(int id)
         {
-            user = await _userService.DeleteUser(user.Id) ?? throw new InvalidOperationException();
+            user = await _userService.DeleteUser(id) ?? throw new InvalidOperationException();
             return Ok(user);
         }
 

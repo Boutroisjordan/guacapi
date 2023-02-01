@@ -22,4 +22,6 @@ public interface IUserService
     Task<bool> CheckUsernameAvailability(string username);
 
     string CreateToken(User user);
+
+    string CreateApiToken(string apiKey);
 }
