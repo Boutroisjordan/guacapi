@@ -13,14 +13,16 @@ public class AlcoholControllerType : ControllerBase
     #region Fields
 
     private IAlcoholService _alcoholService;
+        private readonly IConfiguration _configuration;
 
     #endregion
 
     #region Constructor
 
-    public AlcoholControllerType(IAlcoholService alcoholService)
+    public AlcoholControllerType(IAlcoholService alcoholService, IConfiguration configuration)
     {
         _alcoholService = alcoholService;
+        _configuration = configuration;
     }
 
     #endregion
@@ -30,10 +32,11 @@ public class AlcoholControllerType : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllTypes(string apiKey)
     {
-        if (apiKey != Configuration["ApiKey:Key"])
+        if (apiKey != _configuration["ApiKey:Key"])
         {
             return Unauthorized();
         }
+        
         var types = await _alcoholService.GetAllTypes();
 
         if (types == null)
