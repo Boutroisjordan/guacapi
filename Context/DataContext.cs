@@ -54,16 +54,9 @@ public class DataContext : DbContext
     public DbSet<Region> Regions { get; set; } = null!;
     public DbSet<AlcoholType> AlcoholTypes { get; set; } = null!;
     public DbSet<Appellation> Appellations { get; set; } = null!;
-
-
-    public DbSet<User.UserDtoRegister> UsersDtoRegisters { get; set; } = null!;
-    public DbSet<User.UserDtoLogin> UserLogins { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
 
     public DbSet<Offer> Offers { get; set; } = null!;
     public DbSet<ProductOffer> ProductOffers {get; set;} = null!;
 
 }
-
-//https://medium.com/net-core/build-a-restful-web-api-with-asp-net-core-6-30747197e229 le blog
-// https://www.youtube.com/watch?v=fAsZP70uiic video
