@@ -177,28 +177,28 @@ namespace guacapi.Controllers
             return Ok(upToken);
         }
 
-        [HttpPost("refreshToken")]
-        public ActionResult<string> RefreshToken()
-        {
-            var refreshToken = Request.Cookies["refreshToken"];
-            if (user.RefreshToken != null && !user.RefreshToken.Equals(refreshToken))
-            {
-                return Unauthorized("Invalid refresh token");
-            }
-            else if (user.TokenExpires < DateTime.Now)
-            {
-                return Unauthorized("Token expired");
-            }
+        // [HttpPost("refreshToken")]
+        // public ActionResult<string> RefreshToken()
+        // {
+        //     var refreshToken = Request.Cookies["refreshToken"];
+        //     if (user.RefreshToken != null && !user.RefreshToken.Equals(refreshToken))
+        //     {
+        //         return Unauthorized("Invalid refresh token");
+        //     }
+        //     else if (user.TokenExpires < DateTime.Now)
+        //     {
+        //         return Unauthorized("Token expired");
+        //     }
 
-            string token = CreateToken(user);
-            var newRefreshToken = GenerateRefreshToken();
-            SetRefreshToken(newRefreshToken);
-            user.TokenExpires = DateTime.Now.AddDays(7);
-            user.TokenCreatedAt = DateTime.Now;
-            user.RefreshToken = newRefreshToken.Token;
-            user = await _userService.Register(user) ?? throw new InvalidOperationException();
-            return Ok(token);
-        }
+        //     string token = CreateToken(user);
+        //     var newRefreshToken = GenerateRefreshToken();
+        //     SetRefreshToken(newRefreshToken);
+        //     user.TokenExpires = DateTime.Now.AddDays(7);
+        //     user.TokenCreatedAt = DateTime.Now;
+        //     user.RefreshToken = newRefreshToken.Token;
+        //     user = _userService.Register(user) ?? throw new InvalidOperationException();
+        //     return Ok(token);
+        // }
 
 
         [HttpPost("logout")]
