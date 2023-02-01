@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using GuacAPI.Interface;
 using GuacAPI.Services;
 using GuacAPI.Services.UserServices;
 

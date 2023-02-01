@@ -123,7 +123,9 @@ namespace guacapi.Controllers
         }
 
         [HttpPost("login")]
+
         public async Task<ActionResult> Login(UserDtoLogin request)
+
         {
              if (request.Password == null)
              {
@@ -176,7 +178,7 @@ namespace guacapi.Controllers
         }
 
         [HttpPost("refreshToken")]
-        public async Task<ActionResult<string>> RefreshToken()
+        public ActionResult<string> RefreshToken()
         {
             var refreshToken = Request.Cookies["refreshToken"];
             if (user.RefreshToken != null && !user.RefreshToken.Equals(refreshToken))
@@ -239,9 +241,11 @@ namespace guacapi.Controllers
             {
                 Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
                 user.RefreshToken = newRefreshToken.Token;
+
                 user.TokenCreatedAt = newRefreshToken.Created;
                 user.TokenExpires = newRefreshToken.Expires;
             }
+
 
 
         }

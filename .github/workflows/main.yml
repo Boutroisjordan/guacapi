@@ -1,0 +1,38 @@
+# Fichier de configuration de workflow
+on:
+  push:
+    branches:
+      - main # déclenche lorsqu'une poussée est faite sur la branche main
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest # exécution sur un serveur ubuntu
+
+    steps:
+    - name: Checkout code # vérifie le code
+      uses: actions/checkout@v2
+
+    - name: Build and Test # construit et teste l'application
+      run: |
+        dotnet build --configuration Release
+        dotnet test
+
+    - name: Deploy to server # déploie l'application sur le serveur
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SERVER_HOST }} # adresse IP du serveur
+        username: ${{ secrets.SERVER_USERNAME }} # nom d'utilisateur pour se connecter au serveur
+        password: ${{ secrets.SERVER_PASSWORD }} # mot de passe pour se connecter au serveur
+        script: |
+          # Stop the systemd service
+          sudo systemctl stop guacapi.service
+          # Fetch the Repo
+          sudo git fetch
+          # Update the code
+          sudo git pull
+          # rebuild the application
+          sudo dotnet build --configuration Release
+          # republish the application
+          sudo dotnet publish
+          # restart the application 
+          sudo systemctl start guacapi.service
