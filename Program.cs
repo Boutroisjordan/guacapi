@@ -112,6 +112,10 @@ app.UseStaticFiles(new StaticFileOptions
 
 //---------------
 app.UseCors();
+app.UseMiddleware<ErrorHandlerMiddleware>();
+
+// custom jwt auth middleware
+app.UseMiddleware<JwtMiddleware>();
 
 app.UseAuthentication();
 

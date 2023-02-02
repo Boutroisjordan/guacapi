@@ -82,7 +82,6 @@ namespace guacapi.Controllers
             {
                 return BadRequest();
             }
-
             return Ok(infos);
         }
         [HttpGet]
@@ -155,8 +154,15 @@ namespace guacapi.Controllers
                 return BadRequest("Bad credentials");
             }
 
-            var upToken = await _userService.updateToken(request);
-            return Ok(upToken);
+            var upToken = await _userService.updateToken(result);
+            if (upToken == null)
+            {
+                return BadRequest("Bad credentials");
+            }
+
+            user.RefreshToken = null;
+            userReturnDto.Token = upToken.Token;
+            return Ok(userReturnDto.Token);
         }
 
         // [HttpPost("refreshToken")]
@@ -176,7 +182,6 @@ namespace guacapi.Controllers
         //     var newRefreshToken = GenerateRefreshToken();
         //     SetRefreshToken(newRefreshToken);
         //     user.TokenExpires = DateTime.Now.AddDays(7);
-        //     user.TokenCreatedAt = DateTime.Now;
         //     user.RefreshToken = newRefreshToken.Token;
         //     user = await _userService.Register(user) ?? throw new InvalidOperationException();
         //     return Ok(token);
@@ -224,40 +229,10 @@ namespace guacapi.Controllers
             {
                 Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
                 user.RefreshToken = newRefreshToken.Token;
-
-                user.TokenCreatedAt = newRefreshToken.Created;
                 user.TokenExpires = newRefreshToken.Expires;
             }
         }
 
         // Claims properties are used to store user information anything you want to store in the token
-        private string CreateToken(User user)
-        {
-            if (user.Username != null)
-            {
-                List<Claim> claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.Username),
-                    new Claim(ClaimTypes.Role, "Admin")
-                };
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                    _configuration.GetSection("AppSettings:Secret").Value ?? throw new InvalidOperationException()));
-                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-
-                var token = new JwtSecurityToken(
-                    claims: claims,
-                    expires: DateTime.Now.AddDays(1),
-                    signingCredentials: creds);
-                var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-                return jwt;
-            }
-
-            return String.Empty;
-        }
-
-        private void CreatePasswordHash(string password)
-        {
-            password = BCrypt.Net.BCrypt.HashPassword(password);
-        }
     }
 }

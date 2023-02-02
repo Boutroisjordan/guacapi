@@ -2,10 +2,12 @@
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
+using AutoMapper.Configuration.Conventions;
 using GuacAPI.Authorization;
 using GuacAPI.Context;
 using GuacAPI.Helpers;
 using GuacAPI.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -49,29 +51,18 @@ public class UserService : IUserService
         return users;
     }
 
-    public async Task<User?> GetUserById(int id)
+    public Task<User?> GetUserById(int id)
     {
-        return getUser(id);
+        getUser(id);
+        var userId = _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+        return userId;
     }
 
-    public async Task<User?> updateToken(UserDtoLogin request)
+    public async Task<User?> updateToken(User request)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
+        getUser(request.Id);
 
-        if (user is null)
-        {
-            throw new Exception("User doesn't exist");
-        }
-
-        string token = CreateToken(user);
-
-        user.Token = token;
-        // user.RefreshToken = request.RefreshToken;
-        // user.TokenExpires = request.TokenExpires;
-        // user.TokenCreatedAt = request.CreatedAt;
-
-        await _context.SaveChangesAsync();
-        return user;
+        return await UpdateUser(request, request.Id);
     }
 
 
@@ -133,14 +124,14 @@ public class UserService : IUserService
         if (user != null)
         {
             response.Token = _jwtUtils.GenerateToken(user);
-
+            response.TokenExpires = DateTime.Now.AddMinutes(1);
             var result = VerifyPasswordHash(request);
             if (result == false)
             {
                 throw new Exception("Password is incorrect");
             }
 
-            return response;
+            return user;
         }
 
         throw new Exception("User doesn't exist");
@@ -193,6 +184,14 @@ public class UserService : IUserService
     {
         var user = _context.Users.Find(id);
         if (user == null) throw new KeyNotFoundException("User not found");
+        if (user.TokenExpires < DateTime.Now)
+        {
+            user.RefreshToken = _jwtUtils.RefreshToken(user);
+            user.TokenExpires = DateTime.Now.AddDays(7);
+            _context.SaveChanges();
+        }
+
+        ;
         return user;
     }
 }

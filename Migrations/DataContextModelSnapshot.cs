@@ -331,9 +331,6 @@ namespace GuacAPI.Migrations
                     b.Property<string>("Token")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("TokenCreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime?>("TokenExpires")
                         .HasColumnType("datetime2");
 
