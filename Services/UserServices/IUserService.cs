@@ -15,7 +15,7 @@ public interface IUserService
     Task<User?> UpdateUser(User user, int id);
     Task<User?> DeleteUser(int id);
     Task<User?> Register(User user);
-    Task<User?> updateToken(UserDtoLogin request);
+    Task<User?> updateToken(User request);
     Task<User?> Login(UserDtoLogin request);
 
     Task<bool> CheckUsernameAvailability(string username);

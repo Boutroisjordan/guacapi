@@ -20,7 +20,6 @@ public class User
     public DateTime UpdatedAt { get; set; }
     public string? Role { get; set; }
     public string? Token { get; set; }
-    public DateTime? TokenCreatedAt { get; set; }
     public DateTime? TokenExpires { get; set; }
     public string? RefreshToken { get; set; }
 

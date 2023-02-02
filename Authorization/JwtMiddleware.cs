@@ -1,3 +1,4 @@
+using GuacAPI.Models;
 using GuacAPI.Services.UserServices;
 
 namespace GuacAPI.Authorization;

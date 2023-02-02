@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuacAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230201135959_InitialCreate")]
+    [Migration("20230202111325_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -259,9 +259,6 @@ namespace GuacAPI.Migrations
 
                     b.Property<string>("Token")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("TokenCreatedAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("TokenExpires")
                         .HasColumnType("datetime2");
