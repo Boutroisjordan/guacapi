@@ -50,16 +50,10 @@ public class DataContext : DbContext
 
 
         modelBuilder.Entity<InvoiceFurnisherProduct>()
-            .HasOne(ifp => ifp.InvoiceFurnisher)
-            .WithMany(i => i.InvoicesFurnisherProduct)
-            .HasForeignKey(ifp => ifp.InvoiceFurnisherId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .HasOne(ifp => ifp.InvoiceFurnisher);
 
         modelBuilder.Entity<InvoiceFurnisherProduct>()
-            .HasOne(ifp => ifp.Product)
-            .WithMany(p => p.InvoicesFurnihserProduct)
-            .HasForeignKey(ifp => ifp.ProductId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .HasOne(ifp => ifp.Product);
 
 //t'as pas besoin de la fk sur le produit go voir la doc microsoft
 

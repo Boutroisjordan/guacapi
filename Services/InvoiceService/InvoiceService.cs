@@ -33,25 +33,29 @@ public class InvoiceService : IInvoiceService
 
             return invoice;
         }
+
+        //dto pour pas prendre l'id
     public async Task<InvoiceFurnisher> AddInvoice(InvoiceFurnisher invoice) 
     {
         // Ajouter l'offre à la base de données
-        var addedInvoice = _context.InvoicesFurnisher.Add(invoice).Entity;
+        var addedInvoice = await _context.InvoicesFurnisher.AddAsync(invoice);
 
-        if (invoice.InvoicesFurnisherProduct != null)
-        {
+        await _context.SaveChangesAsync();
 
-            foreach (var product in invoice.InvoicesFurnisherProduct)
-            {
-                product.InvoiceFurnisherId = addedInvoice.InvoiceFurnisherId;
-                _context.InvoicesFurnisherProduct.Add(product);
+        
 
-                //todo get all product of furnisher and check dans command si les produit sont de fournisseur rentrer sinon error merci
-            }
+            // foreach (var product in _context.InvoicesFurnisherProduct)
+            // {
+            //     product.InvoiceFurnisherId = addedInvoice.Entity.InvoiceFurnisherId;
+            //     _context.InvoicesFurnisherProduct.Add(product);
+
+            //     //todo get all product of furnisher and check dans command si les produit sont de fournisseur rentrer sinon error merci
+            // }
+
             await _context.SaveChangesAsync();
-        }
 
-        return addedInvoice;
+    
+        return addedInvoice.Entity;
     }
 
 

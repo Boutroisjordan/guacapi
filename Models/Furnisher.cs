@@ -15,7 +15,7 @@ public class Furnisher
     [Required] public string? PostalCode { get; set; }
     [Required] public string? Siret { get; set; }
 
-
+    [JsonIgnore]
     public List<Product>? Products { get; set; }
     public List<InvoiceFurnisher>? Invoices { get; set; }
 

@@ -29,8 +29,7 @@ public class Product
 
     [JsonIgnore]
      public List<ProductOffer>? ProductOffers {get; set;}
-    [JsonIgnore]
-     public List<InvoiceFurnisherProduct>? InvoicesFurnihserProduct {get; set;}
+
 
     #endregion
 }
