@@ -40,8 +40,6 @@ public class DataContext : DbContext
             .HasOne(po => po.Offer)
             .WithMany(o => o.ProductOffers)
             .HasForeignKey(po => po.OfferId);
-
-      
     }
 
 
@@ -52,8 +50,6 @@ public class DataContext : DbContext
     public DbSet<AlcoholType> AlcoholTypes { get; set; } = null!;
     public DbSet<Appellation> Appellations { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
-
-    public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
     public DbSet<Offer> Offers { get; set; } = null!;
     public DbSet<ProductOffer> ProductOffers { get; set; } = null!;

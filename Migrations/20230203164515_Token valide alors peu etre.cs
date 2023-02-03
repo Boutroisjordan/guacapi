@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GuacAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class Tokenvalidealorspeuetre : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -170,29 +170,30 @@ namespace GuacAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RefreshTokens",
+                name: "RefreshToken",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Token = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Token = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Expires = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedByIp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedByIp = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Revoked = table.Column<DateTime>(type: "datetime2", nullable: true),
                     RevokedByIp = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ReplacedByToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ReasonRevoked = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserId = table.Column<int>(type: "int", nullable: true)
+                    UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RefreshTokens", x => x.Id);
+                    table.PrimaryKey("PK_RefreshToken", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RefreshTokens_Users_UserId",
+                        name: "FK_RefreshToken_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -251,8 +252,8 @@ namespace GuacAPI.Migrations
                 column: "OfferId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RefreshTokens_UserId",
-                table: "RefreshTokens",
+                name: "IX_RefreshToken_UserId",
+                table: "RefreshToken",
                 column: "UserId");
         }
 
@@ -263,7 +264,7 @@ namespace GuacAPI.Migrations
                 name: "ProductOffer");
 
             migrationBuilder.DropTable(
-                name: "RefreshTokens");
+                name: "RefreshToken");
 
             migrationBuilder.DropTable(
                 name: "Offer");
