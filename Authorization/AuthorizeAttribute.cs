@@ -1,3 +1,4 @@
+using GuacAPI.Entities;
 using GuacAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 

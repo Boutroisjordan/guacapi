@@ -1,5 +1,7 @@
+using GuacAPI.Helpers;
 using GuacAPI.Models;
 using GuacAPI.Services.UserServices;
+using Microsoft.Extensions.Options;
 
 namespace GuacAPI.Authorization;
 
@@ -8,11 +10,14 @@ using GuacAPI.Services;
 public class JwtMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly AppSettings _appSettings;
 
-    public JwtMiddleware(RequestDelegate next)
+    public JwtMiddleware(RequestDelegate next, IOptions<AppSettings> appSettings)
     {
         _next = next;
+        _appSettings = appSettings.Value;
     }
+  
 
     public async Task Invoke(HttpContext context, IUserService userService, IJwtUtils jwtUtils)
     {

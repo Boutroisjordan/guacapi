@@ -1,4 +1,6 @@
-﻿using GuacAPI.Models;
+﻿using GuacAPI.Entities;
+using GuacAPI.Models;
+using GuacAPI.Models.Users;
 
 namespace GuacAPI.Services.UserServices;
 
@@ -14,11 +16,11 @@ public interface IUserService
 
     Task<User?> UpdateUser(User user, int id);
     Task<User?> DeleteUser(int id);
-    Task<User?> Register(User user);
-    Task<User?> updateToken(User request);
-    Task<User?> Login(UserDtoLogin request);
-
-    Task<bool> CheckUsernameAvailability(string username);
-
-    string CreateToken(User user);
+    void Register(RegisterRequest request);
+    AuthenticateResponse Login(AuthenticateRequest request, string ipAddress);
+    AuthenticateResponse RefreshToken(string token, string ipAddress);
+    void Update(int id, UpdateRequest model);
+    void RevokeToken(string token, string ipAddress);
+    IEnumerable<User> GetAll();
+    User GetById(int id);
 }

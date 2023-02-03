@@ -1,4 +1,6 @@
+using System.Security.Cryptography;
 using GuacAPI.Context;
+using GuacAPI.Entities;
 using GuacAPI.Helpers;
 using GuacAPI.Models;
 
@@ -15,15 +17,17 @@ public interface IJwtUtils
     public string GenerateToken(User user);
     public int? ValidateToken(string token);
 
-    public string RefreshToken(User user);
+    public RefreshToken GenerateRefreshToken(string ipAddress);
 }
 
 public class JwtUtils : IJwtUtils
 {
+    private DataContext _context;
     private readonly AppSettings _appSettings;
 
-    public JwtUtils(IOptions<AppSettings> appSettings)
+    public JwtUtils(IOptions<AppSettings> appSettings, DataContext context)
     {
+        _context = context;
         _appSettings = appSettings.Value;
     }
 
@@ -35,7 +39,7 @@ public class JwtUtils : IJwtUtils
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(new[] { new Claim("id", user.Id.ToString()) }),
-            Expires = DateTime.UtcNow.AddMinutes(5),
+            Expires = DateTime.UtcNow.AddDays(7),
             SigningCredentials =
                 new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
@@ -45,18 +49,13 @@ public class JwtUtils : IJwtUtils
 
     public int? ValidateToken(string token)
     {
+        if (token == null)
+            return null;
+
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
         try
         {
-            // Check if token has expired
-            var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
-            if (jwtToken.ValidTo < DateTime.UtcNow)
-            {
-                // Refresh the token
-                token = RefreshToken(new User { Id = int.Parse(jwtToken.Claims.First(x => x.Type == "id").Value) });
-            }
-
             tokenHandler.ValidateToken(token, new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
@@ -66,31 +65,44 @@ public class JwtUtils : IJwtUtils
                 // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
                 ClockSkew = TimeSpan.Zero
             }, out SecurityToken validatedToken);
-            jwtToken = (JwtSecurityToken)validatedToken;
+
+            var jwtToken = (JwtSecurityToken)validatedToken;
             var userId = int.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
+
             // return user id from JWT token if validation successful
             return userId;
         }
         catch
         {
-            // return bad request if token validation fails
-            throw new KeyNotFoundException("Invalid token");
+            // return null if validation fails
+            return null;
         }
     }
 
-    public string RefreshToken(User user)
+    public RefreshToken GenerateRefreshToken(string ipAddress)
     {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
-        var tokenDescriptor = new SecurityTokenDescriptor
+        var refreshToken = new RefreshToken
         {
-            Subject = new ClaimsIdentity(new[]
-                { new Claim("id", user.Id.ToString()) }),
-            Expires = DateTime.UtcNow.AddMinutes(5),
-            SigningCredentials =
-                new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            Token = getUniqueToken(),
+            // token is valid for 7 days
+            Expires = DateTime.UtcNow.AddDays(7),
+            Created = DateTime.UtcNow,
+            CreatedByIp = ipAddress
         };
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
+
+        return refreshToken;
+
+        string getUniqueToken()
+        {
+            // token is a cryptographically strong random sequence of values
+            var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+            // ensure token is unique by checking against db
+            var tokenIsUnique = !_context.Users.Any(u => u.RefreshTokens.Any(t => t.Token == token));
+
+            if (!tokenIsUnique)
+                return getUniqueToken();
+            
+            return token;
+        }
     }
 }
