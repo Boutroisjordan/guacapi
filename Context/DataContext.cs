@@ -68,8 +68,6 @@ public class DataContext : DbContext
     public DbSet<Appellation> Appellations { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
 
-    public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
-
     public DbSet<Offer> Offers { get; set; } = null!;
     public DbSet<ProductOffer> ProductOffers {get; set;} = null!;
     public DbSet<InvoiceFurnisher> InvoicesFurnisher {get; set;} = null!;
