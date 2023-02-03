@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuacAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230203134940_test migrations refresh toke2n")]
-    partial class testmigrationsrefreshtoke2n
+    [Migration("20230203154542_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,32 +37,27 @@ namespace GuacAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("CreatedByIp")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Expires")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ReasonRevoked")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ReplacedByToken")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("Revoked")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("RevokedByIp")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Token")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -224,8 +219,8 @@ namespace GuacAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductId"));
 
-                    b.Property<decimal>("AlcoholDegree")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<float>("AlcoholDegree")
+                        .HasColumnType("real");
 
                     b.Property<int>("AlcoholTypeId")
                         .HasColumnType("int");
@@ -311,13 +306,9 @@ namespace GuacAPI.Migrations
 
             modelBuilder.Entity("GuacAPI.Entities.RefreshToken", b =>
                 {
-                    b.HasOne("GuacAPI.Entities.User", "User")
+                    b.HasOne("GuacAPI.Entities.User", null)
                         .WithMany("RefreshTokens")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Product", b =>

@@ -12,7 +12,7 @@ public class Product
     [Required] public int Price { get; set; }
     [Required] public int Stock { get; set; }
     public int Millesime { get; set; }
-    [Required] public decimal AlcoholDegree { get; set; }
+    [Required] public float AlcoholDegree { get; set; }
     [Required] public string? Reference { get; set; }
     public int FurnisherId { get; set; }
     public Furnisher? furnisher;

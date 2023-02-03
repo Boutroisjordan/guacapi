@@ -58,7 +58,7 @@ public class UserService : IUserService
 
 
     public async Task<User?> updateToken(User request)
-    {
+        {
         getUser(request.Id);
 
         return await UpdateUser(request, request.Id);
@@ -122,13 +122,16 @@ public class UserService : IUserService
         var response = _mapper.Map<AuthenticateResponse>(user);
         response.JwtToken = jwtToken;
         response.RefreshToken = refreshToken.Token;
-        _context.Update(user);
         _context.SaveChanges();
-        return new AuthenticateResponse(user, jwtToken, refreshToken.Token);
+        return new AuthenticateResponse() {
+            Username = user.Username,
+            JwtToken = jwtToken,
+            RefreshToken = refreshToken.Token,
+        };
     }
 
     public AuthenticateResponse RefreshToken(string token, string ipAddress)
-    {
+        {
         var user = getUserByRefreshToken(token);
         var refreshToken = user.RefreshTokens.Single(x => x.Token == token);
 
@@ -147,11 +150,15 @@ public class UserService : IUserService
         _context.Update(user);
         _context.SaveChanges();
         var jwtToken = _jwtUtils.GenerateToken(user);
-        return new AuthenticateResponse(user, jwtToken, newRefreshToken.Token);
+        return new AuthenticateResponse() {
+            Username = user.Username,
+            JwtToken = jwtToken,
+            RefreshToken = newRefreshToken.Token,
+        };
     }
 
     public void Update(int id, UpdateRequest model)
-    {
+        {
         var user = getUser(id);
 
         // validate
@@ -170,7 +177,7 @@ public class UserService : IUserService
 
 
     public void RevokeToken(string token, string ipAddress)
-    {
+            {
         var user = getUserByRefreshToken(token);
         if (user.RefreshTokens != null)
         {
@@ -178,11 +185,11 @@ public class UserService : IUserService
             if (refreshToken.IsRevoked)
                 throw new AppException("Token is already revoked");
             revokeDescendantRefreshTokens(refreshToken, user, ipAddress, "Revoked by without replacement");
-        }
+            }
 
         _context.Update(user);
         _context.SaveChanges();
-    }
+        }
 
     public IEnumerable<User> GetAll()
     {
