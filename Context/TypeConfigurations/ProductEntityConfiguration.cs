@@ -27,13 +27,10 @@ class ProductEntityConfiguration : IEntityTypeConfiguration<Product>
          builder.HasOne(item => item.appellation)
          .WithMany(item => item.Products);
 
-        //  builder.HasMany(item => item.Offers)
-        //  .WithMany(item => item.Products);
+        // builder.HasMany(p => p.InvoicesFurnihserProduct)
+        //     .WithOne(fp => fp.Product)
+        //     .HasForeignKey(fp => fp.ProductId);
 
     }
 
-
 }
-
-//https://medium.com/net-core/build-a-restful-web-api-with-asp-net-core-6-30747197e229 le blog
-// https://www.youtube.com/watch?v=fAsZP70uiic video

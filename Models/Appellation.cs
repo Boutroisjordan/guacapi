@@ -12,6 +12,7 @@ public class Appellation
     public int AppellationId { get; set; }
     public string? Name { get; set; }
 
+    [JsonIgnore]
     public List<Product>? Products { get; set; }
 
     #endregion

@@ -104,6 +104,27 @@ namespace GuacAPI.Migrations
                     b.ToTable("Furnisher", (string)null);
                 });
 
+            modelBuilder.Entity("GuacAPI.Models.InvoiceFurnisherProduct", b =>
+                {
+                    b.Property<int>("InvoiceFurnisherId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuantityProduct")
+                        .HasColumnType("int");
+
+                    b.HasKey("InvoiceFurnisherId", "ProductId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("InvoiceFurnisherProduct", (string)null);
+                });
+
             modelBuilder.Entity("GuacAPI.Models.Offer", b =>
                 {
                     b.Property<int>("OfferId")
@@ -277,6 +298,46 @@ namespace GuacAPI.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("InvoiceFurnisher", b =>
+                {
+                    b.Property<int>("InvoiceFurnisherId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InvoiceFurnisherId"));
+
+                    b.Property<int>("FurnisherId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("InvoiceNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("InvoiceFurnisherId");
+
+                    b.HasIndex("FurnisherId");
+
+                    b.ToTable("InvoiceFurnisher", (string)null);
+                });
+
+            modelBuilder.Entity("GuacAPI.Models.InvoiceFurnisherProduct", b =>
+                {
+                    b.HasOne("InvoiceFurnisher", "InvoiceFurnisher")
+                        .WithMany("InvoicesFurnisherProduct")
+                        .HasForeignKey("InvoiceFurnisherId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("GuacAPI.Models.Product", "Product")
+                        .WithMany("InvoicesFurnihserProduct")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("InvoiceFurnisher");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("GuacAPI.Models.Product", b =>
                 {
                     b.HasOne("GuacAPI.Models.AlcoholType", "alcoholType")
@@ -339,6 +400,17 @@ namespace GuacAPI.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("InvoiceFurnisher", b =>
+                {
+                    b.HasOne("GuacAPI.Models.Furnisher", "Furnisher")
+                        .WithMany("Invoices")
+                        .HasForeignKey("FurnisherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Furnisher");
+                });
+
             modelBuilder.Entity("GuacAPI.Models.AlcoholType", b =>
                 {
                     b.Navigation("Products");
@@ -356,6 +428,8 @@ namespace GuacAPI.Migrations
 
             modelBuilder.Entity("GuacAPI.Models.Furnisher", b =>
                 {
+                    b.Navigation("Invoices");
+
                     b.Navigation("Products");
                 });
 
@@ -366,12 +440,19 @@ namespace GuacAPI.Migrations
 
             modelBuilder.Entity("GuacAPI.Models.Product", b =>
                 {
+                    b.Navigation("InvoicesFurnihserProduct");
+
                     b.Navigation("ProductOffers");
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Region", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("InvoiceFurnisher", b =>
+                {
+                    b.Navigation("InvoicesFurnisherProduct");
                 });
 #pragma warning restore 612, 618
         }

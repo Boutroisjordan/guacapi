@@ -3,12 +3,12 @@ using GuacAPI.Context;
 using Microsoft.AspNetCore.Mvc;
 using GuacAPI.Services;
 using Microsoft.AspNetCore.Authorization;
+using Swashbuckle.AspNetCore;
 
 namespace GuacAPI.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-[Authorize]
 public class ProductController : ControllerBase
 {
     #region Fields
@@ -27,7 +27,8 @@ public class ProductController : ControllerBase
     #endregion
 
     // [HttpGet,AllowAnonymous]
-    [HttpGet,Authorize]
+    [HttpGet]
+    // [SwaggerOperation(Description = "Obtient une liste de tous les articles")]
     public async Task<IActionResult> GetAllProducts()
     {
         var productList = await _productService.GetAllProducts();
@@ -65,7 +66,7 @@ public class ProductController : ControllerBase
 
             return Ok(productStock);
         }
-    [HttpPost]
+    [HttpPost, Authorize]
     public async Task<IActionResult> AddOne(Product request)
     {
         var addedProduct = await _productService.AddProduct(request);
@@ -78,7 +79,7 @@ public class ProductController : ControllerBase
         return Ok(addedProduct);
     }
 
-    [HttpPut]
+    [HttpPut, Authorize]
     [Route("{id}")]
     public async Task<IActionResult> UpdateProduct(int id, Product request)
     {
@@ -93,7 +94,7 @@ public class ProductController : ControllerBase
     }
 
 
-    [HttpDelete]
+    [HttpDelete, Authorize]
     [Route("{id}")]
     public async Task<IActionResult> DeleteProduct(int id)
     {

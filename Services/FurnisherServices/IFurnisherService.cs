@@ -10,6 +10,8 @@ public interface IFurnisherService
     //Get furnisher by Id
     Task<Furnisher> GetFurnisherById(int id);
 
+    Task<List<Product>?> GetProductsOfFurnisher(int id);
+
     // get furnisher by name
     Task<Furnisher> GetFurnisherByName(string name);
 

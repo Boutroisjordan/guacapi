@@ -59,6 +59,27 @@ public class FurnisherController : ControllerBase
     }
 
     [HttpGet]
+    [Route("getProducts/{id}")]
+    public async Task<IActionResult> GetFurnisherProducts(int id)
+    {
+        try
+        {
+            if (id != 0)
+            {
+                var furnisher = await _furnisherService.GetProductsOfFurnisher(id);
+
+                return Ok(furnisher);
+            }
+
+            return BadRequest();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpGet]
     [Route("ByName/{name}")]
     public async Task<IActionResult> GetFurnisherByName(string name)
     {

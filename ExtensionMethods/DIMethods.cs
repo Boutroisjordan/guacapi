@@ -26,6 +26,7 @@ public static class DIMethods
 
             services.AddScoped<IOfferService, OfferService>();
             services.AddScoped<IProductOfferService, ProductOfferService>();
+            services.AddScoped<IInvoiceService, InvoiceService>();
 
         }
     #endregion

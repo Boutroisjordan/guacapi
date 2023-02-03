@@ -15,5 +15,7 @@ public interface IOfferService
      Task<List<Offer>> GetAvailableOffers();
      Task<List<Offer>> GetUnavailableOffers();
 
+     Task<Boolean> checkAvailabilityOfOneOffer(int id);
+
 
 }

@@ -17,6 +17,7 @@ public class Furnisher
 
 
     public List<Product>? Products { get; set; }
+    public List<InvoiceFurnisher>? Invoices { get; set; }
 
     #endregion
 }

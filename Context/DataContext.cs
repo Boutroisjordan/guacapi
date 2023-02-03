@@ -27,6 +27,8 @@ public class DataContext : DbContext
         modelBuilder.ApplyConfiguration(new OfferEntityConfiguration());
         modelBuilder.ApplyConfiguration(new RegionEntityConfiguration());
          modelBuilder.ApplyConfiguration(new ProductOfferEntityConfiguration());
+         modelBuilder.ApplyConfiguration(new InvoiceFurnisherEntityConfiguration());
+         modelBuilder.ApplyConfiguration(new InvoiceFurnisherProductEntityConfiguration());
 
 
 
@@ -43,8 +45,34 @@ public class DataContext : DbContext
             .WithMany(o => o.ProductOffers)
             .HasForeignKey(po => po.OfferId);
 
+        modelBuilder.Entity<InvoiceFurnisherProduct>()
+        .HasKey(po => new { po.InvoiceFurnisherId, po.ProductId });
+
+        // modelBuilder.Entity<InvoiceFurnisherProduct>()
+        //     .HasOne(po => po.Product)
+        //     .WithMany(p => p.InvoicesFurnihserProduct)
+        //     .HasForeignKey(po => po.ProductId);
+
+        // modelBuilder.Entity<InvoiceFurnisherProduct>()
+        //     .HasOne(po => po.InvoiceFurnisher)
+        //     .WithMany(o => o.InvoicesFurnisherProduct)
+        //     .HasForeignKey(po => po.InvoiceFurnisherId);
+
+        modelBuilder.Entity<InvoiceFurnisherProduct>()
+            .HasOne(ifp => ifp.InvoiceFurnisher)
+            .WithMany(i => i.InvoicesFurnisherProduct)
+            .HasForeignKey(ifp => ifp.InvoiceFurnisherId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<InvoiceFurnisherProduct>()
+            .HasOne(ifp => ifp.Product)
+            .WithMany(p => p.InvoicesFurnihserProduct)
+            .HasForeignKey(ifp => ifp.ProductId)
+            .OnDelete(DeleteBehavior.NoAction);
+
     }
 
+    
 
     public DbSet<Product> Products { get; set; } = null!;
     public DbSet<Furnisher> Furnishers { get; set; } = null!;
@@ -56,5 +84,7 @@ public class DataContext : DbContext
 
     public DbSet<Offer> Offers { get; set; } = null!;
     public DbSet<ProductOffer> ProductOffers {get; set;} = null!;
+    public DbSet<InvoiceFurnisher> InvoicesFurnisher {get; set;} = null!;
+    public DbSet<InvoiceFurnisherProduct> InvoicesFurnisherProduct {get; set;} = null!;
 
 }

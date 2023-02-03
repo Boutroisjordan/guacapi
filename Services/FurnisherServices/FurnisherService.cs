@@ -25,6 +25,20 @@ public class FurnisherService : IFurnisherService
         return furnishers;
     }
 
+    public async Task<List<Product>?> GetProductsOfFurnisher(int id)
+    {
+        var furnisher = await _context.Furnishers.Include(p => p.Products).Where(p => p.FurnisherId == id)
+            .FirstOrDefaultAsync();
+
+            if(furnisher is null) {
+                return null;
+            }
+
+            
+
+        return furnisher.Products;
+    }
+
     public async Task<Furnisher> GetFurnisherById(int id)
     {
         var furnisher = await _context.Furnishers.Include(p => p.Products).Where(p => p.FurnisherId == id)

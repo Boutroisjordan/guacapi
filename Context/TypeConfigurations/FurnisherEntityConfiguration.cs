@@ -14,6 +14,9 @@ class FurnisherEntityConfiguration : IEntityTypeConfiguration<Furnisher>
         //Primary key de la table
         builder.HasKey(item => item.FurnisherId);
 
+        builder.HasMany(f => f.Invoices)
+            .WithOne(f => f.Furnisher)
+            .HasForeignKey(f => f.FurnisherId);
     }
 
     // protected override void OnModelCreating()
