@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuacAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230203131207_Initial3")]
-    partial class Initial3
+    [Migration("20230203155909_init3")]
+    partial class init3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -327,13 +327,13 @@ namespace GuacAPI.Migrations
                     b.HasOne("InvoiceFurnisher", "InvoiceFurnisher")
                         .WithMany("InvoicesFurnisherProduct")
                         .HasForeignKey("InvoiceFurnisherId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("GuacAPI.Models.Product", "Product")
                         .WithMany("InvoicesFurnihserProduct")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("InvoiceFurnisher");

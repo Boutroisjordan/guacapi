@@ -8,14 +8,11 @@ public class InvoiceFurnisherProduct
 
 {
     #region Properties
-
-    // public int ProductOfferId {get; set;}
     public int Id {get; set;}
+    public int ProductId { get; set; }
+    public int InvoiceFurnisherId {get; set;}
     public int QuantityProduct {get; set;}
 
-    public int ProductId { get; set; }
-
-    public int InvoiceFurnisherId {get; set;}
 
     public InvoiceFurnisher? InvoiceFurnisher {get; set;}
     public Product? Product { get; set; }
