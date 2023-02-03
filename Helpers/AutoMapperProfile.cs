@@ -1,3 +1,6 @@
+using GuacAPI.Entities;
+using GuacAPI.Models.Users;
+
 namespace GuacAPI.Helpers;
 
 using AutoMapper;
@@ -8,13 +11,14 @@ public class AutoMapperProfile : Profile
     public AutoMapperProfile()
     {
         // User -> AuthenticateResponse 
-        CreateMap<User, UserReturnDto>();
+        CreateMap<User, AuthenticateResponse>();
 
         // RegisterRequest -> User
-        CreateMap<UserDtoRegister, User>();
+        CreateMap<RegisterRequest, User>();
 
         // UpdateRequest -> User
-        CreateMap<UserDtoUpdate, User>()
+        // UpdateRequest -> User
+        CreateMap<UpdateRequest, User>()
             .ForAllMembers(x => x.Condition(
                 (src, dest, prop) =>
                 {

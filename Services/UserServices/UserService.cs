@@ -1,15 +1,13 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+﻿using System.Security.Claims;
 using AutoMapper;
-using AutoMapper.Configuration.Conventions;
 using GuacAPI.Authorization;
 using GuacAPI.Context;
+using GuacAPI.Entities;
 using GuacAPI.Helpers;
 using GuacAPI.Models;
-using Microsoft.AspNetCore.Mvc;
+using GuacAPI.Models.Users;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Options;
 
 namespace GuacAPI.Services.UserServices;
 
@@ -17,18 +15,18 @@ public class UserService : IUserService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly DataContext _context;
-    private readonly IConfiguration _configuration;
     private readonly IJwtUtils _jwtUtils;
     private readonly IMapper _mapper;
+    private readonly AppSettings _appSettings;
 
-    public UserService(IHttpContextAccessor httpContextAccessor, DataContext context, IConfiguration configuration,
-        IJwtUtils jwtUtils, IMapper mapper)
+    public UserService(IHttpContextAccessor httpContextAccessor, DataContext context,
+        IJwtUtils jwtUtils, IMapper mapper, IOptions<AppSettings> appSettings)
     {
         _httpContextAccessor = httpContextAccessor;
         _context = context;
-        _configuration = configuration;
         _jwtUtils = jwtUtils;
         _mapper = mapper;
+        _appSettings = appSettings.Value;
     }
 
     // pas mettre de variable dans la function, mais utiliser le _httpContextAccessor
@@ -57,6 +55,7 @@ public class UserService : IUserService
         var userId = _context.Users.FirstOrDefaultAsync(u => u.Id == id);
         return userId;
     }
+
 
     public async Task<User?> updateToken(User request)
     {
@@ -99,45 +98,122 @@ public class UserService : IUserService
         return user;
     }
 
-    public async Task<User?> Register(User user)
+    public void Register(RegisterRequest request)
     {
-        if (await _context.Users.AnyAsync(x => x.Username == user.Username))
-            throw new AppException("Username '" + user.Username + "' is already taken");
+        if (_context.Users.Any(x => x.Username == request.Username))
+            throw new AppException("Username '" + request.Username + "' is already taken");
 
-        var register = _mapper.Map<User>(user);
-        register.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
-        var savedRegister = _context.Users.Add(register).Entity;
-        await _context.SaveChangesAsync();
-        return savedRegister;
+        var register = _mapper.Map<User>(request);
+        register.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+        _context.Users.Add(register);
+        _context.SaveChanges();
     }
 
-    public async Task<User?> Login(UserDtoLogin request)
+    public AuthenticateResponse Login(AuthenticateRequest model, string ipAddress)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
+        var user = _context.Users.SingleOrDefault(u => u.Username == model.Username);
 
-        if (request.Password is null)
-        {
-            throw new Exception("Password is null");
-        }
+        if (user == null || BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash) == false)
+            throw new AppException("Username or password is incorrect");
 
-        var response = _mapper.Map<User>(user);
-        if (user != null)
-        {
-            response.Token = _jwtUtils.GenerateToken(user);
-            response.TokenExpires = DateTime.Now.AddMinutes(1);
-            var result = VerifyPasswordHash(request);
-            if (result == false)
-            {
-                throw new Exception("Password is incorrect");
-            }
-
-            return user;
-        }
-
-        throw new Exception("User doesn't exist");
+        var jwtToken = _jwtUtils.GenerateToken(user);
+        var refreshToken = _jwtUtils.GenerateRefreshToken(ipAddress);
+        _context.RefreshTokens.Add(refreshToken);
+        var response = _mapper.Map<AuthenticateResponse>(user);
+        response.JwtToken = jwtToken;
+        response.RefreshToken = refreshToken.Token;
+        _context.Update(user);
+        _context.SaveChanges();
+        return new AuthenticateResponse(user, jwtToken, refreshToken.Token);
     }
 
-    public bool VerifyPasswordHash(UserDtoLogin request)
+    public AuthenticateResponse RefreshToken(string token, string ipAddress)
+    {
+        var user = getUserByRefreshToken(token);
+        var refreshToken = user.RefreshTokens.Single(x => x.Token == token);
+
+        if (refreshToken.IsRevoked)
+        {
+            revokeDescendantRefreshTokens(refreshToken, user, ipAddress, $"Revoked descendant of {token}");
+            _context.Update(user);
+            _context.SaveChanges();
+        }
+
+        if (!refreshToken.IsActive)
+            throw new AppException("Invalid token");
+        var newRefreshToken = rotateRefreshToken(refreshToken, ipAddress);
+        _context.RefreshTokens.Add(newRefreshToken);
+        removeOldRefreshTokens(user);
+        _context.Update(user);
+        _context.SaveChanges();
+        var jwtToken = _jwtUtils.GenerateToken(user);
+        return new AuthenticateResponse(user, jwtToken, newRefreshToken.Token);
+    }
+
+    public void Update(int id, UpdateRequest model)
+    {
+        var user = getUser(id);
+
+        // validate
+        if (model.Username != user.Username && _context.Users.Any(x => x.Username == model.Username))
+            throw new AppException("Username '" + model.Username + "' is already taken");
+
+        // hash password if it was entered
+        if (!string.IsNullOrEmpty(model.Password))
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
+
+        // copy model to user and save
+        _mapper.Map(model, user);
+        _context.Users.Update(user);
+        _context.SaveChanges();
+    }
+
+
+    public void RevokeToken(string token, string ipAddress)
+    {
+        var user = getUserByRefreshToken(token);
+        if (user.RefreshTokens != null)
+        {
+            var refreshToken = user.RefreshTokens.Single(x => x.Token == token);
+            if (refreshToken.IsRevoked)
+                throw new AppException("Token is already revoked");
+            revokeDescendantRefreshTokens(refreshToken, user, ipAddress, "Revoked by without replacement");
+        }
+
+        _context.Update(user);
+        _context.SaveChanges();
+    }
+
+    public IEnumerable<User> GetAll()
+    {
+        return _context.Users;
+    }
+
+    public User GetById(int id)
+    {
+        var user = _context.Users.Find(id);
+        if (user == null) throw new KeyNotFoundException("User not found");
+        return user;
+    }
+
+    private User getUserByRefreshToken(string token)
+    {
+        var user = _context.Users.SingleOrDefault(u => u.RefreshTokens.Any(t => t.Token == token));
+
+        if (user == null)
+            throw new AppException("Invalid token");
+
+        return user;
+    }
+
+    public RefreshToken rotateRefreshToken(RefreshToken refreshToken, string ipAddress)
+    {
+        var newRefreshToken = _jwtUtils.GenerateRefreshToken(ipAddress);
+        revokeRefreshToken(refreshToken, ipAddress, "Replaced by new token", newRefreshToken.Token);
+        return newRefreshToken;
+    }
+
+    public bool VerifyPasswordHash(AuthenticateRequest request)
     {
         var user = _context.Users.FirstOrDefault(u => u.Username == request.Username);
         if (user == null) return false;
@@ -145,53 +221,40 @@ public class UserService : IUserService
         return result;
     }
 
-    public async Task<bool> CheckUsernameAvailability(string username)
+    private void removeOldRefreshTokens(User user)
     {
-        var checkUsername = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
-        if (checkUsername != null)
-        {
-            return false;
-        }
-
-        return true;
+        // remove old inactive refresh tokens from user based on TTL in app settings
+        user.RefreshTokens.RemoveAll(x =>
+            !x.IsActive &&
+            x.Created.AddDays(_appSettings.RefreshTokenTTl) <= DateTime.UtcNow);
     }
 
-    public string CreateToken(User user)
+    private void revokeDescendantRefreshTokens(RefreshToken refreshToken, User user, string ipAddress, string reason)
     {
-        if (user.Username != null)
+        // recursively traverse the refresh token chain and ensure all descendants are revoked
+        if (!string.IsNullOrEmpty(refreshToken.ReplacedByToken))
         {
-            List<Claim> claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, "Admin")
-            };
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                _configuration.GetSection("AppSettings:Secret").Value ?? throw new InvalidOperationException()));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-
-            var token = new JwtSecurityToken(
-                claims: claims,
-                expires: DateTime.Now.AddDays(1),
-                signingCredentials: creds);
-            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-            return jwt;
+            var childToken = user.RefreshTokens.SingleOrDefault(x => x.Token == refreshToken.ReplacedByToken);
+            if (childToken.IsActive)
+                revokeRefreshToken(childToken, ipAddress, reason);
+            else
+                revokeDescendantRefreshTokens(childToken, user, ipAddress, reason);
         }
+    }
 
-        return String.Empty;
+    private void revokeRefreshToken(RefreshToken token, string ipAddress, string reason = null,
+        string replacedByToken = null)
+    {
+        token.Revoked = DateTime.UtcNow;
+        token.RevokedByIp = ipAddress;
+        token.ReasonRevoked = reason;
+        token.ReplacedByToken = replacedByToken;
     }
 
     private User getUser(int id)
     {
         var user = _context.Users.Find(id);
         if (user == null) throw new KeyNotFoundException("User not found");
-        if (user.TokenExpires < DateTime.Now)
-        {
-            user.RefreshToken = _jwtUtils.RefreshToken(user);
-            user.TokenExpires = DateTime.Now.AddDays(7);
-            _context.SaveChanges();
-        }
-
-        ;
         return user;
     }
 }

@@ -7,58 +7,20 @@ using GuacAPI.Services.UserServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
- 
+
 namespace guacapi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {
-        public static User user = new User();
-        private readonly IConfiguration _configuration;
-        public static UserReturnDto userReturnDto = new UserReturnDto();
         private readonly IUserService _userService;
 
-        public AuthController(IConfiguration configuration, IUserService userService)
+        public AuthController(IUserService userService)
         {
-            _configuration = configuration;
             _userService = userService;
         }
 
-        [HttpGet, Authorize]
-        public ActionResult<object> GetUser()
-        {
-            // on peut aussi faire un FindFirstValue(ClaimTypes.NameIdentifier)
-
-            var infos = _userService.GetUserInfos();
-            return Ok(infos);
-        }
-
-        [HttpGet, Authorize]
-        [Route("GetAllUsers")]
-        public async Task<IActionResult> GetAllUsers()
-        {
-            var infos = await _userService.GetAllUsers();
-            if (infos == null)
-            {
-                return BadRequest();
-            }
-
-            return Ok(infos);
-        }
-
-        [HttpGet, Authorize]
-        [Route("GetUserById/{id}")]
-        public async Task<IActionResult> GetUserById(int id)
-        {
-            var infos = await _userService.GetUserById(id);
-            if (infos == null)
-            {
-                return BadRequest();
-            }
-
-            return Ok(infos);
-        }
 
         [HttpGet, Authorize]
         [Route("GetUserByUsername/{username}")]
@@ -82,157 +44,113 @@ namespace guacapi.Controllers
             {
                 return BadRequest();
             }
+
             return Ok(infos);
         }
-        [HttpGet]
-        [Route("Getapikkey/")]
-        public IActionResult GetApiKey(string key)
+
+          [HttpDelete("delete")]
+        public async Task<ActionResult> Delete()
         {
-            var infos = _userService.CreateApiToken(key);
-            if (infos == null)
+            var username = User.Identity.Name;
+            var user = await _userService.GetUserByUsername(username);
+            if (user == null)
             {
                 return BadRequest();
             }
 
-            return Ok(infos);
-        }
-
-        [HttpPost("register")]
-        public async Task<ActionResult<User>> Register(UserDtoRegister request)
-        {
-            if (request.Password == null)
-            {
-                return BadRequest("Password is required");
-            }
-
-            if (request.Username == null)
-            {
-                return BadRequest("Username is required");
-            }
-
-            var checkUsername = await _userService.CheckUsernameAvailability(request.Username);
-
-            if (checkUsername == false)
-            {
-                return BadRequest("Username is already use, take another username");
-            }
-
-            user.Email = request.Email;
-            user.Username = request.Username;
-            user.FirstName = request.FirstName;
-            user.Phone = request.Phone;
-            user.Role = "Admin";
-            user.LastName = request.LastName;
-            user.PasswordHash = request.Password;
-            userReturnDto.FirstName = request.FirstName;
-            userReturnDto.LastName = request.LastName;
-            userReturnDto.Username = request.Username;
-            userReturnDto.Role = "Admin";
-
-            user = await _userService.Register(user) ?? throw new InvalidOperationException();
-            return Ok(userReturnDto);
-        }
-
-        [HttpPost("login")]
-        public async Task<ActionResult> Login(UserDtoLogin request)
-
-        {
-            if (request.Password == null)
-            {
-                return BadRequest("Password is required");
-            }
-
-            if (request.Username == null)
-            {
-                return BadRequest("Username is required");
-            }
-
-            var result = await _userService.Login(request);
-
-            if (result == null)
-            {
-                return BadRequest("Bad credentials");
-            }
-
-            var upToken = await _userService.updateToken(result);
-            if (upToken == null)
-            {
-                return BadRequest("Bad credentials");
-            }
-
-            user.RefreshToken = null;
-            userReturnDto.Token = upToken.Token;
-            return Ok(userReturnDto.Token);
-        }
-
-        // [HttpPost("refreshToken")]
-        // public ActionResult<string> RefreshToken()
-        // {
-        //     var refreshToken = Request.Cookies["refreshToken"];
-        //     if (user.RefreshToken != null && !user.RefreshToken.Equals(refreshToken))
-        //     {
-        //         return Unauthorized("Invalid refresh token");
-        //     }
-        //     else if (user.TokenExpires < DateTime.Now)
-        //     {
-        //         return Unauthorized("Token expired");
-        //     }
-
-        //     string token = CreateToken(user);
-        //     var newRefreshToken = GenerateRefreshToken();
-        //     SetRefreshToken(newRefreshToken);
-        //     user.TokenExpires = DateTime.Now.AddDays(7);
-        //     user.RefreshToken = newRefreshToken.Token;
-        //     user = await _userService.Register(user) ?? throw new InvalidOperationException();
-        //     return Ok(token);
-        // }
-
-
-        [HttpPost("logout")]
-        public ActionResult Logout()
-        {
-            user.RefreshToken = null;
-            user.TokenExpires = DateTime.Now;
+            await _userService.DeleteUser(user.Id);
             return Ok();
         }
 
-
-        [HttpDelete("delete/{id}")]
-
-        public async Task<ActionResult> Delete(int id)
+        [AllowAnonymous]
+        [HttpPost("Register")]
+        public IActionResult Register(RegisterRequest model)
         {
-            user = await _userService.DeleteUser(id) ?? throw new InvalidOperationException();
-            return Ok(user);
+            _userService.Register(model);
+            return Ok(new { message = "Registration successful" });
         }
 
-        private RefreshToken GenerateRefreshToken()
+        [AllowAnonymous]
+        [HttpPost("Login")]
+        public IActionResult Authenticate(AuthenticateRequest model)
         {
-            var refreshToken = new RefreshToken()
-            {
-                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
-                Expires = DateTime.UtcNow.AddDays(7),
-                Created = DateTime.UtcNow
-            };
-            return refreshToken;
+            var response = _userService.Login(model, ipAddress());
+            if (response.RefreshToken != null) setTokenCookie(response.RefreshToken);
+            return Ok(response);
         }
 
-        private void SetRefreshToken(RefreshToken newRefreshToken)
+[AllowAnonymous]
+        [HttpPost("refresh-token")]
+        public IActionResult RefreshToken()
         {
-            var cookieOptions = new CookieOptions
+            var refreshToken = Request.Cookies["refreshToken"];
+            if (refreshToken != null)
             {
-                //enlever en https
-                HttpOnly = true,
-                Expires = newRefreshToken.Expires,
-            };
-
-            if (newRefreshToken.Token != null)
+                var response = _userService.RefreshToken(refreshToken, ipAddress());
+                if (response.RefreshToken != null) setTokenCookie(response.RefreshToken);
+                return Ok(response);
+            }
+            
             {
-                Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
-                user.RefreshToken = newRefreshToken.Token;
-                user.TokenExpires = newRefreshToken.Expires;
+                 return Unauthorized(new { message = "Refresh token is required" });
             }
         }
+[   HttpPost("revoke-token")]
+        public IActionResult RevokeToken(RevokeTokenRequest model)
+        {
+            // accept refresh token in request body or cookie
+            var token = model.Token ?? Request.Cookies["refreshToken"];
 
-        // Claims properties are used to store user information anything you want to store in the token
+            if (string.IsNullOrEmpty(token))
+                return BadRequest(new { message = "Token is required" });
+
+
+            _userService.RevokeToken(token, ipAddress());
+
+            return Ok(new { message = "Token revoked" });
+        }
+
+  [HttpGet("GetAllUsers")]
+        public IActionResult GetAll()
+        {
+            var users = _userService.GetAll();
+            return Ok(users);
+        }
+
+        [HttpGet("GetUserById/{id}")]
+        public IActionResult GetById(int id)
+        {
+var byId = _userService.GetById(id);
+            return Ok(byId);
+        }
+
+        [HttpGet("GetRefreshById/{id}/refresh-tokens")]
+        public IActionResult GetRefreshTokens(int id)
+        {
+            var user = _userService.GetById(id);
+            return Ok(user.RefreshTokens);
+        }
+
+        // helper methods
+
+        private void setTokenCookie(string token)
+        {
+            // append cookie with refresh token to the http response
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = DateTime.UtcNow.AddDays(7)
+            };
+            Response.Cookies.Append("refreshToken", token, cookieOptions);
+        }
+
+        private string ipAddress()
+        {
+            // get source ip address for the current request
+            if (Request.Headers.ContainsKey("X-Forwarded-For"))
+                return Request.Headers["X-Forwarded-For"];
+            else
+                return HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString();
+        }
     }
 }
