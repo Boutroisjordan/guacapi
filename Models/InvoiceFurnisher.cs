@@ -7,6 +7,8 @@ public class InvoiceFurnisher
   public int InvoiceFurnisherId { get; set; }
   public string? InvoiceNumber { get; set; }
 
+  public DateTime Date {get; set;} = DateTime.Today;
+
   public int FurnisherId {get; set;}
   public Furnisher? Furnisher {get; set;}
 

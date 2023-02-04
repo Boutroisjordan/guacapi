@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -82,7 +83,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     //app.UseHttpsRedirection();
 }
+// ---------------
 
+app.UseStaticFiles();// For the wwwroot folder
+
+app.UseStaticFiles(new StaticFileOptions
+        {
+            FileProvider = new PhysicalFileProvider(
+                Path.Combine(Directory.GetCurrentDirectory(), "Images")),
+            RequestPath = "/Images"
+        });
+
+
+
+//---------------
 app.UseCors();
 
 app.UseAuthentication();
