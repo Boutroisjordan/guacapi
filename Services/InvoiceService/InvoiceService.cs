@@ -29,8 +29,12 @@ public class InvoiceService : IInvoiceService
         {
 
             //  var Getinvoice = await _context.InvoiceFurnisher.FirstOrDefaultAsync(x => x.Id == invoiceId);
-             var invoice = await _context.InvoicesFurnisher.Include(x => x.Furnisher).FirstOrDefaultAsync(x => x.InvoiceFurnisherId == invoiceId);
-
+        var invoice = await _context.InvoicesFurnisher
+        .Include(x => x.InvoicesFurnisherProduct)
+            .ThenInclude(y => y.Product)
+        .Include(x => x.Furnisher)
+        .Where(x => x.InvoiceFurnisherId == invoiceId)
+        .FirstOrDefaultAsync();
             return invoice;
         }
 
@@ -42,18 +46,8 @@ public class InvoiceService : IInvoiceService
 
         await _context.SaveChangesAsync();
 
-        
 
-            // foreach (var product in _context.InvoicesFurnisherProduct)
-            // {
-            //     product.InvoiceFurnisherId = addedInvoice.Entity.InvoiceFurnisherId;
-            //     _context.InvoicesFurnisherProduct.Add(product);
-
-            //     //todo get all product of furnisher and check dans command si les produit sont de fournisseur rentrer sinon error merci
-            // }
-
-            await _context.SaveChangesAsync();
-
+//TODOOOOO reset la bdd avec les migrations recréer tout et test ensuite sinon vire le foreach et test sans
     
         return addedInvoice.Entity;
     }
@@ -90,7 +84,12 @@ public class InvoiceService : IInvoiceService
 
     public async Task<InvoiceFurnisher?> GetInvoiceFurnisher(int id) {
         // var invoice = await _context.InvoicesFurnisher.Include(x => x.InvoicesFurnisherProduct).FirstAsync;
-        var invoice = await _context.InvoicesFurnisher.FindAsync(id);
+        var invoice = await _context.InvoicesFurnisher
+        .Include(x => x.InvoicesFurnisherProduct)
+            .ThenInclude(y => y.Product)
+        .Include(x => x.Furnisher)
+        .Where(x => x.InvoiceFurnisherId == id)
+        .FirstOrDefaultAsync();
 
         if(invoice is null) {
             return null;

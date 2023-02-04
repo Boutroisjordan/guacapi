@@ -37,6 +37,13 @@ namespace GuacAPI.Migrations
                     b.HasKey("AlcoholTypeId");
 
                     b.ToTable("alcohol_type", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            AlcoholTypeId = 1,
+                            label = "Rouge"
+                        });
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Appellation", b =>
@@ -53,6 +60,13 @@ namespace GuacAPI.Migrations
                     b.HasKey("AppellationId");
 
                     b.ToTable("appellation", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            AppellationId = 1,
+                            Name = "IGP"
+                        });
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Domain", b =>
@@ -69,6 +83,13 @@ namespace GuacAPI.Migrations
                     b.HasKey("DomainId");
 
                     b.ToTable("Domain", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            DomainId = 1,
+                            Name = "Domaine 1"
+                        });
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Furnisher", b =>
@@ -102,6 +123,17 @@ namespace GuacAPI.Migrations
                     b.HasKey("FurnisherId");
 
                     b.ToTable("Furnisher", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            FurnisherId = 1,
+                            City = "budapest",
+                            Name = "fournisseur 1",
+                            PostalCode = "27000",
+                            Siret = "29239393",
+                            Street = "155 rue des vins"
+                        });
                 });
 
             modelBuilder.Entity("GuacAPI.Models.InvoiceFurnisherProduct", b =>
@@ -111,6 +143,9 @@ namespace GuacAPI.Migrations
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Id")
                         .HasColumnType("int");
@@ -206,6 +241,23 @@ namespace GuacAPI.Migrations
                     b.HasIndex("RegionId");
 
                     b.ToTable("Product", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            ProductId = 1,
+                            AlcoholDegree = 2m,
+                            AlcoholTypeId = 1,
+                            AppellationId = 1,
+                            DomainId = 1,
+                            FurnisherId = 1,
+                            Millesime = 2010,
+                            Name = "product 1",
+                            Price = 12,
+                            Reference = "jndijfndjn",
+                            RegionId = 1,
+                            Stock = 155
+                        });
                 });
 
             modelBuilder.Entity("GuacAPI.Models.ProductOffer", b =>
@@ -241,6 +293,13 @@ namespace GuacAPI.Migrations
                     b.HasKey("RegionID");
 
                     b.ToTable("Region", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            RegionID = 1,
+                            Name = "region 1"
+                        });
                 });
 
             modelBuilder.Entity("GuacAPI.Models.User", b =>
@@ -324,13 +383,11 @@ namespace GuacAPI.Migrations
                     b.HasOne("InvoiceFurnisher", "InvoiceFurnisher")
                         .WithMany("InvoicesFurnisherProduct")
                         .HasForeignKey("InvoiceFurnisherId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("GuacAPI.Models.Product", "Product")
-                        .WithMany("InvoicesFurnihserProduct")
+                        .WithMany("InvoicesFurnisherProduct")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("InvoiceFurnisher");
@@ -440,7 +497,7 @@ namespace GuacAPI.Migrations
 
             modelBuilder.Entity("GuacAPI.Models.Product", b =>
                 {
-                    b.Navigation("InvoicesFurnihserProduct");
+                    b.Navigation("InvoicesFurnisherProduct");
 
                     b.Navigation("ProductOffers");
                 });

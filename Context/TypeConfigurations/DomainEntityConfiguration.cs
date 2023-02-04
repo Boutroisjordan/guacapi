@@ -14,6 +14,10 @@ class DomainEntityConfiguration : IEntityTypeConfiguration<Domain>
         //Primary key de la table
         builder.HasKey(item => item.DomainId);
 
+        builder.HasData(
+            new Domain { DomainId = 1, Name = "Domaine 1"}
+        );
+
     }
     #endregion
 

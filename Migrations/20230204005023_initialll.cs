@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GuacAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class initialll : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -199,10 +199,11 @@ namespace GuacAPI.Migrations
                 name: "InvoiceFurnisherProduct",
                 columns: table => new
                 {
-                    ProductId = table.Column<int>(type: "int", nullable: false),
                     InvoiceFurnisherId = table.Column<int>(type: "int", nullable: false),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
                     Id = table.Column<int>(type: "int", nullable: false),
-                    QuantityProduct = table.Column<int>(type: "int", nullable: false)
+                    QuantityProduct = table.Column<int>(type: "int", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {

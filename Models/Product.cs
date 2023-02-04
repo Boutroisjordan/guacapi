@@ -30,6 +30,8 @@ public class Product
     [JsonIgnore]
      public List<ProductOffer>? ProductOffers {get; set;}
 
+    //   public List<InvoiceFurnisher>? InvoiceFurnishers {get; set;}
+      public List<InvoiceFurnisherProduct>? InvoicesFurnisherProduct {get; set;}
 
     #endregion
 }

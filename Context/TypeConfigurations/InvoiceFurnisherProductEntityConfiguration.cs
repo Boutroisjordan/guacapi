@@ -10,7 +10,6 @@ class InvoiceFurnisherProductEntityConfiguration : IEntityTypeConfiguration<Invo
     public void Configure(EntityTypeBuilder<InvoiceFurnisherProduct> builder)
     {
         builder.ToTable("InvoiceFurnisherProduct");
-        // builder.HasKey(item => item.Id);
 
     }
 

@@ -34,9 +34,28 @@ public class InvoiceController : ControllerBase
                 return BadRequest("error invoice not found");
              }
 
-            string htmlContent = "<h1>Données pour l'objet  </h1>" ;
-            htmlContent += "<p> Number invoice: " + invoice.InvoiceNumber+ "</p>";
 
+            if(invoice.Furnisher is null) {
+                return BadRequest("error invoice doesn't have furnisher");
+             }
+            string htmlContent = "<h1>Bon de commande: Réaprovisionnement  </h1>" ;
+            htmlContent += "<p> Number invoice: " + invoice.InvoiceNumber+ "</p>";
+            htmlContent += "<p> Furnisher: " + invoice.Furnisher.Name + "</p>";
+            htmlContent += "<p> Siret: " + invoice.Furnisher.Siret + "</p>";
+            htmlContent += "<p> address: " + invoice.Furnisher.Street + " " + invoice.Furnisher.PostalCode + " " + invoice.Furnisher.City+ "</p>";
+
+            htmlContent += "<h2> Produits </h2>";
+    
+            if(invoice.InvoicesFurnisherProduct is null) {
+                return BadRequest("error invoice doesn't contains products");
+             }
+            invoice.InvoicesFurnisherProduct.ForEach(item => {
+                if(item.Product != null) {
+
+                htmlContent += "<p>Nom du produit : " + item.Product.Name + "</p>";
+                htmlContent += "<p>Quantité : " + item.QuantityProduct + "</p>";
+                }
+            });
             // Génération du PDF à partir du HTML
             PdfGenerator.AddPdfPages(document, htmlContent, PageSize.A4);
             byte[]? response = null;
@@ -51,35 +70,6 @@ public class InvoiceController : ControllerBase
             // Renvoi du PDF en tant que fichier
             return File(response, "application/pdf", Filename);
         }
-
-
-
-    // [HttpGet("generatepdf/Furnisher")]
-    // public async Task<IActionResult> GenerateFurnisher(int InvoiceNo)
-    // {
-
-    //     // Invoice invoice= JsonConvert.DeserializeObject<Invoice>(File.ReadAllText("../../../InvoiceData.json"));
-
-    //     //Load html HTML template.
-    //     //  var invoiceTemplate = File.ReadAllText("../Template/Invoice_Furnisher.html");
-    //     //  string invoiceTemplate = File.ReadAllText("../Template/Invoice_Furnisher.html");
-
-    //     // var template = Template.Parse(invoiceTemplate);
-    //     // System.IO.File.ReadAllBytes("1.pdf") test jordan garde ca sous la main
-    //     // var pdfBytes = _invoiceService.GeneratePdf(InvoiceNo);
-    //     // var pdfBytes = _invoiceService.funcForWork("hoh");
-    //     // return File(pdfBytes, "application/pdf", "invoice.pdf");
-
-    //      // Générez le contenu HTML à partir du fichier HTML et des données
-    // var html = await new ViewRenderService().RenderToStringAsync("NomDuFichierHtml", donnees);
-
-    // // Créez un nouveau PDF à partir du contenu HTML
-    // var pdf = new HtmlToPdf();
-    // var pdfDocument = pdf.RenderHtmlAsPdf(html);
-
-    // // Renvoyez le fichier PDF dans la réponse
-    // return File(pdfDocument.BinaryData, "application/pdf", "FichierPDF.pdf");
-    // }
 
     [HttpGet]
      public async Task<IActionResult> getAll()

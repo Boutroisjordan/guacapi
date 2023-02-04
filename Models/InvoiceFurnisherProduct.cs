@@ -11,6 +11,7 @@ public class InvoiceFurnisherProduct
     public int Id {get; set;}
 
     public int QuantityProduct {get; set;}
+    public DateTime Date {get; set;}
 
 
     public int InvoiceFurnisherId {get; set;}

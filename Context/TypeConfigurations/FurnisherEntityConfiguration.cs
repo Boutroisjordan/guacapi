@@ -17,7 +17,12 @@ class FurnisherEntityConfiguration : IEntityTypeConfiguration<Furnisher>
         builder.HasMany(f => f.Invoices)
             .WithOne(f => f.Furnisher)
             .HasForeignKey(f => f.FurnisherId);
+
+        builder.HasData(
+            new Furnisher { FurnisherId = 1, Name = "fournisseur 1", City = "budapest", Street = "155 rue des vins", PostalCode = "27000", Siret = "29239393"}
+        );
     }
+
 
     // protected override void OnModelCreating()
     #endregion

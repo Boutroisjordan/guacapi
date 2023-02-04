@@ -14,6 +14,10 @@ class RegionEntityConfiguration : IEntityTypeConfiguration<Region>
         //Primary key de la table
         builder.HasKey(item => item.RegionID);
 
+        builder.HasData(
+            new Region { RegionID = 1, Name = "region 1" }
+        );
+
     }
     #endregion
 

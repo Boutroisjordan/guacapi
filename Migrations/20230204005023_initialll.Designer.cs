@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuacAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230203155435_init")]
-    partial class init
+    [Migration("20230204005023_initialll")]
+    partial class initialll
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -114,6 +114,9 @@ namespace GuacAPI.Migrations
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Id")
                         .HasColumnType("int");
@@ -327,13 +330,11 @@ namespace GuacAPI.Migrations
                     b.HasOne("InvoiceFurnisher", "InvoiceFurnisher")
                         .WithMany("InvoicesFurnisherProduct")
                         .HasForeignKey("InvoiceFurnisherId")
-                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("GuacAPI.Models.Product", "Product")
-                        .WithMany("InvoicesFurnihserProduct")
+                        .WithMany("InvoicesFurnisherProduct")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("InvoiceFurnisher");
@@ -443,7 +444,7 @@ namespace GuacAPI.Migrations
 
             modelBuilder.Entity("GuacAPI.Models.Product", b =>
                 {
-                    b.Navigation("InvoicesFurnihserProduct");
+                    b.Navigation("InvoicesFurnisherProduct");
 
                     b.Navigation("ProductOffers");
                 });
