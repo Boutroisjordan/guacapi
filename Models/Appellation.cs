@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace GuacAPI.Models;
 
 using System.Text.Json.Serialization;
-
+ 
 //  AOP IGP etc
 public class Appellation
 {

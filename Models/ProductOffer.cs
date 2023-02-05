@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace GuacAPI.Models;
 using System.Text.Json.Serialization;
 
-// table de relation
+ 
 public class ProductOffer
 
 {

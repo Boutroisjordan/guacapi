@@ -1,7 +1,6 @@
 ﻿using GuacAPI.Models;
 
 namespace GuacAPI.Services.UserServices;
-
 public interface IUserService
 {
     object? GetUserInfos();

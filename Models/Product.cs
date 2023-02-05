@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace GuacAPI.Models;
 
-// Répresente une bouteille de vin
+ 
 public class Product
 {
     #region Properties

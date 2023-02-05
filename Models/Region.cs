@@ -4,7 +4,7 @@ namespace GuacAPI.Models;
 
 using System.Text.Json.Serialization;
 
-// Région d'ou vient le vin
+ 
 public class Region
 {
     #region Properties

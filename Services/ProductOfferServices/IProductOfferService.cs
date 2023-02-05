@@ -1,7 +1,7 @@
 using GuacAPI.Models;
 
 namespace GuacAPI.Services;
-
+ 
 public interface IProductOfferService
 {
 

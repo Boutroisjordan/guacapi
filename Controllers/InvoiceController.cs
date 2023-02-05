@@ -7,8 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using PdfSharpCore;
 using PdfSharpCore.Pdf;
 using TheArtOfDev.HtmlRenderer.PdfSharp;
+using AutoMapper;
+using GuacAPI.Helpers;
+using Swashbuckle.AspNetCore;
 
-
+ 
 namespace GuacAPI.Controllers;
 
 [Route("[controller]")]
@@ -18,11 +21,13 @@ public class InvoiceController : ControllerBase
 {
     private IInvoiceService _invoiceService;
     private readonly IWebHostEnvironment environnement;
+    private readonly IMapper _mapper;
 
-    public InvoiceController(IInvoiceService invoiceService, IWebHostEnvironment webHostEnvironment)
+    public InvoiceController(IInvoiceService invoiceService, IWebHostEnvironment webHostEnvironment, IMapper mapper)
     {
         this._invoiceService = invoiceService;
         this.environnement = webHostEnvironment;
+        this._mapper = mapper;
     }
 
         [HttpGet("pdf")]
@@ -139,11 +144,34 @@ public class InvoiceController : ControllerBase
          }
          return Ok(invoices);
      }
+#pragma warning restore CS1591
+    /// <summary>
+    /// Create a invoice, a command for Furnishers
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     POST /Invoice furnisher
+    ///     {
+    ///         "invoiceNumber" : "string",
+    ///         "Date": current datetime already bind,
+    ///         "FurnisherId": int,
+    ///         "invoicesFurnisherProduct": [
+    ///          {
+    ///             "productId": int,
+    ///             "quantityProduct": int
+    ///           }    
+    ///         ]
+    ///</remarks>
     [HttpPost]
-     public async Task<IActionResult> AddOne(InvoiceFurnisher invoice)
+     public async Task<IActionResult> AddOne(InvoiceFurnisherRegister invoice)
      {
 
-         var addedOffer = await _invoiceService.AddInvoice(invoice);
+
+        InvoiceFurnisher addedInvoice =  _mapper.Map<InvoiceFurnisher>(invoice);
+        
+        
+         var addedOffer = await _invoiceService.AddInvoice(addedInvoice);
 
          if (addedOffer == null)
          {

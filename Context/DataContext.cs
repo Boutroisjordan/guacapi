@@ -3,7 +3,7 @@ using GuacAPI.Context.TypeConfigurations;
 using GuacAPI.Models;
 
 namespace GuacAPI.Context;
-
+ 
 public class DataContext : DbContext
 {
     #region Constructor

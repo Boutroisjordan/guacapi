@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace GuacAPI.Services;
-
+ 
 public class FurnisherService : IFurnisherService
 {
     #region Fields

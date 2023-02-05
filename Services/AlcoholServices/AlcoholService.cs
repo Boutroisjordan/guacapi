@@ -3,7 +3,7 @@ using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace GuacAPI.Services;
-
+ 
 public class AlcoholService : IAlcoholService
 {
     #region Fields

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Swashbuckle.AspNetCore;
 
 namespace GuacAPI.Controllers;
-
+ 
 [Route("[controller]")]
 [ApiController]
 public class ProductController : ControllerBase

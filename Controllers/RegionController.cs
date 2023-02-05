@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using GuacAPI.Services;
 
 namespace GuacAPI.Controllers;
-
+ 
 [Route("[controller]")]
 [ApiController]
 public class RegionController : ControllerBase

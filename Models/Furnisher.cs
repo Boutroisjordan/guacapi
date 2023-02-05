@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
 namespace GuacAPI.Models;
-
+ 
 using System.Text.Json.Serialization;
 
 // fournisseur de vin, revendeur

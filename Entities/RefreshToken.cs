@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace GuacAPI.Entities;
-
+ 
 [Owned]
 public class RefreshToken
 {
