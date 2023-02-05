@@ -3,6 +3,8 @@ using GuacAPI.Context;
 // using DinkToPdf.Contracts;
 using Microsoft.EntityFrameworkCore;
 // using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
+using AutoMapper;
+using GuacAPI.Helpers;
 
  
 
@@ -12,13 +14,15 @@ public class InvoiceService : IInvoiceService
 {
     #region Fields
     private readonly DataContext _context;
+        private readonly IMapper _mapper;
     // private readonly RazorLightEngine _engine;
     #endregion
 
 
-    public InvoiceService(DataContext context)
+    public InvoiceService(DataContext context, IMapper mapper)
     {
        _context = context;
+        this._mapper = mapper;
         // _engine = new RazorLightEngineBuilder().UseFileSystemProject(Path.Combine(Directory.GetCurrentDirectory(), "Templates")).Build();
     }
 
@@ -98,4 +102,20 @@ public class InvoiceService : IInvoiceService
 
         return invoice;
     }
+
+//id en paramètre, et update avec la requete
+
+    public async Task<InvoiceFurnisher?> UpdateInvoiceFurnisher(InvoiceFurnisherUpdate request, int id)
+    {
+        var invoiceFurnisher = await _context.InvoicesFurnisher.FirstOrDefaultAsync(u => u.InvoiceFurnisherId == id);
+        if (invoiceFurnisher == null) return null;
+
+        InvoiceFurnisher addedInvoice =  _mapper.Map(request, invoiceFurnisher);
+
+
+        // user.Username = request.Username;
+        // await _context.SaveChangesAsync();
+        return addedInvoice;
+    }
+
 }

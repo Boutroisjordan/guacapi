@@ -17,16 +17,27 @@ public class AutoMapperProfile : Profile
 
         // UpdateRequest -> User
         // UpdateRequest -> User
-        // CreateMap<UpdateRequest, User>()
-        //     .ForAllMembers(x => x.Condition(
-        //         (src, dest, prop) =>
-        //         {
-        //             // ignore null & empty string properties
-        //             if (prop == null) return false;
-        //             if (prop.GetType() == typeof(string) && string.IsNullOrEmpty((string)prop)) return false;
+        CreateMap<InvoiceFurnisherUpdate, InvoiceFurnisher>()
+            .ForMember(dest => dest.FurnisherId, opt =>
+            {
+                opt.Condition((src, dest) => dest.FurnisherId == 0);// suppose dest is not null.
+                opt.MapFrom(src => src.FurnisherId);
 
-        //             return true;
-        //         }
-        //     ));
+            });
+            // .ForAllMembers(x => x.Condition(
+            //     (src, dest, prop) =>
+            //     {
+            //         // ignore null & empty string properties
+            //         // if(src.FurnisherId == 0) {
+            //         //     dest.FurnisherId == prop.FurnisherId;
+            //         // }
+            //         // if (prop == null) return false;
+            //         // if (prop.GetType() == typeof(string) && string.IsNullOrEmpty((string)prop)) return false;
+
+            //         return true;
+            //     }
+            // ));
+            
+            
     }
 }

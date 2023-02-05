@@ -1,7 +1,7 @@
 using GuacAPI.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-#pragma warning disable CS1591
+ 
 public class InvoiceFurnisher
 {
   public int InvoiceFurnisherId { get; set; }
@@ -30,4 +30,16 @@ public class InvoiceFurnisherRegister {
   public int FurnisherId {get; set;}
 
   public List<InvoiceFurnisherProduct> InvoicesFurnisherProduct {get; set;} = new List<InvoiceFurnisherProduct>();
+}
+
+
+public class InvoiceFurnisherUpdate {
+
+  public string? invoiceNumber {get; set;}
+
+  public DateTime Date {get; set;} = DateTime.Today;
+
+  public int FurnisherId {get; set;}
+
+  // public List<InvoiceFurnisherProduct> InvoicesFurnisherProduct {get; set;} = new List<InvoiceFurnisherProduct>();
 }

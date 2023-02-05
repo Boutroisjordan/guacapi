@@ -24,8 +24,3 @@ public class InvoiceFurnisherProduct
     #endregion
 }
 
-public class InvoiceFurnisherProductRegister {
-
-     public int QuantityProduct {get; set;}
-    public int ProductId { get; set; }
-}

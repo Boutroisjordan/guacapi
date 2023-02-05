@@ -13,5 +13,6 @@ Task<InvoiceFurnisher?> GeneratePDF(int invoiceId);
 
     Task<List<InvoiceFurnisher>> GetAllInvoicesFurnisher();
     Task<InvoiceFurnisher?> GetInvoiceFurnisher(int id);
+    Task<InvoiceFurnisher?> UpdateInvoiceFurnisher(InvoiceFurnisherUpdate request, int id);
 
 }
