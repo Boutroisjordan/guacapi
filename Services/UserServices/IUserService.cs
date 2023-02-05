@@ -6,7 +6,6 @@ namespace GuacAPI.Services.UserServices;
 
 public interface IUserService
 {
-    object? GetUserInfos();
 
     Task<List<User>> GetAllUsers();
 

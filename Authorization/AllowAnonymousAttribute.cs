@@ -1,5 +1,5 @@
-namespace WebApi.Authorization;
+namespace GuacAPI.Authorization;
 
 [AttributeUsage(AttributeTargets.Method)]
-public class AllowAnonymousAttribute : Attribute
+public abstract class AllowAnonymousAttribute : Attribute
 { }
