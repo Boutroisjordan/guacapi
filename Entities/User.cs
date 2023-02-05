@@ -18,7 +18,7 @@ public class User
     public string? Role { get; set; }
 
     [JsonIgnore] public string? PasswordHash { get; set; }
-    [JsonIgnore] public List<RefreshToken> RefreshTokens { get; set; }
+    [JsonIgnore] public List<RefreshToken>? RefreshTokens { get; set; }
 
 
     //user data to object for form submission and validation

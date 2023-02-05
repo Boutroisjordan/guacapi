@@ -51,14 +51,18 @@ namespace guacapi.Controllers
           [HttpDelete("delete")]
         public async Task<ActionResult> Delete()
         {
-            var username = User.Identity.Name;
-            var user = await _userService.GetUserByUsername(username);
-            if (user == null)
+            var username = User.Identity?.Name;
+            if (username != null)
             {
-                return BadRequest();
+                var user = await _userService.GetUserByUsername(username);
+                if (user == null)
+                {
+                    return BadRequest();
+                }
+
+                await _userService.DeleteUser(user.Id);
             }
 
-            await _userService.DeleteUser(user.Id);
             return Ok();
         }
 
@@ -74,8 +78,8 @@ namespace guacapi.Controllers
         [HttpPost("Login")]
         public IActionResult Authenticate(AuthenticateRequest model)
         {
-            var response = _userService.Login(model, ipAddress());
-            if (response.RefreshToken != null) setTokenCookie(response.RefreshToken);
+            var response = _userService.Login(model, IpAddress());
+            if (response.RefreshToken != null) SetTokenCookie(response.RefreshToken);
             return Ok(response);
         }
 
@@ -86,8 +90,8 @@ namespace guacapi.Controllers
             var refreshToken = Request.Cookies["refreshToken"];
             if (refreshToken != null)
             {
-                var response = _userService.RefreshToken(refreshToken, ipAddress());
-                if (response.RefreshToken != null) setTokenCookie(response.RefreshToken);
+                var response = _userService.RefreshToken(refreshToken, IpAddress());
+                if (response.RefreshToken != null) SetTokenCookie(response.RefreshToken);
                 return Ok(response);
             }
             
@@ -104,9 +108,7 @@ namespace guacapi.Controllers
             if (string.IsNullOrEmpty(token))
                 return BadRequest(new { message = "Token is required" });
 
-
-            _userService.RevokeToken(token, ipAddress());
-
+            _userService.RevokeToken(token, IpAddress());
             return Ok(new { message = "Token revoked" });
         }
 
@@ -133,7 +135,7 @@ var byId = _userService.GetById(id);
 
         // helper methods
 
-        private void setTokenCookie(string token)
+        private void SetTokenCookie(string token)
         {
             // append cookie with refresh token to the http response
             var cookieOptions = new CookieOptions
@@ -144,13 +146,13 @@ var byId = _userService.GetById(id);
             Response.Cookies.Append("refreshToken", token, cookieOptions);
         }
 
-        private string ipAddress()
+        private string IpAddress()
         {
             // get source ip address for the current request
             if (Request.Headers.ContainsKey("X-Forwarded-For"))
-                return Request.Headers["X-Forwarded-For"];
+                return Request.Headers["X-Forwarded-For"]!;
             else
-                return HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString();
+                return HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString()!;
         }
     }
 }

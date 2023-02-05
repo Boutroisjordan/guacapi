@@ -22,7 +22,7 @@ public interface IJwtUtils
 
 public class JwtUtils : IJwtUtils
 {
-    private DataContext _context;
+    private readonly DataContext _context;
     private readonly AppSettings _appSettings;
 
     public JwtUtils(IOptions<AppSettings> appSettings, DataContext context)
@@ -49,8 +49,6 @@ public class JwtUtils : IJwtUtils
 
     public int? ValidateToken(string token)
     {
-        if (token == null)
-            return null;
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
@@ -83,27 +81,26 @@ public class JwtUtils : IJwtUtils
     {
         var refreshToken = new RefreshToken
         {
-            Token = getUniqueToken(),
+            Token = GetUniqueToken(),
             // token is valid for 7 days
             Expires = DateTime.UtcNow.AddDays(7),
             Created = DateTime.UtcNow,
             CreatedByIp = ipAddress,
-            
         };
 
         return refreshToken;
 
-        string getUniqueToken()
+        string GetUniqueToken()
         {
             // token is a cryptographically strong random sequence of values
-            var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
             // ensure token is unique by checking against db
-            var tokenIsUnique = !_context.Users.Any(u => u.RefreshTokens.Any(t => t.Token == token));
+            var tokenIsUnique = !_context.Users.Any(u =>
+                u.RefreshTokens.Any(t => t.Token == Convert.ToBase64String(RandomNumberGenerator.GetBytes(64))));
 
             if (!tokenIsUnique)
-                return getUniqueToken();
-            
-            return token;
+                return GetUniqueToken();
+
+            return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
         }
     }
 }
