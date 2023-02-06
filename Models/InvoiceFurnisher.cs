@@ -41,5 +41,4 @@ public class InvoiceFurnisherUpdate {
 
   public int FurnisherId {get; set;}
 
-  // public List<InvoiceFurnisherProduct> InvoicesFurnisherProduct {get; set;} = new List<InvoiceFurnisherProduct>();
 }

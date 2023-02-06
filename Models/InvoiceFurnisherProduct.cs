@@ -8,10 +8,7 @@ public class InvoiceFurnisherProduct
 
 {
     #region Properties
-    // public int Id {get; set;} //il sert a rien dégage le et test mais tu dois wipe la bdd
     public int QuantityProduct {get; set;}
-
-
 
     public int InvoiceFurnisherId {get; set;}
     [JsonIgnore]

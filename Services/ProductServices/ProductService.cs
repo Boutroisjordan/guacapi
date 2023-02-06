@@ -3,7 +3,7 @@ using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace GuacAPI.Services;
-#pragma warning disable CS1591
+ 
 public class ProductService : IProductService
 {
     #region Fields

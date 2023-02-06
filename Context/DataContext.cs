@@ -60,46 +60,6 @@ public class DataContext : DbContext
             .HasForeignKey(ifp => ifp.ProductId)
             .OnDelete(DeleteBehavior.ClientSetNull);
 
-        // modelBuilder.Entity<InvoiceFurnisherProduct>()
-        //     .HasOne(ifp => ifp.Product);
-        //  modelBuilder.Entity<Post>()
-        //     .HasMany(p => p.Tags)
-        //     .WithMany(p => p.Posts)
-        //     .UsingEntity<PostTag>(
-        //         j => j
-        //             .HasOne(pt => pt.Tag)
-        //             .WithMany(t => t.PostTags)
-        //             .HasForeignKey(pt => pt.TagId),
-        //         j => j
-        //             .HasOne(pt => pt.Post)
-        //             .WithMany(p => p.PostTags)
-        //             .HasForeignKey(pt => pt.PostId),
-        //         j =>
-        //         {
-        //             j.Property(pt => pt.PublicationDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
-        //             j.HasKey(t => new { t.PostId, t.TagId });
-        //         });
-
-        //  modelBuilder.Entity<InvoiceFurnisher>()
-        //     .HasMany(p => p.Products)
-        //     .WithMany()
-        //     .UsingEntity<InvoiceFurnisherProduct>(
-        //         j => j
-        //             .HasOne(pt => pt.Product)
-        //             .WithMany()
-        //             .HasForeignKey(pt => pt.ProductId),
-        //         j => j
-        //             .HasOne(pt => pt.InvoiceFurnisher)
-        //             .WithMany(p => p.InvoicesFurnisherProduct)
-        //             .HasForeignKey(pt => pt.InvoiceFurnisherId),
-        //         j =>
-        //         {
-        //             j.Property(pt => pt.Date).HasDefaultValueSql("CURRENT_TIMESTAMP");
-        //             j.HasKey(t => new { t.InvoiceFurnisherId, t.ProductId });
-        //         });
-
-//t'as pas besoin de la fk sur le produit go voir la doc microsoft
-
     }
 
     

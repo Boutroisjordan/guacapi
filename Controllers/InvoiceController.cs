@@ -43,40 +43,26 @@ public class InvoiceController : ControllerBase
             return BadRequest("error invoice not found");
         }
 
-        // string pathImage = "file:///Users/jordanboutrois/Projects/GuacAPI/GuacAPI/Images/guacalogo.png";
-        // string pathImage = "http://" + HttpContext.Request.Host.Value+ "/Images/guacalogo.png";
-        //  string pathImage = "data:image/jpeg;base64, " + await GetBase64string() + "";
-
         if (invoice.Furnisher is null)
         {
             return BadRequest("error invoice doesn't have furnisher");
         }
         string htmlContent = "<div style='width:100%'>";
-        // htmlContent += "<img style='width: 80px; height: 100%' src='" + pathImage + "'  />";
-        // htmlContent += "<img style='width:80px;height:80%' src='" + pathImage + "'   />";
         htmlContent += "<h1>Bon de commande: Réaprovisionnement  </h1>";
         htmlContent += "<h1>Date: " + invoice.Date.ToString("MMMM dd, yyyy") + " </h1>";
-        // htmlContent += "<p> Number invoice: " + invoice.InvoiceNumber+ "</p>";
         htmlContent += "<p> Furnisher: " + invoice.Furnisher.Name + "</p>";
         htmlContent += "<p> Siret: " + invoice.Furnisher.Siret + "</p>";
         htmlContent += "<p> Adress: " + invoice.Furnisher.Street + " " + invoice.Furnisher.PostalCode + " " + invoice.Furnisher.City + "</p>";
-        // htmlContent += "<p> Date: " + invoice.InvoicesFurnisherProduct + "</p>";
         htmlContent += "</div>";
-
-        // Console.WriteLine(pathImage);
-
         htmlContent += "<h2> Produits </h2>";
-
         htmlContent += "<table style ='width:100%; border: 1px solid #000'>";
         htmlContent += "<thead style='font-weight:bold'>";
         htmlContent += "<tr>";
         htmlContent += "<td style='border:1px solid #000'> Product Name</td>";
         htmlContent += "<td style='border:1px solid #000'> Refrence </td>";
         htmlContent += "<td style='border:1px solid #000'>Qty</td>";
-
         htmlContent += "</tr>";
         htmlContent += "</thead >";
-
         htmlContent += "<tbody>";
 
         if (invoice.InvoicesFurnisherProduct is null)
@@ -87,10 +73,6 @@ public class InvoiceController : ControllerBase
         {
             if (item.Product != null)
             {
-
-
-
-
                 htmlContent += "<tr>";
                 htmlContent += "<td>" + item.Product.Name + "</td>";
                 htmlContent += "<td>" + item.Product.Reference + "</td>";
@@ -115,16 +97,6 @@ public class InvoiceController : ControllerBase
         // Renvoi du PDF en tant que fichier
         return File(response, "application/pdf", Filename);
     }
-
-    // [NonAction]
-    // public async Task<string> GetBase64string() {
-    //     // string filePath= this.environnement.WebRootPath+ "Images/guacalogo.png";
-    //     string filePath= this.environnement.WebRootPath+ "Images/rdh.png";
-    //     // string filePath= "http://" + HttpContext.Request.Host.Value+ "/Images/guacalogo.png";
-    //     byte[] imgarray = await System.IO.File.ReadAllBytesAsync(filePath);
-    //     string base64= Convert.ToBase64String(imgarray);
-    //     return base64;
-    // }
 
     [HttpGet]
     public async Task<IActionResult> getAll()
@@ -167,7 +139,7 @@ public class InvoiceController : ControllerBase
         return Ok(addedOffer);
     }
 
-        /// <summary>
+    /// <summary>
     /// Create a invoice, a command for Furnishers
     /// </summary>
     /// <remarks>
@@ -184,11 +156,7 @@ public class InvoiceController : ControllerBase
     public async Task<IActionResult> AddOne(InvoiceFurnisherRegister invoice)
     {
 
-
-        InvoiceFurnisher addedInvoice = _mapper.Map<InvoiceFurnisher>(invoice);
-
-
-        var addedOffer = await _invoiceService.AddInvoice(addedInvoice);
+        var addedOffer = await _invoiceService.AddInvoice(invoice);
 
         if (addedOffer == null)
         {
@@ -198,7 +166,7 @@ public class InvoiceController : ControllerBase
     }
 
 
-        /// <summary>
+    /// <summary>
     /// Create a invoiceProduct, InvoiceProduct
     /// </summary>
     /// <remarks>
@@ -206,9 +174,9 @@ public class InvoiceController : ControllerBase
     ///
     ///     POST /Invoice furnisher
     ///     {
-  ///           "quantityProduct": 340,
-  ///           "invoiceFurnisherId": 19,
-  ///           "productId": 1
+    ///           "quantityProduct": 340,
+    ///           "invoiceFurnisherId": 19,
+    ///           "productId": 1
     ///       }    
     ///</remarks>
     [HttpPost("invoiceProduct")]
@@ -224,7 +192,7 @@ public class InvoiceController : ControllerBase
     }
 
 
-            /// <summary>
+    /// <summary>
     /// Create a invoiceProduct, InvoiceProduct
     /// </summary>
     /// <remarks>
@@ -247,8 +215,6 @@ public class InvoiceController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, InvoiceFurnisherUpdate invoice)
     {
-
-
 
         var addedInvoice = await _invoiceService.UpdateInvoiceFurnisher(invoice, id);
 
