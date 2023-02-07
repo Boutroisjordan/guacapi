@@ -5,12 +5,12 @@ using System.Text.Json.Serialization;
 public class InvoiceFurnisher
 {
   public int InvoiceFurnisherId { get; set; }
-  public string? InvoiceNumber { get; set; }
+  public string InvoiceNumber { get; set; }
 
   public DateTime Date {get; set;} = DateTime.Today;
 
   public int FurnisherId {get; set;}
-  public Furnisher? Furnisher {get; set;}
+  public Furnisher Furnisher {get; set;}
 
 
   // public int InvoiceFurnisherProductId {get; set;}
@@ -23,7 +23,7 @@ public class InvoiceFurnisher
 
 public class InvoiceFurnisherRegister {
 
-  public string? invoiceNumber {get; set;}
+  public string invoiceNumber {get; set;}
 
   public DateTime Date {get; set;} = DateTime.Today;
 
@@ -35,7 +35,7 @@ public class InvoiceFurnisherRegister {
 
 public class InvoiceFurnisherUpdate {
 
-  public string? invoiceNumber {get; set;}
+  public string invoiceNumber {get; set;}
 
   public DateTime Date {get; set;} = DateTime.Today;
 

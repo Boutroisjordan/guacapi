@@ -10,9 +10,9 @@ public class Region
     #region Properties
 
     public int RegionID { get; set; }
-    [Required] public string? Name { get; set; }
+    [Required] public string Name { get; set; }
 
-    public List<Product>? Products { get; set; }
+    public List<Product> Products { get; set; }
 
     #endregion
 }

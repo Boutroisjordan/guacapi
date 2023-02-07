@@ -12,10 +12,10 @@ public class InvoiceFurnisherProduct
 
     public int InvoiceFurnisherId {get; set;}
     [JsonIgnore]
-    public InvoiceFurnisher? InvoiceFurnisher {get; set;}
+    public InvoiceFurnisher InvoiceFurnisher {get; set;}
 
     public int ProductId { get; set; }
-    public Product? Product { get; set; }
+    public Product Product { get; set; }
 
 
     #endregion

@@ -19,14 +19,14 @@ public class ProductService : IProductService
         // this._offerService = offerService;
     }
 
-    public async Task<List<Product>?> GetAllProducts()
+    public async Task<List<Product>> GetAllProducts()
     {
         var products = await _context.Products.ToListAsync();
         return products;
     }
 
 
-    public async Task<Product?> GetOne(int id)
+    public async Task<Product> GetOne(int id)
     {
          var product = await _context.Products.FindAsync(id);
         return product;
@@ -60,7 +60,7 @@ public class ProductService : IProductService
         return saveProduct;
     }
 
-    public async Task<Product?> UpdateProduct(int id, Product request)
+    public async Task<Product> UpdateProduct(int id, Product request)
     {
 
         var product = await _context.Products.FindAsync(id);
@@ -89,7 +89,7 @@ public class ProductService : IProductService
         return null;
     }
 
-    public async Task<List<Product>?> DeleteProduct(int id)
+    public async Task<List<Product>> DeleteProduct(int id)
     {
         var product = await _context.Products.FindAsync(id);
         if (product is null)

@@ -18,7 +18,7 @@ public class OfferService : IOfferService
         this._productService = productService;
     }
 
-    public async Task<List<Offer>?> GetAllOffers()
+    public async Task<List<Offer>> GetAllOffers()
     {
         var offers = await _context.Offers.ToListAsync();
         return offers;
@@ -79,7 +79,7 @@ public class OfferService : IOfferService
 
 
 
-    public async Task<Offer?> GetOfferById(int id)
+    public async Task<Offer> GetOfferById(int id)
     {
         var offer = await _context.Offers.Include(o => o.ProductOffers)
          .ThenInclude(x => x.Product)
@@ -118,7 +118,7 @@ public class OfferService : IOfferService
         return addedOffer;
     }
 
-     public async Task<Offer?> UpdateOffer(int id, Offer request)
+     public async Task<Offer> UpdateOffer(int id, Offer request)
      {
 
 
@@ -163,7 +163,7 @@ public class OfferService : IOfferService
         return offer;
 }
 
-    public async Task<Offer?> DeleteOffer(int id)
+    public async Task<Offer> DeleteOffer(int id)
     {
 
         var offer = await _context.Offers.Include(x => x.ProductOffers).FirstOrDefaultAsync(x => x.OfferId == id);

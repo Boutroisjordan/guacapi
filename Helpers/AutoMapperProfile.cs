@@ -29,5 +29,15 @@ public class AutoMapperProfile : Profile
                     return true;
                 }
             ));
+
+
+        CreateMap<InvoiceFurnisherRegister, InvoiceFurnisher>();
+        CreateMap<InvoiceFurnisherUpdate, InvoiceFurnisher>()
+            .ForMember(dest => dest.FurnisherId, opt =>
+            {
+                opt.Condition((src, dest) => dest.FurnisherId == 0);// suppose dest is not null.
+                opt.MapFrom(src => src.FurnisherId);
+
+            });
     }
 }

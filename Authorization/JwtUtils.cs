@@ -35,6 +35,9 @@ public class JwtUtils : IJwtUtils
     {
         // generate token that is valid for 7 days
         var tokenHandler = new JwtSecurityTokenHandler();
+        if(_appSettings.Secret is null) {
+            throw new Exception("secret is null");
+        }
         var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
@@ -51,6 +54,9 @@ public class JwtUtils : IJwtUtils
     {
 
         var tokenHandler = new JwtSecurityTokenHandler();
+        if(_appSettings.Secret is null) {
+            throw new Exception("secret is null");
+        }
         var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
         try
         {

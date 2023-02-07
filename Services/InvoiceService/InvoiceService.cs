@@ -19,7 +19,7 @@ public class InvoiceService : IInvoiceService
         this._mapper = mapper;
     }
 
-        public async Task<InvoiceFurnisher?> GeneratePDF(int invoiceId)
+        public async Task<InvoiceFurnisher> GeneratePDF(int invoiceId)
         {
 
         var invoice = await _context.InvoicesFurnisher
@@ -48,7 +48,7 @@ public class InvoiceService : IInvoiceService
         return invoices;
     }
 
-    public async Task<InvoiceFurnisher?> GetInvoiceFurnisher(int id) {
+    public async Task<InvoiceFurnisher> GetInvoiceFurnisher(int id) {
         // var invoice = await _context.InvoicesFurnisher.Include(x => x.InvoicesFurnisherProduct).FirstAsync;
         var invoice = await _context.InvoicesFurnisher
         .Include(x => x.InvoicesFurnisherProduct)
@@ -66,7 +66,7 @@ public class InvoiceService : IInvoiceService
 
 //id en paramètre, et update avec la requete
 
-    public async Task<InvoiceFurnisher?> UpdateInvoiceFurnisher(InvoiceFurnisherUpdate request, int id)
+    public async Task<InvoiceFurnisher> UpdateInvoiceFurnisher(InvoiceFurnisherUpdate request, int id)
     {
         var invoiceFurnisher = await _context.InvoicesFurnisher.FirstOrDefaultAsync(u => u.InvoiceFurnisherId == id);
         if (invoiceFurnisher == null) return null;

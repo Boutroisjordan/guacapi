@@ -22,7 +22,7 @@ public class RegionService : IRegionService
         return regions;
     }
     //-------
-    public async Task<Region?> GetOne(int id)
+    public async Task<Region> GetOne(int id)
     {
         var region = await _context.Regions.Include(i => i.Products).Where(i => i.RegionID == id).FirstOrDefaultAsync();
         return region;
@@ -41,7 +41,7 @@ public class RegionService : IRegionService
         this._context.SaveChanges();
     }
 
-    public async Task<Region?> UpdateRegion(int id, Region request)
+    public async Task<Region> UpdateRegion(int id, Region request)
     {
 
         var region = await _context.Regions.FindAsync(id);
@@ -60,7 +60,7 @@ public class RegionService : IRegionService
         return null;
     }
 
-    public async Task<List<Region>?> DeleteRegion(int id)
+    public async Task<List<Region>> DeleteRegion(int id)
     {
         var region = await _context.Regions.FindAsync(id);
         if (region is null)

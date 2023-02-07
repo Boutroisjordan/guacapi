@@ -25,7 +25,7 @@ public class FurnisherService : IFurnisherService
         return furnishers;
     }
 
-    public async Task<List<Product>?> GetProductsOfFurnisher(int id)
+    public async Task<List<Product>> GetProductsOfFurnisher(int id)
     {
         var furnisher = await _context.Furnishers.Include(p => p.Products).Where(p => p.FurnisherId == id)
             .FirstOrDefaultAsync();
@@ -62,7 +62,7 @@ public class FurnisherService : IFurnisherService
         return furnisher;
     }
 
-    public async Task<Furnisher?> CreateFurnisher(Furnisher furnisher)
+    public async Task<Furnisher> CreateFurnisher(Furnisher furnisher)
     {
         if (furnisher is null)
         {
@@ -82,7 +82,7 @@ public class FurnisherService : IFurnisherService
         return savedFurnisher;
     }
 
-    public async Task<Furnisher?> UpdateFurnisher(int id, Furnisher furnisher)
+    public async Task<Furnisher> UpdateFurnisher(int id, Furnisher furnisher)
     {
         var furnisherToUpdate = await _context.Furnishers.FindAsync(id);
         if (furnisherToUpdate is null)
@@ -101,7 +101,7 @@ public class FurnisherService : IFurnisherService
     }
 
 
-    public async Task<Furnisher?> DeleteFurnisher(int id)
+    public async Task<Furnisher> DeleteFurnisher(int id)
     {
         var furnisherToDelete = await _context.Furnishers.FindAsync(id);
         if (furnisherToDelete is null)

@@ -8,12 +8,11 @@ public interface IUserService
 
     Task<List<User>> GetAllUsers();
 
-    Task<User?> GetUserById(int id);
-    Task<User?> GetUserByUsername(string username);
-    Task<User?> GetUserByEmail(string email);
-
-    Task<User?> UpdateUser(User user, int id);
-    Task<User?> DeleteUser(int id);
+    Task<User> GetUserById(int id);
+    Task<User> GetUserByUsername(string username);
+    Task<User> GetUserByEmail(string email);
+    Task<User> UpdateUser(User user, int id);
+    Task<User> DeleteUser(int id);
     void Register(RegisterRequest request);
     AuthenticateResponse Login(AuthenticateRequest request, string ipAddress);
     AuthenticateResponse RefreshToken(string token, string ipAddress);

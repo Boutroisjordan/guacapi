@@ -1,7 +1,7 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-#nullable disable 
+#nullable disable
 
 namespace GuacAPI.Migrations
 {
@@ -109,11 +109,33 @@ namespace GuacAPI.Migrations
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Role = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    VerifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "InvoiceFurnisher",
+                columns: table => new
+                {
+                    InvoiceFurnisherId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    InvoiceNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FurnisherId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_InvoiceFurnisher", x => x.InvoiceFurnisherId);
+                    table.ForeignKey(
+                        name: "FK_InvoiceFurnisher_Furnisher_FurnisherId",
+                        column: x => x.FurnisherId,
+                        principalTable: "Furnisher",
+                        principalColumn: "FurnisherId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -170,7 +192,7 @@ namespace GuacAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RefreshTokens",
+                name: "RefreshToken",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -179,20 +201,44 @@ namespace GuacAPI.Migrations
                     Expires = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedByIp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Revoked = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Revoked = table.Column<DateTime>(type: "datetime2", nullable: false),
                     RevokedByIp = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ReplacedByToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ReasonRevoked = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserId = table.Column<int>(type: "int", nullable: true)
+                    UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RefreshTokens", x => x.Id);
+                    table.PrimaryKey("PK_RefreshToken", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RefreshTokens_Users_UserId",
+                        name: "FK_RefreshToken_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "InvoiceFurnisherProduct",
+                columns: table => new
+                {
+                    InvoiceFurnisherId = table.Column<int>(type: "int", nullable: false),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    QuantityProduct = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_InvoiceFurnisherProduct", x => new { x.InvoiceFurnisherId, x.ProductId });
+                    table.ForeignKey(
+                        name: "FK_InvoiceFurnisherProduct_InvoiceFurnisher_InvoiceFurnisherId",
+                        column: x => x.InvoiceFurnisherId,
+                        principalTable: "InvoiceFurnisher",
+                        principalColumn: "InvoiceFurnisherId");
+                    table.ForeignKey(
+                        name: "FK_InvoiceFurnisherProduct_Product_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Product",
+                        principalColumn: "ProductId");
                 });
 
             migrationBuilder.CreateTable(
@@ -219,6 +265,46 @@ namespace GuacAPI.Migrations
                         principalColumn: "ProductId",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "Domain",
+                columns: new[] { "DomainId", "Name" },
+                values: new object[] { 1, "Domaine 1" });
+
+            migrationBuilder.InsertData(
+                table: "Furnisher",
+                columns: new[] { "FurnisherId", "City", "Name", "PostalCode", "Siret", "Street" },
+                values: new object[] { 1, "budapest", "fournisseur 1", "27000", "29239393", "155 rue des vins" });
+
+            migrationBuilder.InsertData(
+                table: "Region",
+                columns: new[] { "RegionID", "Name" },
+                values: new object[] { 1, "region 1" });
+
+            migrationBuilder.InsertData(
+                table: "alcohol_type",
+                columns: new[] { "AlcoholTypeId", "label" },
+                values: new object[] { 1, "Rouge" });
+
+            migrationBuilder.InsertData(
+                table: "appellation",
+                columns: new[] { "AppellationId", "Name" },
+                values: new object[] { 1, "IGP" });
+
+            migrationBuilder.InsertData(
+                table: "Product",
+                columns: new[] { "ProductId", "AlcoholDegree", "AlcoholTypeId", "AppellationId", "DomainId", "FurnisherId", "Millesime", "Name", "Price", "Reference", "RegionId", "Stock" },
+                values: new object[] { 1, 2f, 1, 1, 1, 1, 2010, "product 1", 12, "jndijfndjn", 1, 155 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InvoiceFurnisher_FurnisherId",
+                table: "InvoiceFurnisher",
+                column: "FurnisherId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InvoiceFurnisherProduct_ProductId",
+                table: "InvoiceFurnisherProduct",
+                column: "ProductId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Product_AlcoholTypeId",
@@ -251,8 +337,8 @@ namespace GuacAPI.Migrations
                 column: "OfferId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RefreshTokens_UserId",
-                table: "RefreshTokens",
+                name: "IX_RefreshToken_UserId",
+                table: "RefreshToken",
                 column: "UserId");
         }
 
@@ -260,10 +346,16 @@ namespace GuacAPI.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "InvoiceFurnisherProduct");
+
+            migrationBuilder.DropTable(
                 name: "ProductOffer");
 
             migrationBuilder.DropTable(
-                name: "RefreshTokens");
+                name: "RefreshToken");
+
+            migrationBuilder.DropTable(
+                name: "InvoiceFurnisher");
 
             migrationBuilder.DropTable(
                 name: "Offer");

@@ -11,12 +11,12 @@ public interface IDomainService
     // Product AddOne(Product item);
 
     Task<ICollection<Domain>> GetAllDomains();
-    Task<Domain?> GetDomainById(int id);
-    Task<Domain?> GetDomainByName(string name);
+    Task<Domain> GetDomainById(int id);
+    Task<Domain> GetDomainByName(string name);
 
-    Task<Domain?> AddDomain(Domain domain);
+    Task<Domain> AddDomain(Domain domain);
 
-    Task<Domain?> UpdateDomain(int id, Domain domain);
-    Task<Domain?> DeleteDomain(int id);
+    Task<Domain> UpdateDomain(int id, Domain domain);
+    Task<Domain> DeleteDomain(int id);
 
 }

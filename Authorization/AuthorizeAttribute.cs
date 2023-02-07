@@ -18,7 +18,7 @@ public class AuthorizeAttribute : Attribute, IAuthorizationFilter
             return;
 
         // authorization
-        var user = (User)context.HttpContext.Items["User"];
+        var user = context.HttpContext.Items["User"];
         if (user == null)
         {
             // not logged in

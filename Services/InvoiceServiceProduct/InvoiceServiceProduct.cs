@@ -61,7 +61,7 @@ public class InvoiceServiceProduct : IInvoiceServiceProduct
         return addedInvoice;
     }
 
-    public async Task<InvoiceFurnisherProduct?> DeleteInvoiceProduct(int id, int invoiceFurnisherId)
+    public async Task<InvoiceFurnisherProduct> DeleteInvoiceProduct(int id, int invoiceFurnisherId)
     {
         var deletedInvoice = await _context.InvoicesFurnisherProduct.FirstOrDefaultAsync(x => x.ProductId == id && x.InvoiceFurnisherId == invoiceFurnisherId);
         if (deletedInvoice is null)

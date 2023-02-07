@@ -14,10 +14,10 @@ public class ProductOffer
     public int ProductId { get; set; }
     // [JsonIgnore]
     public int OfferId {get; set;}
-    public Product? Product { get; set; }
+    public Product Product { get; set; }
 
     [JsonIgnore]
-    public Offer? Offer {get; set;}
+    public Offer Offer {get; set;}
 
     #endregion
 }

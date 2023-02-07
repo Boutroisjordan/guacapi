@@ -38,7 +38,7 @@ public class UserService : IUserService
         return users;
     }
 
-    public Task<User?> GetUserById(int id)
+    public Task<User> GetUserById(int id)
     {
         GetUser(id);
         var userId = _context.Users.FirstOrDefaultAsync(u => u.Id == id);
@@ -48,20 +48,20 @@ public class UserService : IUserService
 
     //todo verifier si email deja existant
 
-    public async Task<User?> GetUserByUsername(string username)
+    public async Task<User> GetUserByUsername(string username)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
         return user;
     }
 
-    public async Task<User?> GetUserByEmail(string email)
+    public async Task<User> GetUserByEmail(string email)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         return user;
     }
 
 
-    public async Task<User?> UpdateUser(User request, int id)
+    public async Task<User> UpdateUser(User request, int id)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
         if (user == null) return null;
@@ -70,7 +70,7 @@ public class UserService : IUserService
         return user;
     }
 
-    public async Task<User?> DeleteUser(int id)
+    public async Task<User> DeleteUser(int id)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
         if (user == null) return null;
@@ -101,7 +101,7 @@ public class UserService : IUserService
         if (user.VerifiedAt == null) throw new AppException("User not verified");
         var jwtToken = _jwtUtils.GenerateToken(user);
         var refreshToken = _jwtUtils.GenerateRefreshToken(ipAddress);
-        user.RefreshTokens?.Add(refreshToken);
+        user.RefreshTokens.Add(refreshToken);
         RemoveOldRefreshTokens(user);
         _context.Update(user);
         _context.SaveChanges();
@@ -196,6 +196,10 @@ public class UserService : IUserService
     private RefreshToken RotateRefreshToken(RefreshToken refreshToken, string ipAddress)
     {
         var newRefreshToken = _jwtUtils.GenerateRefreshToken(ipAddress);
+        if(newRefreshToken is null)
+        {
+            throw new Exception("token is null");
+        }
         RevokeRefreshToken(refreshToken, ipAddress, "Replaced by new token", newRefreshToken.Token);
         return newRefreshToken;
     }
@@ -204,7 +208,7 @@ public class UserService : IUserService
     private void RemoveOldRefreshTokens(User user)
     {
         // remove old inactive refresh tokens from user based on TTL in app settings
-        user.RefreshTokens?.RemoveAll(x =>
+        user.RefreshTokens.RemoveAll(x =>
             !x.IsActive &&
             x.Created.AddDays(_appSettings.RefreshTokenTTl) <= DateTime.UtcNow);
     }

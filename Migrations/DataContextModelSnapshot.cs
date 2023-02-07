@@ -54,7 +54,7 @@ namespace GuacAPI.Migrations
                     b.Property<string>("Username")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("VerifiedAt")
+                    b.Property<DateTime>("VerifiedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
@@ -280,7 +280,7 @@ namespace GuacAPI.Migrations
                         new
                         {
                             ProductId = 1,
-                            AlcoholDegree = 2m,
+                            AlcoholDegree = 2f,
                             AlcoholTypeId = 1,
                             AppellationId = 1,
                             DomainId = 1,
@@ -328,12 +328,36 @@ namespace GuacAPI.Migrations
 
                     b.ToTable("Region", (string)null);
 
-                     b.HasData(
+                    b.HasData(
                         new
                         {
                             RegionID = 1,
                             Name = "region 1"
                         });
+                });
+
+            modelBuilder.Entity("InvoiceFurnisher", b =>
+                {
+                    b.Property<int>("InvoiceFurnisherId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InvoiceFurnisherId"));
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FurnisherId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("InvoiceNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("InvoiceFurnisherId");
+
+                    b.HasIndex("FurnisherId");
+
+                    b.ToTable("InvoiceFurnisher", (string)null);
                 });
 
             modelBuilder.Entity("GuacAPI.Entities.User", b =>
@@ -361,7 +385,7 @@ namespace GuacAPI.Migrations
                             b1.Property<string>("ReplacedByToken")
                                 .HasColumnType("nvarchar(max)");
 
-                            b1.Property<DateTime?>("Revoked")
+                            b1.Property<DateTime>("Revoked")
                                 .HasColumnType("datetime2");
 
                             b1.Property<string>("RevokedByIp")
@@ -381,9 +405,29 @@ namespace GuacAPI.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("UserId");
-                        }); 
+                        });
 
-             modelBuilder.Entity("GuacAPI.Models.Product", b =>
+                    b.Navigation("RefreshTokens");
+                });
+
+            modelBuilder.Entity("GuacAPI.Models.InvoiceFurnisherProduct", b =>
+                {
+                    b.HasOne("InvoiceFurnisher", "InvoiceFurnisher")
+                        .WithMany("InvoicesFurnisherProduct")
+                        .HasForeignKey("InvoiceFurnisherId")
+                        .IsRequired();
+
+                    b.HasOne("GuacAPI.Models.Product", "Product")
+                        .WithMany("InvoicesFurnisherProduct")
+                        .HasForeignKey("ProductId")
+                        .IsRequired();
+
+                    b.Navigation("InvoiceFurnisher");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("GuacAPI.Models.Product", b =>
                 {
                     b.HasOne("GuacAPI.Models.AlcoholType", "alcoholType")
                         .WithMany("Products")
@@ -445,9 +489,15 @@ namespace GuacAPI.Migrations
                     b.Navigation("Product");
                 });
 
-             modelBuilder.Entity("GuacAPI.Entities.User", b =>
+            modelBuilder.Entity("InvoiceFurnisher", b =>
                 {
-                    b.Navigation("RefreshTokens");
+                    b.HasOne("GuacAPI.Models.Furnisher", "Furnisher")
+                        .WithMany("Invoices")
+                        .HasForeignKey("FurnisherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Furnisher");
                 });
 
             modelBuilder.Entity("GuacAPI.Models.AlcoholType", b =>

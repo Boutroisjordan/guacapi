@@ -6,8 +6,8 @@ public class Domain
 {
     #region Properties
     public int DomainId { get; set; }
-    public string? Name { get; set; }
-    public List<Product>? Products {get; set;}
+    public string Name { get; set; }
+    public List<Product> Products {get; set;}
     
     public  Domain()
     {

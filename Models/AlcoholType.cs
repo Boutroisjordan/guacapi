@@ -10,8 +10,8 @@ public class AlcoholType
     #region Properties
 
     public int AlcoholTypeId { get; set; }
-    [Required] public string? label { get; set; }
-    public List<Product>? Products { get; set; }
+    [Required] public string label { get; set; }
+    public List<Product> Products { get; set; }
 
     #endregion
 }

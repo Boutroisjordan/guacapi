@@ -84,7 +84,7 @@ public class InvoiceController : ControllerBase
         htmlContent += "<tbody>";
         // Génération du PDF à partir du HTML
         PdfGenerator.AddPdfPages(document, htmlContent, PageSize.A4);
-        byte[]? response = null;
+        byte[] response = null;
 
         using (MemoryStream ms = new MemoryStream())
         {

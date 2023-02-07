@@ -24,19 +24,19 @@ public class DomainService : IDomainService
         return domains;
     }
 
-    public async Task<Domain?> GetDomainById(int id)
+    public async Task<Domain> GetDomainById(int id)
     {
         var domainById = await _context.Domains.FindAsync(id);
         return domainById;
     }
 
-    public async Task<Domain?> GetDomainByName(string name)
+    public async Task<Domain> GetDomainByName(string name)
     {
         var domainName = await _context.Domains.FirstOrDefaultAsync(x => x.Name == name);
         return domainName;
     }
 
-    public async Task<Domain?> AddDomain(Domain domain)
+    public async Task<Domain> AddDomain(Domain domain)
     {
         // return await Task.Run(() =>
         // {
@@ -54,7 +54,7 @@ public class DomainService : IDomainService
         // });
     }
 
-    public async Task<Domain?> UpdateDomain(int id, Domain request)
+    public async Task<Domain> UpdateDomain(int id, Domain request)
     {
         // return await Task.Run(() =>
         // {
@@ -70,7 +70,7 @@ public class DomainService : IDomainService
         // });
     }
 
-    public async Task<Domain?> DeleteDomain(int id)
+    public async Task<Domain> DeleteDomain(int id)
     {
         // return await Task.Run(() =>
         // {
