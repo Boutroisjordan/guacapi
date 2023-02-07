@@ -4,6 +4,7 @@ using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuacAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230205173607_test confirm email")]
+    partial class testconfirmemail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -77,13 +80,6 @@ namespace GuacAPI.Migrations
                     b.HasKey("AlcoholTypeId");
 
                     b.ToTable("alcohol_type", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            AlcoholTypeId = 1,
-                            label = "Rouge"
-                        });
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Appellation", b =>
@@ -100,13 +96,6 @@ namespace GuacAPI.Migrations
                     b.HasKey("AppellationId");
 
                     b.ToTable("appellation", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            AppellationId = 1,
-                            Name = "IGP"
-                        });
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Domain", b =>
@@ -123,13 +112,6 @@ namespace GuacAPI.Migrations
                     b.HasKey("DomainId");
 
                     b.ToTable("Domain", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            DomainId = 1,
-                            Name = "Domaine 1"
-                        });
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Furnisher", b =>
@@ -163,35 +145,6 @@ namespace GuacAPI.Migrations
                     b.HasKey("FurnisherId");
 
                     b.ToTable("Furnisher", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            FurnisherId = 1,
-                            City = "budapest",
-                            Name = "fournisseur 1",
-                            PostalCode = "27000",
-                            Siret = "29239393",
-                            Street = "155 rue des vins"
-                        });
-                });
-
-            modelBuilder.Entity("GuacAPI.Models.InvoiceFurnisherProduct", b =>
-                {
-                    b.Property<int>("InvoiceFurnisherId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("QuantityProduct")
-                        .HasColumnType("int");
-
-                    b.HasKey("InvoiceFurnisherId", "ProductId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("InvoiceFurnisherProduct", (string)null);
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Offer", b =>
@@ -275,23 +228,6 @@ namespace GuacAPI.Migrations
                     b.HasIndex("RegionId");
 
                     b.ToTable("Product", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            ProductId = 1,
-                            AlcoholDegree = 2m,
-                            AlcoholTypeId = 1,
-                            AppellationId = 1,
-                            DomainId = 1,
-                            FurnisherId = 1,
-                            Millesime = 2010,
-                            Name = "product 1",
-                            Price = 12,
-                            Reference = "jndijfndjn",
-                            RegionId = 1,
-                            Stock = 155
-                        });
                 });
 
             modelBuilder.Entity("GuacAPI.Models.ProductOffer", b =>
@@ -327,13 +263,6 @@ namespace GuacAPI.Migrations
                     b.HasKey("RegionID");
 
                     b.ToTable("Region", (string)null);
-
-                     b.HasData(
-                        new
-                        {
-                            RegionID = 1,
-                            Name = "region 1"
-                        });
                 });
 
             modelBuilder.Entity("GuacAPI.Entities.User", b =>
@@ -381,9 +310,12 @@ namespace GuacAPI.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("UserId");
-                        }); 
+                        });
 
-             modelBuilder.Entity("GuacAPI.Models.Product", b =>
+                    b.Navigation("RefreshTokens");
+                });
+
+            modelBuilder.Entity("GuacAPI.Models.Product", b =>
                 {
                     b.HasOne("GuacAPI.Models.AlcoholType", "alcoholType")
                         .WithMany("Products")
@@ -445,11 +377,6 @@ namespace GuacAPI.Migrations
                     b.Navigation("Product");
                 });
 
-             modelBuilder.Entity("GuacAPI.Entities.User", b =>
-                {
-                    b.Navigation("RefreshTokens");
-                });
-
             modelBuilder.Entity("GuacAPI.Models.AlcoholType", b =>
                 {
                     b.Navigation("Products");
@@ -467,8 +394,6 @@ namespace GuacAPI.Migrations
 
             modelBuilder.Entity("GuacAPI.Models.Furnisher", b =>
                 {
-                    b.Navigation("Invoices");
-
                     b.Navigation("Products");
                 });
 
@@ -479,19 +404,12 @@ namespace GuacAPI.Migrations
 
             modelBuilder.Entity("GuacAPI.Models.Product", b =>
                 {
-                    b.Navigation("InvoicesFurnisherProduct");
-
                     b.Navigation("ProductOffers");
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Region", b =>
                 {
                     b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("InvoiceFurnisher", b =>
-                {
-                    b.Navigation("InvoicesFurnisherProduct");
                 });
 #pragma warning restore 612, 618
         }

@@ -17,6 +17,8 @@ public class User
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public string? Role { get; set; }
 
+    public DateTime? VerifiedAt { get; set; }
+
     [JsonIgnore] public string? PasswordHash { get; set; }
     [JsonIgnore] public List<RefreshToken>? RefreshTokens { get; set; }
 
