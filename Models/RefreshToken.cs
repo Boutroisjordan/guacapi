@@ -1,5 +1,6 @@
 ﻿namespace GuacAPI.Models;
 
+ 
 public class RefreshToken
 {
     // if we want to store on db the token with id for the specific user

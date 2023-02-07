@@ -7,7 +7,7 @@ using GuacAPI.Services.UserServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-
+ 
 namespace guacapi.Controllers
 {
     [Route("api/[controller]")]

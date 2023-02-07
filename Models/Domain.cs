@@ -1,6 +1,6 @@
 namespace GuacAPI.Models;
 using System.Text.Json.Serialization;
-
+ 
 // Le domiane qui l'a produit
 public class Domain
 {

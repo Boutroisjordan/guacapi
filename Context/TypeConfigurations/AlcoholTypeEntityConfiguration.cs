@@ -14,6 +14,10 @@ class AlcoholTypeEntityConfiguration : IEntityTypeConfiguration<AlcoholType>
         //Primary key de la table
         builder.HasKey(item => item.AlcoholTypeId);
 
+        builder.HasData(
+            new AlcoholType { AlcoholTypeId = 1, label = "Rouge"}
+        );
+
     }
     #endregion
 

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuacAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230201074750_initial")]
-    partial class initial
+    [Migration("20230204010244_initialll2")]
+    partial class initialll2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,6 +40,13 @@ namespace GuacAPI.Migrations
                     b.HasKey("AlcoholTypeId");
 
                     b.ToTable("alcohol_type", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            AlcoholTypeId = 1,
+                            label = "Rouge"
+                        });
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Appellation", b =>
@@ -56,6 +63,13 @@ namespace GuacAPI.Migrations
                     b.HasKey("AppellationId");
 
                     b.ToTable("appellation", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            AppellationId = 1,
+                            Name = "IGP"
+                        });
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Domain", b =>
@@ -72,6 +86,13 @@ namespace GuacAPI.Migrations
                     b.HasKey("DomainId");
 
                     b.ToTable("Domain", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            DomainId = 1,
+                            Name = "Domaine 1"
+                        });
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Furnisher", b =>
@@ -105,6 +126,41 @@ namespace GuacAPI.Migrations
                     b.HasKey("FurnisherId");
 
                     b.ToTable("Furnisher", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            FurnisherId = 1,
+                            City = "budapest",
+                            Name = "fournisseur 1",
+                            PostalCode = "27000",
+                            Siret = "29239393",
+                            Street = "155 rue des vins"
+                        });
+                });
+
+            modelBuilder.Entity("GuacAPI.Models.InvoiceFurnisherProduct", b =>
+                {
+                    b.Property<int>("InvoiceFurnisherId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuantityProduct")
+                        .HasColumnType("int");
+
+                    b.HasKey("InvoiceFurnisherId", "ProductId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("InvoiceFurnisherProduct", (string)null);
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Offer", b =>
@@ -188,6 +244,23 @@ namespace GuacAPI.Migrations
                     b.HasIndex("RegionId");
 
                     b.ToTable("Product", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            ProductId = 1,
+                            AlcoholDegree = 2m,
+                            AlcoholTypeId = 1,
+                            AppellationId = 1,
+                            DomainId = 1,
+                            FurnisherId = 1,
+                            Millesime = 2010,
+                            Name = "product 1",
+                            Price = 12,
+                            Reference = "jndijfndjn",
+                            RegionId = 1,
+                            Stock = 155
+                        });
                 });
 
             modelBuilder.Entity("GuacAPI.Models.ProductOffer", b =>
@@ -223,6 +296,13 @@ namespace GuacAPI.Migrations
                     b.HasKey("RegionID");
 
                     b.ToTable("Region", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            RegionID = 1,
+                            Name = "region 1"
+                        });
                 });
 
             modelBuilder.Entity("GuacAPI.Models.User", b =>
@@ -278,6 +358,44 @@ namespace GuacAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("InvoiceFurnisher", b =>
+                {
+                    b.Property<int>("InvoiceFurnisherId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InvoiceFurnisherId"));
+
+                    b.Property<int>("FurnisherId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("InvoiceNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("InvoiceFurnisherId");
+
+                    b.HasIndex("FurnisherId");
+
+                    b.ToTable("InvoiceFurnisher", (string)null);
+                });
+
+            modelBuilder.Entity("GuacAPI.Models.InvoiceFurnisherProduct", b =>
+                {
+                    b.HasOne("InvoiceFurnisher", "InvoiceFurnisher")
+                        .WithMany("InvoicesFurnisherProduct")
+                        .HasForeignKey("InvoiceFurnisherId")
+                        .IsRequired();
+
+                    b.HasOne("GuacAPI.Models.Product", "Product")
+                        .WithMany("InvoicesFurnisherProduct")
+                        .HasForeignKey("ProductId")
+                        .IsRequired();
+
+                    b.Navigation("InvoiceFurnisher");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Product", b =>
@@ -342,6 +460,17 @@ namespace GuacAPI.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("InvoiceFurnisher", b =>
+                {
+                    b.HasOne("GuacAPI.Models.Furnisher", "Furnisher")
+                        .WithMany("Invoices")
+                        .HasForeignKey("FurnisherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Furnisher");
+                });
+
             modelBuilder.Entity("GuacAPI.Models.AlcoholType", b =>
                 {
                     b.Navigation("Products");
@@ -359,6 +488,8 @@ namespace GuacAPI.Migrations
 
             modelBuilder.Entity("GuacAPI.Models.Furnisher", b =>
                 {
+                    b.Navigation("Invoices");
+
                     b.Navigation("Products");
                 });
 
@@ -369,12 +500,19 @@ namespace GuacAPI.Migrations
 
             modelBuilder.Entity("GuacAPI.Models.Product", b =>
                 {
+                    b.Navigation("InvoicesFurnisherProduct");
+
                     b.Navigation("ProductOffers");
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Region", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("InvoiceFurnisher", b =>
+                {
+                    b.Navigation("InvoicesFurnisherProduct");
                 });
 #pragma warning restore 612, 618
         }

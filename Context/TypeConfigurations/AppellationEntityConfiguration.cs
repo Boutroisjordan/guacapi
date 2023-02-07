@@ -14,6 +14,9 @@ class AppellationEntityConfiguration : IEntityTypeConfiguration<Appellation>
         //Primary key de la table
         builder.HasKey(item => item.AppellationId);
 
+        builder.HasData(
+            new Appellation { AppellationId = 1, Name = "IGP"}
+        );
     }
     #endregion
 

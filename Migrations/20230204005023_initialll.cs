@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GuacAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class initialll : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -123,6 +123,26 @@ namespace GuacAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "InvoiceFurnisher",
+                columns: table => new
+                {
+                    InvoiceFurnisherId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    InvoiceNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FurnisherId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_InvoiceFurnisher", x => x.InvoiceFurnisherId);
+                    table.ForeignKey(
+                        name: "FK_InvoiceFurnisher_Furnisher_FurnisherId",
+                        column: x => x.FurnisherId,
+                        principalTable: "Furnisher",
+                        principalColumn: "FurnisherId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Product",
                 columns: table => new
                 {
@@ -176,6 +196,31 @@ namespace GuacAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "InvoiceFurnisherProduct",
+                columns: table => new
+                {
+                    InvoiceFurnisherId = table.Column<int>(type: "int", nullable: false),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false),
+                    QuantityProduct = table.Column<int>(type: "int", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_InvoiceFurnisherProduct", x => new { x.InvoiceFurnisherId, x.ProductId });
+                    table.ForeignKey(
+                        name: "FK_InvoiceFurnisherProduct_InvoiceFurnisher_InvoiceFurnisherId",
+                        column: x => x.InvoiceFurnisherId,
+                        principalTable: "InvoiceFurnisher",
+                        principalColumn: "InvoiceFurnisherId");
+                    table.ForeignKey(
+                        name: "FK_InvoiceFurnisherProduct_Product_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Product",
+                        principalColumn: "ProductId");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ProductOffer",
                 columns: table => new
                 {
@@ -199,6 +244,16 @@ namespace GuacAPI.Migrations
                         principalColumn: "ProductId",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InvoiceFurnisher_FurnisherId",
+                table: "InvoiceFurnisher",
+                column: "FurnisherId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InvoiceFurnisherProduct_ProductId",
+                table: "InvoiceFurnisherProduct",
+                column: "ProductId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Product_AlcoholTypeId",
@@ -235,10 +290,16 @@ namespace GuacAPI.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "InvoiceFurnisherProduct");
+
+            migrationBuilder.DropTable(
                 name: "ProductOffer");
 
             migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "InvoiceFurnisher");
 
             migrationBuilder.DropTable(
                 name: "Offer");

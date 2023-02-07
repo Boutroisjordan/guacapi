@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 
 namespace GuacAPI.Models;
-
+ 
 public class User
 {
     // store in database 

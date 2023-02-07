@@ -3,7 +3,7 @@ using GuacAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GuacAPI.Controllers;
-
+ 
 [Route("[controller]")]
 [ApiController]
 public class AppellationController : ControllerBase

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace GuacAPI.Controllers;
 
 using GuacAPI.Services;
-
+ 
 [Route("[controller]")]
 [ApiController]
 public class AlcoholControllerType : ControllerBase

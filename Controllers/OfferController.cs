@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using GuacAPI.Services;
 
 namespace GuacAPI.Controllers;
-
+ 
 [Route("[controller]")]
 [ApiController]
 public class OfferController : ControllerBase
@@ -49,6 +49,16 @@ public class OfferController : ControllerBase
          {
              return BadRequest();
          }
+         return this.Ok(offer);
+     }
+
+//Check la disponibilité d'un produit avant d'aller sur la page, route de vérificiation clément
+     [HttpGet]
+     [Route("checkOfferIsAvailable/{id}")]
+     public async Task<IActionResult> checkAvailabilityOfOneOffer(int id)
+     {
+         var offer = await _offerService.checkAvailabilityOfOneOffer(id);
+
          return this.Ok(offer);
      }
 

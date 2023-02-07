@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace GuacAPI.Services;
-
+ 
 public class FurnisherService : IFurnisherService
 {
     #region Fields
@@ -23,6 +23,20 @@ public class FurnisherService : IFurnisherService
     {
         var furnishers = await _context.Furnishers.ToListAsync();
         return furnishers;
+    }
+
+    public async Task<List<Product>?> GetProductsOfFurnisher(int id)
+    {
+        var furnisher = await _context.Furnishers.Include(p => p.Products).Where(p => p.FurnisherId == id)
+            .FirstOrDefaultAsync();
+
+            if(furnisher is null) {
+                return null;
+            }
+
+            
+
+        return furnisher.Products;
     }
 
     public async Task<Furnisher> GetFurnisherById(int id)

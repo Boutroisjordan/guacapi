@@ -3,7 +3,7 @@ using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace GuacAPI.Services;
-
+ 
 public class OfferService : IOfferService
 {
     #region Fields
@@ -41,6 +41,21 @@ public class OfferService : IOfferService
         Console.WriteLine(offer.ToString());
 
         return offer;
+    }
+    public async Task<Boolean> checkAvailabilityOfOneOffer(int id)
+    {
+        var offer = await _context.Offers
+        .Include(o => o.ProductOffers)
+        .ThenInclude(x => x.Product)
+        .Where(x => x.ProductOffers.Any(item => item.Product != null && item.Product.Stock - item.QuantityProduct >= 0) == true && x.OfferId == id)
+        .FirstOrDefaultAsync();
+
+        if (offer is null)
+        {
+            return false;
+        }
+        
+        return true;
     }
     public async Task<List<Offer>> GetUnavailableOffers()
     {

@@ -3,7 +3,7 @@ using GuacAPI.Context.TypeConfigurations;
 using GuacAPI.Models;
 
 namespace GuacAPI.Context;
-
+ 
 public class DataContext : DbContext
 {
     #region Constructor
@@ -27,6 +27,8 @@ public class DataContext : DbContext
         modelBuilder.ApplyConfiguration(new OfferEntityConfiguration());
         modelBuilder.ApplyConfiguration(new RegionEntityConfiguration());
          modelBuilder.ApplyConfiguration(new ProductOfferEntityConfiguration());
+         modelBuilder.ApplyConfiguration(new InvoiceFurnisherEntityConfiguration());
+         modelBuilder.ApplyConfiguration(new InvoiceFurnisherProductEntityConfiguration());
 
 
 
@@ -43,8 +45,24 @@ public class DataContext : DbContext
             .WithMany(o => o.ProductOffers)
             .HasForeignKey(po => po.OfferId);
 
+        modelBuilder.Entity<InvoiceFurnisherProduct>()
+        .HasKey(po => new { po.InvoiceFurnisherId, po.ProductId });
+
+        modelBuilder.Entity<InvoiceFurnisherProduct>()
+            .HasOne(cfp => cfp.InvoiceFurnisher)
+            .WithMany(cf => cf.InvoicesFurnisherProduct)
+            .HasForeignKey(cfp => cfp.InvoiceFurnisherId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
+
+        modelBuilder.Entity<InvoiceFurnisherProduct>()
+            .HasOne(cfp => cfp.Product)
+            .WithMany(p => p.InvoicesFurnisherProduct)
+            .HasForeignKey(ifp => ifp.ProductId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
+
     }
 
+    
 
     public DbSet<Product> Products { get; set; } = null!;
     public DbSet<Furnisher> Furnishers { get; set; } = null!;
@@ -56,5 +74,7 @@ public class DataContext : DbContext
 
     public DbSet<Offer> Offers { get; set; } = null!;
     public DbSet<ProductOffer> ProductOffers {get; set;} = null!;
+    public DbSet<InvoiceFurnisher> InvoicesFurnisher {get; set;} = null!;
+    public DbSet<InvoiceFurnisherProduct> InvoicesFurnisherProduct {get; set;} = null!;
 
 }

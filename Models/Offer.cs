@@ -4,7 +4,7 @@ namespace GuacAPI.Models;
 
 using System.Text.Json.Serialization;
 
-// la couleur du vin (rouge, blanc etc)
+ 
 public class Offer
 
 {

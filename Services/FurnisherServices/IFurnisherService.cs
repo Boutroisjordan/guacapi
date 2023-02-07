@@ -1,7 +1,7 @@
 using GuacAPI.Models;
 
 namespace GuacAPI.Services;
-
+ 
 public interface IFurnisherService
 {
     //Get all product in Database
@@ -9,6 +9,8 @@ public interface IFurnisherService
 
     //Get furnisher by Id
     Task<Furnisher> GetFurnisherById(int id);
+
+    Task<List<Product>?> GetProductsOfFurnisher(int id);
 
     // get furnisher by name
     Task<Furnisher> GetFurnisherByName(string name);
