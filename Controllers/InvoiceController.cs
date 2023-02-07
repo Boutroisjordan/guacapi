@@ -110,6 +110,7 @@ public class InvoiceController : ControllerBase
         }
         return Ok(invoices);
     }
+    
     [HttpGet("{id}")]
     public async Task<IActionResult> getOne(int id)
     {
@@ -122,8 +123,6 @@ public class InvoiceController : ControllerBase
         }
         return Ok(invoices);
     }
-
-
 
 
     [HttpGet("invoiceProduct")]
