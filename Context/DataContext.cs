@@ -59,10 +59,8 @@ public class DataContext : DbContext
             .WithMany(p => p.InvoicesFurnisherProduct)
             .HasForeignKey(ifp => ifp.ProductId)
             .OnDelete(DeleteBehavior.ClientSetNull);
-
     }
 
-    
 
     public DbSet<Product> Products { get; set; } = null!;
     public DbSet<Furnisher> Furnishers { get; set; } = null!;
@@ -71,7 +69,6 @@ public class DataContext : DbContext
     public DbSet<AlcoholType> AlcoholTypes { get; set; } = null!;
     public DbSet<Appellation> Appellations { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
-
     public DbSet<Offer> Offers { get; set; } = null!;
     public DbSet<ProductOffer> ProductOffers {get; set;} = null!;
     public DbSet<InvoiceFurnisher> InvoicesFurnisher {get; set;} = null!;

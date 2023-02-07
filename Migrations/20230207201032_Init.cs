@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GuacAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class initialll : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -129,6 +129,7 @@ namespace GuacAPI.Migrations
                     InvoiceFurnisherId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     InvoiceNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     FurnisherId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -201,9 +202,7 @@ namespace GuacAPI.Migrations
                 {
                     InvoiceFurnisherId = table.Column<int>(type: "int", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false),
-                    Id = table.Column<int>(type: "int", nullable: false),
-                    QuantityProduct = table.Column<int>(type: "int", nullable: false),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    QuantityProduct = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -244,6 +243,36 @@ namespace GuacAPI.Migrations
                         principalColumn: "ProductId",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "Domain",
+                columns: new[] { "DomainId", "Name" },
+                values: new object[] { 1, "Domaine 1" });
+
+            migrationBuilder.InsertData(
+                table: "Furnisher",
+                columns: new[] { "FurnisherId", "City", "Name", "PostalCode", "Siret", "Street" },
+                values: new object[] { 1, "budapest", "fournisseur 1", "27000", "29239393", "155 rue des vins" });
+
+            migrationBuilder.InsertData(
+                table: "Region",
+                columns: new[] { "RegionID", "Name" },
+                values: new object[] { 1, "region 1" });
+
+            migrationBuilder.InsertData(
+                table: "alcohol_type",
+                columns: new[] { "AlcoholTypeId", "label" },
+                values: new object[] { 1, "Rouge" });
+
+            migrationBuilder.InsertData(
+                table: "appellation",
+                columns: new[] { "AppellationId", "Name" },
+                values: new object[] { 1, "IGP" });
+
+            migrationBuilder.InsertData(
+                table: "Product",
+                columns: new[] { "ProductId", "AlcoholDegree", "AlcoholTypeId", "AppellationId", "DomainId", "FurnisherId", "Millesime", "Name", "Price", "Reference", "RegionId", "Stock" },
+                values: new object[] { 1, 2m, 1, 1, 1, 1, 2010, "product 1", 12, "jndijfndjn", 1, 155 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_InvoiceFurnisher_FurnisherId",
