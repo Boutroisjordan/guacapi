@@ -9,15 +9,15 @@ public class Furnisher
 {
     #region Properties
     public int FurnisherId { get; set; }
-    [Required] public string? Name { get; set; }
-    [Required] public string? City { get; set; }
-    [Required] public string? Street { get; set; }
-    [Required] public string? PostalCode { get; set; }
-    [Required] public string? Siret { get; set; }
+    [Required] public string Name { get; set; }
+    [Required] public string City { get; set; }
+    [Required] public string Street { get; set; }
+    [Required] public string PostalCode { get; set; }
+    [Required] public string Siret { get; set; }
 
     [JsonIgnore]
-    public List<Product>? Products { get; set; }
-    public List<InvoiceFurnisher>? Invoices { get; set; }
+    public List<Product> Products { get; set; }
+    public List<InvoiceFurnisher> Invoices { get; set; }
 
     #endregion
 }

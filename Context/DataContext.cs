@@ -29,6 +29,9 @@ public class DataContext : DbContext
         modelBuilder.ApplyConfiguration(new ProductOfferEntityConfiguration());
          modelBuilder.ApplyConfiguration(new InvoiceFurnisherEntityConfiguration());
          modelBuilder.ApplyConfiguration(new InvoiceFurnisherProductEntityConfiguration());
+         modelBuilder.ApplyConfiguration(new CommentEntityConfiguration());
+
+         //Product offer many to many
 
         modelBuilder.Entity<ProductOffer>()
             .HasKey(po => new { po.ProductId, po.OfferId });
@@ -43,6 +46,8 @@ public class DataContext : DbContext
             .WithMany(o => o.ProductOffers)
             .HasForeignKey(po => po.OfferId);
 
+
+//Invoices furnisher many to many
         modelBuilder.Entity<InvoiceFurnisherProduct>()
         .HasKey(po => new { po.InvoiceFurnisherId, po.ProductId });
 
@@ -60,17 +65,18 @@ public class DataContext : DbContext
     }
 
 
-    public DbSet<Product> Products { get; set; } = null!;
-    public DbSet<Furnisher> Furnishers { get; set; } = null!;
-    public DbSet<Domain> Domains { get; set; } = null!;
-    public DbSet<Region> Regions { get; set; } = null!;
-    public DbSet<AlcoholType> AlcoholTypes { get; set; } = null!;
-    public DbSet<Appellation> Appellations { get; set; } = null!;
-    public DbSet<User> Users { get; set; } = null!;
+    public DbSet<Product> Products { get; set; }
+    public DbSet<Furnisher> Furnishers { get; set; }
+    public DbSet<Domain> Domains { get; set; }
+    public DbSet<Region> Regions { get; set; }
+    public DbSet<AlcoholType> AlcoholTypes { get; set; }
+    public DbSet<Appellation> Appellations { get; set; }
+    public DbSet<User> Users { get; set; }
 
-    public DbSet<Offer> Offers { get; set; } = null!;
-    public DbSet<ProductOffer> ProductOffers {get; set;} = null!;
-    public DbSet<InvoiceFurnisher> InvoicesFurnisher {get; set;} = null!;
-    public DbSet<InvoiceFurnisherProduct> InvoicesFurnisherProduct {get; set;} = null!;
+    public DbSet<Offer> Offers { get; set; }
+    public DbSet<ProductOffer> ProductOffers {get; set;}
+    public DbSet<InvoiceFurnisher> InvoicesFurnisher {get; set;}
+    public DbSet<InvoiceFurnisherProduct> InvoicesFurnisherProduct {get; set;}
+    public DbSet<Comment> Comments {get; set;}
 
 }

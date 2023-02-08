@@ -41,7 +41,7 @@ public class UserService : IUserService
     public Task<User> GetUserById(int id)
     {
         GetUser(id);
-        var userId = _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+        var userId = _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
         return userId;
     }
 
@@ -63,7 +63,7 @@ public class UserService : IUserService
 
     public async Task<User> UpdateUser(User request, int id)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
         if (user == null) return null;
         user.Username = request.Username;
         await _context.SaveChangesAsync();
@@ -72,7 +72,7 @@ public class UserService : IUserService
 
     public async Task<User> DeleteUser(int id)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
         if (user == null) return null;
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();

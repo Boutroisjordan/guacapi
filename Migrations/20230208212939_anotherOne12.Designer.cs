@@ -4,6 +4,7 @@ using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuacAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230208212939_anotherOne12")]
+    partial class anotherOne12
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -120,23 +123,20 @@ namespace GuacAPI.Migrations
                     b.Property<string>("Message")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("OfferId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PreviousCommentId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Rate")
                         .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
+                    b.Property<int>("offerId")
+                        .HasColumnType("int");
+
                     b.HasKey("CommentId");
 
-                    b.HasIndex("OfferId");
-
                     b.HasIndex("UserId");
+
+                    b.HasIndex("offerId");
 
                     b.ToTable("Comment", (string)null);
                 });
@@ -234,9 +234,6 @@ namespace GuacAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OfferId"));
 
-                    b.Property<DateTime?>("Deadline")
-                        .HasColumnType("date");
-
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -248,9 +245,6 @@ namespace GuacAPI.Migrations
 
                     b.Property<double>("Price")
                         .HasColumnType("float");
-
-                    b.Property<bool>("isB2B")
-                        .HasColumnType("bit");
 
                     b.HasKey("OfferId");
 
@@ -450,15 +444,15 @@ namespace GuacAPI.Migrations
 
             modelBuilder.Entity("GuacAPI.Models.Comment", b =>
                 {
-                    b.HasOne("GuacAPI.Models.Offer", "offer")
-                        .WithMany("Comments")
-                        .HasForeignKey("OfferId")
-                        .IsRequired();
-
                     b.HasOne("GuacAPI.Entities.User", "user")
                         .WithMany("Comments")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GuacAPI.Models.Offer", "offer")
+                        .WithMany("Comments")
+                        .HasForeignKey("offerId")
                         .IsRequired();
 
                     b.Navigation("offer");

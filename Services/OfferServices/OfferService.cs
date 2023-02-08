@@ -1,6 +1,7 @@
 using GuacAPI.Models;
 using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 
 namespace GuacAPI.Services;
  
@@ -48,6 +49,7 @@ public class OfferService : IOfferService
         .Include(o => o.ProductOffers)
         .ThenInclude(x => x.Product)
         .Where(x => x.ProductOffers.Any(item => item.Product != null && item.Product.Stock - item.QuantityProduct >= 0) == true && x.OfferId == id)
+        .Where(x => x.Deadline == null || x.Deadline > DateTime.Now)
         .FirstOrDefaultAsync();
 
         if (offer is null)
@@ -81,7 +83,8 @@ public class OfferService : IOfferService
 
     public async Task<Offer> GetOfferById(int id)
     {
-        var offer = await _context.Offers.Include(o => o.ProductOffers)
+        var offer = await _context.Offers.Include(i => i.Comments)
+        .Include(o => o.ProductOffers)
          .ThenInclude(x => x.Product)
          .Where(x => x.OfferId == id)
          .FirstOrDefaultAsync();
@@ -113,7 +116,6 @@ public class OfferService : IOfferService
             }
             await _context.SaveChangesAsync();
         }
-
 
         return addedOffer;
     }
