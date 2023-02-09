@@ -56,5 +56,17 @@ public class ProductOfferController : ControllerBase
          return Ok(offerList);
      }
 
+    [HttpPut("productOffer/{OfferId}/{productId}")]
+    public async Task<IActionResult> EditProductOffer(int OfferId, int productId, ProductOffer request)
+    {
+
+        var addedProductOffer = await _productOfferService.EditProductOffer(OfferId, productId, request);
+        if (addedProductOffer == null)
+        {
+            return BadRequest();
+        }
+        return Ok(addedProductOffer);
+    }
+
 }
 

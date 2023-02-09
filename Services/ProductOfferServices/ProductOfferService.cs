@@ -32,19 +32,17 @@ public class ProductOfferService : IProductOfferService
          public async Task<ProductOffer> EditProductOffer(int id, int OfferId, ProductOffer request)
     {
         // Ajouter l'offre à la base de données
-        var addedInvoice = await _context.InvoicesFurnisherProduct.FirstOrDefaultAsync(x => x.ProductId == id && x.InvoiceFurnisherId == invoiceFurnisherId);
+        var productOffer = await _context.ProductOffers.FirstOrDefaultAsync(x => x.ProductId == id && x.OfferId == OfferId);
 
-        if (addedInvoice is null)
+        if (productOffer is null)
         {
-            throw new Exception("invoice product");
-        }
-        addedInvoice.InvoiceFurnisherId = invoice.InvoiceFurnisherId;
-        addedInvoice.ProductId = invoice.ProductId;
-        addedInvoice.QuantityProduct = invoice.QuantityProduct;
+            throw new Exception("product offer doesn't find");
+        };
+        productOffer.QuantityProduct = request.QuantityProduct;
     
         await _context.SaveChangesAsync();
 
-        return addedInvoice;
+        return productOffer;
     }
 
 

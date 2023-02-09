@@ -64,7 +64,7 @@ public class OfferService : IOfferService
         var offer = await _context.Offers
         .Include(o => o.ProductOffers)
         .ThenInclude(x => x.Product)
-        .Where(x => x.ProductOffers.Any(item => item.Product != null && item.Product.Stock - item.QuantityProduct >= 0) == false)
+        .Where(x => x.ProductOffers.Any(item => item.Product != null && item.Product.Stock - item.QuantityProduct >= 0) == false || x.Deadline < DateTime.Now && x.Deadline != null)
         .ToListAsync();
 
         if (offer is null)
