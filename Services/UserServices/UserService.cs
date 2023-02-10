@@ -126,6 +126,7 @@ public class UserService : IUserService
           else if(refreshToken.newToken != null && refreshToken.newTokenExpires > DateTime.UtcNow) {
                throw new AppException("RefreshToken est encore valide");
           } else if(refreshToken.newTokenExpires < DateTime.UtcNow ) {
+               RemoveOldRefreshTokens(user);
                 throw new AppException("RefreshToken est expiré");
             } 
             refreshToken.newToken = _jwtUtils.GenerateRefreshToken(ipAddress).newToken;
@@ -212,17 +213,9 @@ public class UserService : IUserService
         // if userId on get more than 2 refresh token, remove all the data raw for the userId
         if (user.RefreshTokens != null)
         {
-           if(user.RefreshTokens.Count > 2)
-           {
-               user.RefreshTokens.RemoveAll( x => !user.RefreshTokens.OrderByDescending(x => x.Created).Take(2).Contains(x));
-           }
-           else
-           {
-               user.RefreshTokens.RemoveAll(x =>
-                   !x.IsActive && x.Created.AddDays(_appSettings.RefreshTokenTTl) <= DateTime.UtcNow);
-           }
+            var oldRefreshTokens = user.RefreshTokens.RemoveAll(x => x.newToken != null && x.newTokenExpires <= DateTime.UtcNow);
+        
         }
-    
     }
 
     // private void RevokeDescendantRefreshTokens(RefreshToken refreshToken, User user, string ipAddress, string reason)
