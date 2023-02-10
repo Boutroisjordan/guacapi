@@ -15,9 +15,9 @@ public class User
     public string LastName { get; set; }
     public string Phone { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
-    public string Role { get; set; }
+    public string? Role { get; set; }
 
-    public DateTime VerifiedAt { get; set; }
+    public DateTime? VerifiedAt { get; set; }
 
     [JsonIgnore] public string PasswordHash { get; set; }
     [JsonIgnore] public List<RefreshToken> RefreshTokens { get; set; }

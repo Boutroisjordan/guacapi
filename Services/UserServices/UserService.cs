@@ -98,15 +98,14 @@ public class UserService : IUserService
 
         if (user == null || BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash) == false)
             throw new AppException("Username or password is incorrect");
-        if (user.VerifiedAt == null) throw new AppException("User not verified");
         var jwtToken = _jwtUtils.GenerateToken(user);
-        var refreshToken = _jwtUtils.GenerateRefreshToken(ipAddress);
-        user.RefreshTokens.Add(refreshToken);
+        var tokenBdd = _jwtUtils.GenerateToken(ipAddress);
+        user.RefreshTokens.Add(tokenBdd);
         RemoveOldRefreshTokens(user);
         _context.Update(user);
         _context.SaveChanges();
-        if (refreshToken.Token != null) return new AuthenticateResponse(user, jwtToken, refreshToken.Token);
-        throw new AppException("Refresh token is null");
+        if (tokenBdd.Token != null) return new AuthenticateResponse(user, jwtToken, tokenBdd.Token);
+        throw new AppException("Token is null");
     }
 
     public AuthenticateResponse RefreshToken(string token, string ipAddress)
@@ -116,22 +115,26 @@ public class UserService : IUserService
         {
             var refreshToken = user.RefreshTokens.Single(x => x.Token == token);
 
-            if (refreshToken.IsRevoked)
-            {
-                RevokeDescendantRefreshTokens(refreshToken, user, ipAddress, $"Revoked descendant of {token}");
+            if (!refreshToken.IsActive) {
+                RemoveOldRefreshTokens(user);
                 _context.Update(user);
                 _context.SaveChanges();
             }
-
-            if (!refreshToken.IsActive)
-                throw new AppException("Invalid token");
-            var newRefreshToken = RotateRefreshToken(refreshToken, ipAddress);
-            user.RefreshTokens.Add(newRefreshToken);
-            RemoveOldRefreshTokens(user);
-            _context.Update(user);
+            if(refreshToken.Token != null && refreshToken.TokenExpires > DateTime.UtcNow) {
+                    throw new AppException("Token est encore valide");
+            }
+          else if(refreshToken.newToken != null && refreshToken.newTokenExpires > DateTime.UtcNow) {
+               throw new AppException("RefreshToken est encore valide");
+          } else if(refreshToken.newTokenExpires < DateTime.UtcNow ) {
+                throw new AppException("RefreshToken est expiré");
+            } 
+            refreshToken.newToken = _jwtUtils.GenerateRefreshToken(ipAddress).newToken;
+            refreshToken.newTokenExpires = DateTime.UtcNow.AddDays(7);
+                        user.RefreshTokens.Add(refreshToken);
+            _context.Update(refreshToken);
             _context.SaveChanges();
             var jwtToken = _jwtUtils.GenerateToken(user);
-            if (newRefreshToken.Token != null) return new AuthenticateResponse(user, jwtToken, newRefreshToken.Token);
+            return new AuthenticateResponse(user, jwtToken, refreshToken.Token);
         }
         throw new Exception("refresh token is null");
     }
@@ -161,9 +164,7 @@ public class UserService : IUserService
             if (user.RefreshTokens != null)
             {
                 var refreshToken = user.RefreshTokens.Single(x => x.Token == token);
-                if (refreshToken.IsRevoked)
-                    throw new AppException("Token is already revoked");
-                RevokeDescendantRefreshTokens(refreshToken, user, ipAddress, "Revoked by without replacement");
+        
             }
         }
 
@@ -200,7 +201,7 @@ public class UserService : IUserService
         {
             throw new Exception("token is null");
         }
-        RevokeRefreshToken(refreshToken, ipAddress, "Replaced by new token", newRefreshToken.Token);
+        newRefreshToken.Token = refreshToken.Token;
         return newRefreshToken;
     }
 
@@ -208,34 +209,45 @@ public class UserService : IUserService
     private void RemoveOldRefreshTokens(User user)
     {
         // remove old inactive refresh tokens from user based on TTL in app settings
-        user.RefreshTokens.RemoveAll(x =>
-            !x.IsActive &&
-            x.Created.AddDays(_appSettings.RefreshTokenTTl) <= DateTime.UtcNow);
-    }
-
-    private void RevokeDescendantRefreshTokens(RefreshToken refreshToken, User user, string ipAddress, string reason)
-    {
-        // recursively traverse the refresh token chain and ensure all descendants are revoked
-        if (!string.IsNullOrEmpty(refreshToken.ReplacedByToken))
+        // if userId on get more than 2 refresh token, remove all the data raw for the userId
+        if (user.RefreshTokens != null)
         {
-            if (user.RefreshTokens != null)
-            {
-                var childToken = user.RefreshTokens.SingleOrDefault(x => x.Token == refreshToken.ReplacedByToken);
-                if (childToken != null && childToken.IsActive)
-                    RevokeRefreshToken(childToken, ipAddress, reason);
-                else if (childToken != null) RevokeDescendantRefreshTokens(childToken, user, ipAddress, reason);
-            }
+           if(user.RefreshTokens.Count > 2)
+           {
+               user.RefreshTokens.RemoveAll( x => !user.RefreshTokens.OrderByDescending(x => x.Created).Take(2).Contains(x));
+           }
+           else
+           {
+               user.RefreshTokens.RemoveAll(x =>
+                   !x.IsActive && x.Created.AddDays(_appSettings.RefreshTokenTTl) <= DateTime.UtcNow);
+           }
         }
+    
     }
 
-    private void RevokeRefreshToken(RefreshToken token, string ipAddress, string reason,
-        string replacedByToken = null)
-    {
-        token.Revoked = DateTime.UtcNow;
-        token.RevokedByIp = ipAddress;
-        token.ReasonRevoked = reason;
-        token.ReplacedByToken = replacedByToken;
-    }
+    // private void RevokeDescendantRefreshTokens(RefreshToken refreshToken, User user, string ipAddress, string reason)
+    // {
+    //     // recursively traverse the refresh token chain and ensure all descendants are revoked
+    //     if (!string.IsNullOrEmpty(refreshToken.Token))
+    //     {
+    //         if (user.RefreshTokens != null)
+    //         {
+    //             var childToken = user.RefreshTokens.SingleOrDefault(x => x.Token == refreshToken.Token);
+    //             if (childToken != null && childToken.IsActive)
+    //                 RevokeRefreshToken(childToken, ipAddress, reason);
+    //             else if (childToken != null) RevokeDescendantRefreshTokens(childToken, user, ipAddress, reason);
+    //         }
+    //     }
+    // }
+
+    // private void RevokeRefreshToken(RefreshToken token, string ipAddress, string reason,
+    //     string replacedByToken = null)
+    // {
+    //     token.Revoked = DateTime.UtcNow;
+    //     token.RevokedByIp = ipAddress;
+    //     token.ReasonRevoked = reason;
+    //     token.ReplacedByToken = replacedByToken;
+    // }
 
     private User GetUser(int id)
     {

@@ -72,5 +72,5 @@ public class DataContext : DbContext
     public DbSet<ProductOffer> ProductOffers {get; set;} = null!;
     public DbSet<InvoiceFurnisher> InvoicesFurnisher {get; set;} = null!;
     public DbSet<InvoiceFurnisherProduct> InvoicesFurnisherProduct {get; set;} = null!;
-
+    public object RefreshTokens { get; internal set; }
 }

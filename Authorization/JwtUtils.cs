@@ -18,6 +18,7 @@ public interface IJwtUtils
     public int? ValidateToken(string token);
 
     public RefreshToken GenerateRefreshToken(string ipAddress);
+    public RefreshToken GenerateToken(string ipAddress);
 }
 
 public class JwtUtils : IJwtUtils
@@ -47,6 +48,12 @@ public class JwtUtils : IJwtUtils
                 new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);
+        var tokenBdd = new RefreshToken
+        {
+            Token = tokenHandler.WriteToken(token),
+            TokenExpires = DateTime.UtcNow.AddDays(7),
+            Created = DateTime.UtcNow,
+        };
         return tokenHandler.WriteToken(token);
     }
 
@@ -87,11 +94,35 @@ public class JwtUtils : IJwtUtils
     {
         var refreshToken = new RefreshToken
         {
+            newToken = GetUniqueToken(),
+            // token is valid for 7 days
+            newTokenExpires = DateTime.UtcNow.AddDays(7),
+        };
+
+        return refreshToken;
+
+        string GetUniqueToken()
+        {
+            // token is a cryptographically strong random sequence of values
+            // ensure token is unique by checking against db
+            var tokenIsUnique = !_context.Users.Any(u =>
+                u.RefreshTokens.Any(t => t.Token == Convert.ToBase64String(RandomNumberGenerator.GetBytes(64))));
+
+            if (!tokenIsUnique)
+                return GetUniqueToken();
+
+            return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+        }
+    }
+
+       public RefreshToken GenerateToken(string ipAddress)
+    {
+        var refreshToken = new RefreshToken
+        {
             Token = GetUniqueToken(),
             // token is valid for 7 days
-            Expires = DateTime.UtcNow.AddDays(7),
+            TokenExpires = DateTime.UtcNow.AddDays(1),
             Created = DateTime.UtcNow,
-            CreatedByIp = ipAddress,
         };
 
         return refreshToken;

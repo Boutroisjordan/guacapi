@@ -99,20 +99,7 @@ namespace guacapi.Controllers
                  return Unauthorized(new { message = "Refresh token is required" });
             }
         }
-[   HttpPost("revoke-token")]
-        public IActionResult RevokeToken(RevokeTokenRequest model)
-        {
-            // accept refresh token in request body or cookie
-            var token = model.Token ?? Request.Cookies["refreshToken"];
-
-            if (string.IsNullOrEmpty(token))
-                return BadRequest(new { message = "Token is required" });
-
-            _userService.RevokeToken(token, IpAddress());
-            return Ok(new { message = "Token revoked" });
-        }
-
-  [HttpGet("GetAllUsers")]
+     [HttpGet("GetAllUsers")]
         public IActionResult GetAll()
         {
             var users = _userService.GetAll();
@@ -132,6 +119,8 @@ var byId = _userService.GetById(id);
             var user = _userService.GetById(id);
             return Ok(user.RefreshTokens);
         }
+
+
 
         // helper methods
 

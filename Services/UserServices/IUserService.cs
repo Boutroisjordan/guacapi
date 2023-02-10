@@ -20,4 +20,5 @@ public interface IUserService
     void RevokeToken(string token, string ipAddress);
     IEnumerable<User> GetAll();
     User GetById(int id);
+    
 }

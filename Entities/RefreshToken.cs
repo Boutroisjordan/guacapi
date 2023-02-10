@@ -12,16 +12,14 @@ public class RefreshToken
     [JsonIgnore]
     public int Id { get; set; }
     public string Token { get; set; }
-    public DateTime Expires { get; set; }
+    public DateTime TokenExpires { get; set; }
+
+    public string newToken { get; set; }
+    public DateTime newTokenExpires { get; set; }
     public DateTime Created { get; set; }
-    public string CreatedByIp { get; set; }
-    public DateTime Revoked { get; set; }
-    public string RevokedByIp { get; set; }
-    public string ReplacedByToken { get; set; }
-    public string ReasonRevoked { get; set; }
-    public bool IsExpired => DateTime.UtcNow >= Expires;
-    public bool IsRevoked => Revoked != null;
-    public bool IsActive => !IsRevoked && !IsExpired;
+    public bool IsTokenExpired => DateTime.UtcNow >= TokenExpires;
+    public bool IsNewTokenExpired => DateTime.UtcNow >= newTokenExpires;
+    public bool IsActive => !IsNewTokenExpired;
  
 
 } // navigation property
