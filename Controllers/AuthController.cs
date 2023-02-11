@@ -80,7 +80,7 @@ namespace guacapi.Controllers
         {
             var response = _userService.Login(model, IpAddress());
             if (response.RefreshToken != null) SetTokenCookie(response.RefreshToken);
-            return Ok(response);
+            return StatusCode(200, response);
         }
 
 [AllowAnonymous]
@@ -92,7 +92,8 @@ namespace guacapi.Controllers
             {
                 var response = _userService.RefreshToken(refreshToken, IpAddress());
                 if (response.RefreshToken != null) SetTokenCookie(response.RefreshToken);
-                return Ok(response);
+        
+                return StatusCode(201, response);
             }
             
             {
