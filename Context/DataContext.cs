@@ -4,7 +4,7 @@ using GuacAPI.Entities;
 using GuacAPI.Models;
 
 namespace GuacAPI.Context;
- 
+
 public class DataContext : DbContext
 {
     #region Constructor
@@ -27,8 +27,9 @@ public class DataContext : DbContext
         modelBuilder.ApplyConfiguration(new OfferEntityConfiguration());
         modelBuilder.ApplyConfiguration(new RegionEntityConfiguration());
         modelBuilder.ApplyConfiguration(new ProductOfferEntityConfiguration());
-         modelBuilder.ApplyConfiguration(new InvoiceFurnisherEntityConfiguration());
-         modelBuilder.ApplyConfiguration(new InvoiceFurnisherProductEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new InvoiceFurnisherEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new InvoiceFurnisherProductEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new RoleEntityConfiguration());
 
         modelBuilder.Entity<ProductOffer>()
             .HasKey(po => new { po.ProductId, po.OfferId });
@@ -44,7 +45,7 @@ public class DataContext : DbContext
             .HasForeignKey(po => po.OfferId);
 
         modelBuilder.Entity<InvoiceFurnisherProduct>()
-        .HasKey(po => new { po.InvoiceFurnisherId, po.ProductId });
+            .HasKey(po => new { po.InvoiceFurnisherId, po.ProductId });
 
         modelBuilder.Entity<InvoiceFurnisherProduct>()
             .HasOne(cfp => cfp.InvoiceFurnisher)
@@ -69,8 +70,10 @@ public class DataContext : DbContext
     public DbSet<User> Users { get; set; } = null!;
 
     public DbSet<Offer> Offers { get; set; } = null!;
-    public DbSet<ProductOffer> ProductOffers {get; set;} = null!;
-    public DbSet<InvoiceFurnisher> InvoicesFurnisher {get; set;} = null!;
-    public DbSet<InvoiceFurnisherProduct> InvoicesFurnisherProduct {get; set;} = null!;
+    public DbSet<ProductOffer> ProductOffers { get; set; } = null!;
+    public DbSet<InvoiceFurnisher> InvoicesFurnisher { get; set; } = null!;
+    public DbSet<InvoiceFurnisherProduct> InvoicesFurnisherProduct { get; set; } = null!;
     public object RefreshTokens { get; internal set; }
+    
+    
 }

@@ -4,6 +4,7 @@ using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuacAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230211182156_seed role db")]
+    partial class seedroledb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -392,14 +395,8 @@ namespace GuacAPI.Migrations
                         new
                         {
                             Id = 2,
-                            Description = "Client web",
-                            Name = "Client"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Description = "Fournisseur",
-                            Name = "Furnisher"
+                            Description = "User",
+                            Name = "User"
                         });
                 });
 

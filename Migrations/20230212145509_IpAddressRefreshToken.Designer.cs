@@ -4,6 +4,7 @@ using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuacAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230212145509_IpAddressRefreshToken")]
+    partial class IpAddressRefreshToken
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,6 +40,9 @@ namespace GuacAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IpAddress")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LastName")
@@ -419,6 +425,9 @@ namespace GuacAPI.Migrations
 
                             b1.Property<DateTime>("Created")
                                 .HasColumnType("datetime2");
+
+                            b1.Property<string>("IpAddress")
+                                .HasColumnType("nvarchar(max)");
 
                             b1.Property<string>("Token")
                                 .HasColumnType("nvarchar(max)");

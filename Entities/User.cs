@@ -18,6 +18,8 @@ public class User
 
     public DateTime? VerifiedAt { get; set; }
     public Role? Role { get; set; }
+
+
     [JsonIgnore] public string PasswordHash { get; set; }
     [JsonIgnore] public List<RefreshToken> RefreshTokens { get; set; }
                 

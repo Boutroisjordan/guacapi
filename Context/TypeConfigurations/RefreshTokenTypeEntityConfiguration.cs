@@ -11,6 +11,8 @@ class RefreshTokenTypeEntityConfiguration : IEntityTypeConfiguration<RefreshToke
 
     public void Configure(EntityTypeBuilder<RefreshToken> builder)
     {
+    
+
     }
 
     #endregion

@@ -1,11 +1,14 @@
 ﻿using System.Security.Claims;
 using AutoMapper;
+using Azure;
+using Azure.Core;
 using GuacAPI.Authorization;
 using GuacAPI.Context;
 using GuacAPI.Entities;
 using GuacAPI.Helpers;
 using GuacAPI.Models;
 using GuacAPI.Models.Users;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -50,6 +53,7 @@ public class UserService : IUserService
 
     public async Task<User> GetUserByUsername(string username)
     {
+        
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
         return user;
     }
@@ -108,36 +112,77 @@ public class UserService : IUserService
         throw new AppException("Token is null");
     }
 
-    public AuthenticateResponse RefreshToken(string token, string ipAddress)
+    public AuthenticateResponse RefreshToken(string token, int id)
     {
-        var user = GetUserByRefreshToken(token);
+        var user = GetUser(id);
+        if (user == null) throw new AppException("User not found");
+
+
         if (user.RefreshTokens != null)
         {
             var refreshToken = user.RefreshTokens.Single(x => x.Token == token);
 
-            if (!refreshToken.IsActive) {
+            if (!refreshToken.IsActive)
+            {
                 RemoveOldRefreshTokens(user);
                 _context.Update(user);
                 _context.SaveChanges();
             }
-            if(refreshToken.Token != null && refreshToken.TokenExpires > DateTime.UtcNow) {
-                    throw new AppException("Token est encore valide");
+
+            if (refreshToken.Token != null && refreshToken.TokenExpires > DateTime.UtcNow)
+            {
+                var cookiesToken = _httpContextAccessor.HttpContext.Request.Cookies["refreshToken"] ?? _httpContextAccessor.HttpContext.Request.Cookies["FirstToken"];
+                if(cookiesToken == null) {
+                    var cookiesOptions = new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Expires = user.RefreshTokens.Single(x => x.Token == token).TokenExpires,
+                    };     
+                // renvoie le cookie avec le token
+                    _httpContextAccessor.HttpContext.Response.Cookies.Append("FirstToken", refreshToken.Token, cookiesOptions);
+                }
+                throw new AppException("Token est encore valide");
             }
-          else if(refreshToken.newToken != null && refreshToken.newTokenExpires > DateTime.UtcNow) {
-               throw new AppException("RefreshToken est encore valide");
-          } else if(refreshToken.newTokenExpires < DateTime.UtcNow ) {
-               RemoveOldRefreshTokens(user);
+
+            if (refreshToken.newToken != null && refreshToken.newTokenExpires > DateTime.UtcNow)
+            {
+                 var cookiesToken = _httpContextAccessor.HttpContext.Request.Cookies["refreshToken"] ?? _httpContextAccessor.HttpContext.Request.Cookies["FirstToken"];
+                if(cookiesToken == null) {
+                    var cookiesOptions = new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Expires = user.RefreshTokens.Single(x => x.newToken == token).newTokenExpires,
+                    };
+                // renvoie le cookie avec le token
+                _httpContextAccessor.HttpContext.Response.Cookies.Append("refreshToken", refreshToken.newToken, cookiesOptions);
+                }
+
+                throw new AppException("RefreshToken est encore valide");
+            }
+
+            if (refreshToken.newTokenExpires < DateTime.UtcNow)
+            {
+                RemoveOldRefreshTokens(user);
                 throw new AppException("RefreshToken est expiré");
-            } 
-            refreshToken.newToken = _jwtUtils.GenerateRefreshToken(ipAddress).newToken;
+            }
+
+            refreshToken.newToken = _jwtUtils.GenerateRefreshToken(token).newToken;
             refreshToken.newTokenExpires = DateTime.UtcNow.AddDays(7);
-                        user.RefreshTokens.Add(refreshToken);
+            user.RefreshTokens.Add(refreshToken);
             _context.Update(refreshToken);
             _context.SaveChanges();
             var jwtToken = _jwtUtils.GenerateToken(user);
             return new AuthenticateResponse(user, jwtToken, refreshToken.Token);
         }
+
         throw new Exception("refresh token is null");
+    }
+    
+    public void ResetPassword(ResetPasswordRequest model)
+    {
+        var user = GetUserByEmail(model.Email);
+        // validate
+        
     }
 
     public void Update(int id, UpdateRequest model)
@@ -158,21 +203,7 @@ public class UserService : IUserService
         _context.SaveChanges();
     }
 
-    public void RevokeToken(string token, string ipAddress)
-    {
-        var user = GetUserByRefreshToken(token);
-        {
-            if (user.RefreshTokens != null)
-            {
-                var refreshToken = user.RefreshTokens.Single(x => x.Token == token);
-        
-            }
-        }
-
-        _context.Update(user);
-        _context.SaveChanges();
-    }
-
+    
     public IEnumerable<User> GetAll()
     {
         return _context.Users;
@@ -187,21 +218,22 @@ public class UserService : IUserService
 
     private User GetUserByRefreshToken(string token)
     {
-        var user = _context.Users.SingleOrDefault(u => u.RefreshTokens != null && u.RefreshTokens.Any(t => t.Token == token));
+        var user = _context.Users.SingleOrDefault(u =>
+            u.RefreshTokens != null && u.RefreshTokens.Any(t => t.Token == token));
 
         if (user == null)
             throw new AppException("Invalid token");
-
         return user;
     }
 
     private RefreshToken RotateRefreshToken(RefreshToken refreshToken, string ipAddress)
     {
         var newRefreshToken = _jwtUtils.GenerateRefreshToken(ipAddress);
-        if(newRefreshToken is null)
+        if (newRefreshToken is null)
         {
             throw new Exception("token is null");
         }
+
         newRefreshToken.Token = refreshToken.Token;
         return newRefreshToken;
     }
@@ -209,13 +241,8 @@ public class UserService : IUserService
 
     private void RemoveOldRefreshTokens(User user)
     {
-        // remove old inactive refresh tokens from user based on TTL in app settings
-        // if userId on get more than 2 refresh token, remove all the data raw for the userId
-        if (user.RefreshTokens != null)
-        {
-            var oldRefreshTokens = user.RefreshTokens.RemoveAll(x => x.newToken != null && x.newTokenExpires <= DateTime.UtcNow);
-        
-        }
+        // remove nez refresh tokens that have expired
+        user.RefreshTokens?.RemoveAll(x => x.newToken != null && x.newTokenExpires <= DateTime.UtcNow);
     }
 
     // private void RevokeDescendantRefreshTokens(RefreshToken refreshToken, User user, string ipAddress, string reason)
