@@ -102,30 +102,50 @@ namespace guacapi.Controllers
         [HttpPost("refresh-token")]
     public IActionResult RefreshToken(int id)
 {
-    var refreshToken = Request.Cookies["refreshToken"] ?? Request.Cookies["FirstToken"];
-    if (refreshToken == null)
-    {
-        var user = _userService.GetById(id);
-        if (user == null)
-        {
-            return BadRequest();
-        }
-       // checkToken associated with the userId on refreshTokens
-        var tokenUser = user.RefreshTokens.Find(x => x.UserId == id);
-       Console.WriteLine(tokenUser.Token);
-        if (tokenUser == null)
-        {
-            return BadRequest();
-        }
-    var response = _userService.RefreshToken(tokenUser.Token, id);
-    if (response.RefreshToken != null) SetTokenCookie(response.RefreshToken, response.Id);
-    return StatusCode(201, response);
-    }
-    
-    var response2 = _userService.RefreshToken(refreshToken, id);
-    if (response2.RefreshToken != null) SetTokenCookie(response2.RefreshToken, response2.Id);
-    
-    return StatusCode(201, response2);
+    var refreshToken = checkTokenHeader();
+
+            if (refreshToken == null)
+            {
+                var user = _userService.GetById(id);
+                if (user == null)
+                {
+                    return BadRequest();
+                }
+                // checkToken associated with the userId on refreshTokens
+                var tokenUser = user.RefreshTokens.Find(x => x.UserId == id);
+
+                if (tokenUser == null)
+                {
+                    return BadRequest();
+                }
+                if(tokenUser.TokenExpires < DateTime.UtcNow){
+                    var newToken = _userService.RefreshToken(tokenUser.Token, id);
+                    SetTokenCookie(newToken.RefreshToken, id);
+                    return StatusCode(201,newToken);
+                } else if(tokenUser.TokenExpires > DateTime.UtcNow && tokenUser.Token != null){
+                    SetTokenCookie(tokenUser.Token, id);
+                    return StatusCode(201,tokenUser);
+                }
+                
+                 else if (tokenUser.newTokenExpires < DateTime.UtcNow && tokenUser.newToken != null)
+                {
+                    return BadRequest(new { message = "Refresh token expired" });
+                }
+            }
+              var userByToken = _userService.GetUserByRefreshToken(refreshToken);
+                if (userByToken == null)
+                {
+                    return BadRequest();
+                } 
+            if(userByToken.RefreshTokens.Find(x => x.Token == refreshToken).TokenExpires < DateTime.UtcNow){
+                 var newToken = _userService.RefreshToken(userByToken.RefreshTokens.Find(x => x.Token == refreshToken).Token, userByToken.Id);
+                SetTokenCookie(newToken.RefreshToken, userByToken.Id);
+            } else if (userByToken.RefreshTokens.Find(x => x.Token == refreshToken).newTokenExpires < DateTime.UtcNow && userByToken.RefreshTokens.Find(x => x.Token == refreshToken).newToken != null)
+            {
+                return BadRequest(new { message = "Refresh token expired" });
+            }
+            SetTokenCookie(userByToken.RefreshTokens.Find(x => x.Token == refreshToken).Token, userByToken.Id);
+            return StatusCode(201,userByToken.RefreshTokens);
 }
 
         [HttpGet("GetAllUsers")]
@@ -216,6 +236,15 @@ namespace guacapi.Controllers
         }
     };
     return StatusCode(201, user.RefreshTokens.Find(x => x.Token == token));
+}
+
+private string checkTokenHeader(){
+ var token = Request.Cookies["refreshToken"] ?? Request.Cookies["FirstToken"];
+    if (token != null)
+    {
+        return token;
+    }
+    return null;
 }
 
         private string IpAddress()

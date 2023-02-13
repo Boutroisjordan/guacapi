@@ -16,6 +16,7 @@ public interface IUserService
     void Register(RegisterRequest request);
     AuthenticateResponse Login(AuthenticateRequest request, string ipAddress);
     AuthenticateResponse RefreshToken(string token, int id);
+    User GetUserByRefreshToken(string token);
     void Update(int id, UpdateRequest model);
     
     IEnumerable<User> GetAll();

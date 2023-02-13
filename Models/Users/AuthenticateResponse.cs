@@ -12,11 +12,12 @@ public class AuthenticateResponse
 
     [JsonIgnore] public string RefreshToken { get; set; }
 
-    public AuthenticateResponse(User user, string jwtToken, string refreshToken)
+    public AuthenticateResponse(User user, string jwtToken, string refreshToken, DateTime newTokenExpires)
     {
         Id = user.Id;
         Username = user.Username;
         JwtToken = jwtToken;
         RefreshToken = refreshToken;
+    
     }
 }
