@@ -30,6 +30,8 @@ public class DataContext : DbContext
          modelBuilder.ApplyConfiguration(new InvoiceFurnisherEntityConfiguration());
          modelBuilder.ApplyConfiguration(new InvoiceFurnisherProductEntityConfiguration());
          modelBuilder.ApplyConfiguration(new CommentEntityConfiguration());
+         modelBuilder.ApplyConfiguration(new OrderEntityConfiguration());
+         modelBuilder.ApplyConfiguration(new OrderStatusEntityConfiguration());
 
          //Product offer many to many
 
@@ -44,7 +46,8 @@ public class DataContext : DbContext
         modelBuilder.Entity<ProductOffer>()
             .HasOne(po => po.Offer)
             .WithMany(o => o.ProductOffers)
-            .HasForeignKey(po => po.OfferId);
+            .HasForeignKey(po => po.OfferId)
+            .OnDelete(DeleteBehavior.Cascade);
 
 
 //Invoices furnisher many to many
@@ -62,6 +65,22 @@ public class DataContext : DbContext
             .WithMany(p => p.InvoicesFurnisherProduct)
             .HasForeignKey(ifp => ifp.ProductId)
             .OnDelete(DeleteBehavior.ClientSetNull);
+
+
+        modelBuilder.Entity<OrderOffer>()
+        .HasKey(po => new { po.OrderId, po.OfferId });
+
+        modelBuilder.Entity<OrderOffer>()
+            .HasOne(cfp => cfp.order)
+            .WithMany(cf => cf.OrderOffers)
+            .HasForeignKey(cfp => cfp.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<OrderOffer>()
+            .HasOne(cfp => cfp.offer)
+            .WithMany()
+            .HasForeignKey(ifp => ifp.OfferId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 
 
@@ -78,5 +97,8 @@ public class DataContext : DbContext
     public DbSet<InvoiceFurnisher> InvoicesFurnisher {get; set;}
     public DbSet<InvoiceFurnisherProduct> InvoicesFurnisherProduct {get; set;}
     public DbSet<Comment> Comments {get; set;}
+    public DbSet<Order> Orders {get; set;}
+    public DbSet<OrderStatus> OrderStatus {get; set;}
+    public DbSet<OrderOffer> OrderOffers {get; set;}
 
 }

@@ -67,7 +67,7 @@ public class ProductController : ControllerBase
             return Ok(productStock);
         }
     [HttpPost, Authorize]
-    public async Task<IActionResult> AddOne(Product request)
+    public async Task<IActionResult> AddOne(ProductRegister request)
     {
         var addedProduct = await _productService.AddProduct(request);
 

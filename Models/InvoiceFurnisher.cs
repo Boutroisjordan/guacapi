@@ -13,13 +13,11 @@ public class InvoiceFurnisher
   public Furnisher Furnisher {get; set;}
 
 
-  // public int InvoiceFurnisherProductId {get; set;}
-  // public InvoiceFurnisherProduct? InvoicesFurnisherProduct {get; set;}
-  // public List<Product>? Products {get; set;}
   public List<InvoiceFurnisherProduct> InvoicesFurnisherProduct {get; set;} = new List<InvoiceFurnisherProduct>();
 
 
 }
+
 
 public class InvoiceFurnisherRegister {
 
@@ -29,7 +27,7 @@ public class InvoiceFurnisherRegister {
 
   public int FurnisherId {get; set;}
 
-  public List<InvoiceFurnisherProduct> InvoicesFurnisherProduct {get; set;} = new List<InvoiceFurnisherProduct>();
+  public List<InvoiceFurnisherProductRegister> InvoicesFurnisherProductRegister {get; set;}
 }
 
 
@@ -40,5 +38,8 @@ public class InvoiceFurnisherUpdate {
   public DateTime Date {get; set;} = DateTime.Today;
 
   public int FurnisherId {get; set;}
+
+  public List<InvoiceFurnisherProductRegister> InvoicesFurnisherProductRegister {get; set;}
+
 
 }

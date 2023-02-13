@@ -24,6 +24,8 @@ public class User
 
     public List<Comment> Comments {get; set;}
 
+    public List<Order> Orders {get; set;}
+
 
     //user data to object for form submission and validation
 

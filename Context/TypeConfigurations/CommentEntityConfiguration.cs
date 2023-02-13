@@ -20,7 +20,7 @@ class CommentEntityConfiguration : IEntityTypeConfiguration<Comment>
         builder.HasOne(x => x.offer)
         .WithMany(x => x.Comments)
         .HasForeignKey(x => x.OfferId)
-        .OnDelete(DeleteBehavior.ClientSetNull);
+        .OnDelete(DeleteBehavior.Cascade);
 
     }
 }

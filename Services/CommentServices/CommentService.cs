@@ -1,7 +1,8 @@
 using GuacAPI.Models;
 using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
-
+using AutoMapper;
+using GuacAPI.Helpers;
 namespace GuacAPI.Services;
  
 public class CommentService : ICommentService
@@ -9,13 +10,15 @@ public class CommentService : ICommentService
     #region Fields
 
     private readonly DataContext _context;
+    private readonly IMapper _mapper;
 
     #endregion
 
     // #region Constructors
-    public CommentService(DataContext context)
+    public CommentService(DataContext context, IMapper mapper)
     {
         this._context = context;
+        this._mapper = mapper;
     }
 
 
@@ -36,8 +39,11 @@ public class CommentService : ICommentService
         return commentById;
     }
 
-    public async Task<Comment> AddComment(Comment request)
+    public async Task<Comment> AddComment(CommentRegister request)
     {
+
+        Comment comment = _mapper.Map<Comment>(request);
+
         if (request is null)
         {
             return null;
@@ -47,21 +53,14 @@ public class CommentService : ICommentService
             throw new Exception("bad PreviousCommentId");
         }
 
-        var addedComment= new Comment {
-            Rate = request.Rate,
-            UserId = request.UserId,
-            OfferId = request.OfferId,
-            PreviousCommentId = request.PreviousCommentId,
-            Message = request.Message
-        };
-        
+    
 
-        var savedComment = _context.Comments.Add(addedComment).Entity;
+        var savedComment = _context.Comments.Add(comment).Entity;
         await _context.SaveChangesAsync();
         return savedComment;
     }
 
-    public async Task<Comment> UpdateComment(int id, Comment request)
+    public async Task<Comment> UpdateComment(int id, CommentRegister request)
     {
 
         // return await Task.Run(() =>
@@ -81,35 +80,27 @@ public class CommentService : ICommentService
 
     public async Task<Comment> DeleteComment(int id)
     {
-        // return await Task.Run(() =>
-        // {
+
             var comment = await _context.Comments.FindAsync(id);
             if (comment == null)
             {
-                return null;
-                // throw new ArgumentException("Alcohol not found");
-
+                throw new ArgumentException("Alcohol not found");
             }
 
             _context.Comments.Remove(comment);
             await _context.SaveChangesAsync();
             return comment;
-        // });
     }
     public async Task<Comment> OwnerDeleteComment(int id, int userId)
     {
-        // return await Task.Run(() =>
-        // {
             var comment = await _context.Comments.Where(x => x.CommentId == 1 && x.UserId == userId).FirstAsync();
             if (comment == null)
             {
-                return null;
-                // throw new ArgumentException("Alcohol not found");
+                throw new ArgumentException("Alcohol not found");
             }
 
             _context.Comments.Remove(comment);
             await _context.SaveChangesAsync();
             return comment;
-        // });
     }
 }

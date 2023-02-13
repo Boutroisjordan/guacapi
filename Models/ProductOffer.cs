@@ -13,11 +13,21 @@ public class ProductOffer
     public int QuantityProduct {get; set;}
     public int ProductId { get; set; }
     // [JsonIgnore]
-    public int OfferId {get; set;}
     public Product Product { get; set; }
 
+    public int OfferId {get; set;}
     [JsonIgnore]
     public Offer Offer {get; set;}
 
+    #endregion
+}
+public class ProductOfferRegister
+
+{
+    #region Properties
+
+    public int QuantityProduct {get; set;}
+    public int ProductId { get; set; }
+    public int OfferId {get; set;}
     #endregion
 }

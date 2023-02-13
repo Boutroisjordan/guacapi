@@ -58,24 +58,8 @@ public class CommentController : ControllerBase
         return Ok(product);
     }
 
-    /// <summary>
-    /// Create a invoiceProduct, InvoiceProduct
-    /// </summary>
-    /// <remarks>
-    /// Sample request:
-    ///
-    ///     POST /Comment
-    ///     {
-    ///         "commentId": 0,
-    ///         "rate": 5,
-    ///         "message": "string",
-    ///         "previousCommentId": 0,
-    ///         "userId": 0,
-    ///         "offerId": 0,
-    ///       }    
-    ///</remarks>
     [HttpPost]
-    public async Task<IActionResult> AddOne(Comment request)
+    public async Task<IActionResult> AddOne(CommentRegister request)
     {
         var addedProduct = await _commentService.AddComment(request);
 
@@ -89,7 +73,7 @@ public class CommentController : ControllerBase
 
     [HttpPut]
     [Route("{id}")]
-    public async Task<IActionResult> UpdateProduct(int id, Comment request)
+    public async Task<IActionResult> UpdateProduct(int id, CommentRegister request)
     {
         var updatedProduct = await _commentService.UpdateComment(id, request);
 

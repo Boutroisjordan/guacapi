@@ -1,22 +1,24 @@
 using GuacAPI.Models;
 using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
-
+using AutoMapper;
+using GuacAPI.Helpers;
 namespace GuacAPI.Services;
  
 public class ProductService : IProductService
 {
     #region Fields
     private readonly DataContext _context;
+    private readonly IMapper _mapper;
 
         // private readonly IOfferService _offerService;
     #endregion
 
     // #region Constructors
-    public ProductService(DataContext context)
+    public ProductService(DataContext context, IMapper mapper)
     {
         this._context = context;
-        // this._offerService = offerService;
+        this._mapper = mapper;
     }
 
     public async Task<List<Product>> GetAllProducts()
@@ -32,29 +34,31 @@ public class ProductService : IProductService
         return product;
     }
 
-    public async Task<Product> AddProduct(Product request)
+    public async Task<Product> AddProduct(ProductRegister request)
     {
 
-        var furnisherById = await _context.Furnishers.FindAsync(request.FurnisherId);
+        // var furnisherById = await _context.Furnishers.FindAsync(request.FurnisherId);
 
-        Product addedProduct = new Product()
-        {
-            Name = request.Name,
-            Price = request.Price,
-            Stock = request.Stock,
-            Millesime = request.Millesime,
-            AlcoholDegree = request.AlcoholDegree,
-            AlcoholTypeId = request.AlcoholTypeId,
-            Reference = request.Reference,
-            FurnisherId = request.FurnisherId,
-            DomainId = request.DomainId,
-            RegionId = request.RegionId,
-            AppellationId = request.AppellationId,
-            furnisher = furnisherById
-        };
+        Product product = _mapper.Map<Product>(request);
+
+        // Product addedProduct = new Product()
+        // {
+        //     Name = request.Name,
+        //     Price = request.Price,
+        //     Stock = request.Stock,
+        //     Millesime = request.Millesime,
+        //     AlcoholDegree = request.AlcoholDegree,
+        //     AlcoholTypeId = request.AlcoholTypeId,
+        //     Reference = request.Reference,
+        //     FurnisherId = request.FurnisherId,
+        //     DomainId = request.DomainId,
+        //     RegionId = request.RegionId,
+        //     AppellationId = request.AppellationId,
+        //     furnisher = furnisherById
+        // };
 
 
-        var saveProduct = _context.Products.Add(addedProduct).Entity;
+        var saveProduct = _context.Products.Add(product).Entity;
         await _context.SaveChangesAsync();
 
         return saveProduct;

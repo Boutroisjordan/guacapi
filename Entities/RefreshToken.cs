@@ -22,6 +22,6 @@ public class RefreshToken
     public bool IsExpired => DateTime.UtcNow >= Expires;
     public bool IsRevoked => Revoked != null;
     public bool IsActive => !IsRevoked && !IsExpired;
- 
+
 
 } // navigation property

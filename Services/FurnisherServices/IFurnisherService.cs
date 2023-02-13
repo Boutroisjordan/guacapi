@@ -16,10 +16,10 @@ public interface IFurnisherService
     Task<Furnisher> GetFurnisherByName(string name);
 
 //Add new furnisher
-    Task<Furnisher> CreateFurnisher(Furnisher furnisher);
+    Task<Furnisher> CreateFurnisher(FurnisherRegister furnisher);
 
     //Update furnisher
-    Task<Furnisher> UpdateFurnisher(int id, Furnisher furnisher);
+    Task<Furnisher> UpdateFurnisher(int id, FurnisherRegister furnisher);
 
     //Delete furnisher
     Task<Furnisher> DeleteFurnisher(int id);

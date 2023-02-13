@@ -14,9 +14,9 @@ public interface ICommentService
     Task<List<Comment>> GetAll();
     Task<Comment> GetCommentById(int id);
 
-    Task<Comment> AddComment(Comment comment);
+    Task<Comment> AddComment(CommentRegister comment);
 
-    Task<Comment> UpdateComment(int id, Comment comment);
+    Task<Comment> UpdateComment(int id, CommentRegister comment);
     Task<Comment> DeleteComment(int id);
     Task<Comment> OwnerDeleteComment(int id, int userId);
 }

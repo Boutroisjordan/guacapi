@@ -29,6 +29,8 @@ public static class DIMethods
             services.AddScoped<IInvoiceService, InvoiceService>();
             services.AddScoped<IInvoiceServiceProduct, InvoiceServiceProduct>();
             services.AddScoped<ICommentService, CommentService>();
+            services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IOrderOfferService, OrderOfferService>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
         }

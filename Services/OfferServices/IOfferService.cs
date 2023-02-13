@@ -8,8 +8,9 @@ public interface IOfferService
 
      Task<List<Offer>> GetAllOffers();
      Task<Offer> GetOfferById(int id);
-     Task<Offer> AddOffer(Offer offer);
-      Task<Offer> UpdateOffer(int id, Offer offer);
+     Task<List<Offer>> GetDraftOffer();
+     Task<Offer> AddOffer(OfferRegister offer);
+      Task<Offer> UpdateOffer(int id, OfferRegister offer);
      Task<Offer> DeleteOffer(int id);
 
      Task<List<Offer>> GetAvailableOffers();

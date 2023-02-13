@@ -252,6 +252,9 @@ namespace GuacAPI.Migrations
                     b.Property<bool>("isB2B")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("isDraft")
+                        .HasColumnType("bit");
+
                     b.HasKey("OfferId");
 
                     b.ToTable("Offer", (string)null);
@@ -398,6 +401,98 @@ namespace GuacAPI.Migrations
                     b.ToTable("InvoiceFurnisher", (string)null);
                 });
 
+            modelBuilder.Entity("Order", b =>
+                {
+                    b.Property<int>("OrderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
+
+                    b.Property<int>("OrderStatusId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("orderedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("OrderId");
+
+                    b.HasIndex("OrderStatusId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Order", (string)null);
+                });
+
+            modelBuilder.Entity("OrderOffer", b =>
+                {
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OfferId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("OrderId", "OfferId");
+
+                    b.HasIndex("OfferId");
+
+                    b.ToTable("OrderOffers");
+                });
+
+            modelBuilder.Entity("OrderStatus", b =>
+                {
+                    b.Property<int>("OrderStatusId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderStatusId"));
+
+                    b.Property<string>("OrderStatusName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("OrderStatusId");
+
+                    b.ToTable("OrderStatus", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            OrderStatusId = 1,
+                            OrderStatusName = "Non payer"
+                        },
+                        new
+                        {
+                            OrderStatusId = 2,
+                            OrderStatusName = "Payment refuser"
+                        },
+                        new
+                        {
+                            OrderStatusId = 3,
+                            OrderStatusName = "Payed"
+                        },
+                        new
+                        {
+                            OrderStatusId = 4,
+                            OrderStatusName = "En attente de Livraison"
+                        },
+                        new
+                        {
+                            OrderStatusId = 5,
+                            OrderStatusName = "Livré"
+                        },
+                        new
+                        {
+                            OrderStatusId = 6,
+                            OrderStatusName = "Annuler"
+                        });
+                });
+
             modelBuilder.Entity("GuacAPI.Entities.User", b =>
                 {
                     b.OwnsMany("GuacAPI.Entities.RefreshToken", "RefreshTokens", b1 =>
@@ -453,6 +548,7 @@ namespace GuacAPI.Migrations
                     b.HasOne("GuacAPI.Models.Offer", "offer")
                         .WithMany("Comments")
                         .HasForeignKey("OfferId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("GuacAPI.Entities.User", "user")
@@ -556,9 +652,49 @@ namespace GuacAPI.Migrations
                     b.Navigation("Furnisher");
                 });
 
+            modelBuilder.Entity("Order", b =>
+                {
+                    b.HasOne("OrderStatus", "OrderStatus")
+                        .WithMany("Orders")
+                        .HasForeignKey("OrderStatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GuacAPI.Entities.User", "user")
+                        .WithMany("Orders")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("OrderStatus");
+
+                    b.Navigation("user");
+                });
+
+            modelBuilder.Entity("OrderOffer", b =>
+                {
+                    b.HasOne("GuacAPI.Models.Offer", "offer")
+                        .WithMany()
+                        .HasForeignKey("OfferId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Order", "order")
+                        .WithMany("OrderOffers")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("offer");
+
+                    b.Navigation("order");
+                });
+
             modelBuilder.Entity("GuacAPI.Entities.User", b =>
                 {
                     b.Navigation("Comments");
+
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("GuacAPI.Models.AlcoholType", b =>
@@ -605,6 +741,16 @@ namespace GuacAPI.Migrations
             modelBuilder.Entity("InvoiceFurnisher", b =>
                 {
                     b.Navigation("InvoicesFurnisherProduct");
+                });
+
+            modelBuilder.Entity("Order", b =>
+                {
+                    b.Navigation("OrderOffers");
+                });
+
+            modelBuilder.Entity("OrderStatus", b =>
+                {
+                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

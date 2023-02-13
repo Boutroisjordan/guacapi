@@ -21,3 +21,13 @@ public class Furnisher
 
     #endregion
 }
+public class FurnisherRegister
+{
+    #region Properties
+    [Required] public string Name { get; set; }
+    [Required] public string City { get; set; }
+    [Required] public string Street { get; set; }
+    [Required] public string PostalCode { get; set; }
+    [Required] public string Siret { get; set; }
+    #endregion
+}
