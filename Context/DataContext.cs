@@ -29,6 +29,11 @@ public class DataContext : DbContext
         modelBuilder.ApplyConfiguration(new ProductOfferEntityConfiguration());
          modelBuilder.ApplyConfiguration(new InvoiceFurnisherEntityConfiguration());
          modelBuilder.ApplyConfiguration(new InvoiceFurnisherProductEntityConfiguration());
+         modelBuilder.ApplyConfiguration(new CommentEntityConfiguration());
+         modelBuilder.ApplyConfiguration(new OrderEntityConfiguration());
+         modelBuilder.ApplyConfiguration(new OrderStatusEntityConfiguration());
+
+         //Product offer many to many
 
         modelBuilder.Entity<ProductOffer>()
             .HasKey(po => new { po.ProductId, po.OfferId });
@@ -41,8 +46,11 @@ public class DataContext : DbContext
         modelBuilder.Entity<ProductOffer>()
             .HasOne(po => po.Offer)
             .WithMany(o => o.ProductOffers)
-            .HasForeignKey(po => po.OfferId);
+            .HasForeignKey(po => po.OfferId)
+            .OnDelete(DeleteBehavior.Cascade);
 
+
+//Invoices furnisher many to many
         modelBuilder.Entity<InvoiceFurnisherProduct>()
         .HasKey(po => new { po.InvoiceFurnisherId, po.ProductId });
 
@@ -57,20 +65,40 @@ public class DataContext : DbContext
             .WithMany(p => p.InvoicesFurnisherProduct)
             .HasForeignKey(ifp => ifp.ProductId)
             .OnDelete(DeleteBehavior.ClientSetNull);
+
+
+        modelBuilder.Entity<OrderOffer>()
+        .HasKey(po => new { po.OrderId, po.OfferId });
+
+        modelBuilder.Entity<OrderOffer>()
+            .HasOne(cfp => cfp.order)
+            .WithMany(cf => cf.OrderOffers)
+            .HasForeignKey(cfp => cfp.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<OrderOffer>()
+            .HasOne(cfp => cfp.offer)
+            .WithMany()
+            .HasForeignKey(ifp => ifp.OfferId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 
 
-    public DbSet<Product> Products { get; set; } = null!;
-    public DbSet<Furnisher> Furnishers { get; set; } = null!;
-    public DbSet<Domain> Domains { get; set; } = null!;
-    public DbSet<Region> Regions { get; set; } = null!;
-    public DbSet<AlcoholType> AlcoholTypes { get; set; } = null!;
-    public DbSet<Appellation> Appellations { get; set; } = null!;
-    public DbSet<User> Users { get; set; } = null!;
+    public DbSet<Product> Products { get; set; }
+    public DbSet<Furnisher> Furnishers { get; set; }
+    public DbSet<Domain> Domains { get; set; }
+    public DbSet<Region> Regions { get; set; }
+    public DbSet<AlcoholType> AlcoholTypes { get; set; }
+    public DbSet<Appellation> Appellations { get; set; }
+    public DbSet<User> Users { get; set; }
 
-    public DbSet<Offer> Offers { get; set; } = null!;
-    public DbSet<ProductOffer> ProductOffers {get; set;} = null!;
-    public DbSet<InvoiceFurnisher> InvoicesFurnisher {get; set;} = null!;
-    public DbSet<InvoiceFurnisherProduct> InvoicesFurnisherProduct {get; set;} = null!;
+    public DbSet<Offer> Offers { get; set; }
+    public DbSet<ProductOffer> ProductOffers {get; set;}
+    public DbSet<InvoiceFurnisher> InvoicesFurnisher {get; set;}
+    public DbSet<InvoiceFurnisherProduct> InvoicesFurnisherProduct {get; set;}
+    public DbSet<Comment> Comments {get; set;}
+    public DbSet<Order> Orders {get; set;}
+    public DbSet<OrderStatus> OrderStatus {get; set;}
+    public DbSet<OrderOffer> OrderOffers {get; set;}
 
 }

@@ -1,7 +1,8 @@
 using GuacAPI.Models;
 using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
-
+using AutoMapper;
+using GuacAPI.Helpers;
 namespace GuacAPI.Services;
  
 public class DomainService : IDomainService
@@ -9,13 +10,15 @@ public class DomainService : IDomainService
     #region Fields
 
     private readonly DataContext _context;
+    private readonly IMapper _mapper;
 
     #endregion
 
     // #region Constructors
-    public DomainService(DataContext context)
+    public DomainService(DataContext context, IMapper mapper)
     {
         this._context = context;
+        this._mapper = mapper;
     }
 
     public async Task<ICollection<Domain>> GetAllDomains()
@@ -36,32 +39,24 @@ public class DomainService : IDomainService
         return domainName;
     }
 
-    public async Task<Domain> AddDomain(Domain domain)
+    public async Task<Domain> AddDomain(DomainRegister request)
     {
-        // return await Task.Run(() =>
-        // {
-           
 
-            var addedDomain = new Domain {
-                Name = domain.Name 
-            };
+        Domain domain = _mapper.Map<Domain>(request);
 
-            var savedDomain = _context.Domains.Add(addedDomain).Entity;
-
-
-            await _context.SaveChangesAsync();
-            return savedDomain;
-        // });
+        var savedDomain = _context.Domains.Add(domain).Entity;
+        await _context.SaveChangesAsync();
+        return savedDomain;
     }
 
-    public async Task<Domain> UpdateDomain(int id, Domain request)
+    public async Task<Domain> UpdateDomain(int id, DomainRegister request)
     {
-        // return await Task.Run(() =>
-        // {
+
             var domain = await _context.Domains.FindAsync(id);
+            Domain newDomain = _mapper.Map(request, domain);
             if (domain == null)
             {
-                return null;
+                throw new Exception("Domain Not Found");
             }
 
             domain.Name = request.Name;

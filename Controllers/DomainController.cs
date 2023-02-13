@@ -57,7 +57,7 @@ public class DomainController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddDomain(Domain request)
+    public async Task<IActionResult> AddDomain(DomainRegister request)
     {
 
         var domain = await _domainService.AddDomain(request);
@@ -72,7 +72,7 @@ public class DomainController : ControllerBase
 
     [HttpPut]
     [Route("{id}")]
-    public async Task<IActionResult> UpdateDomain(int id, Domain request)
+    public async Task<IActionResult> UpdateDomain(int id, DomainRegister request)
     {
 
         var domain = await _domainService.UpdateDomain(id, request);

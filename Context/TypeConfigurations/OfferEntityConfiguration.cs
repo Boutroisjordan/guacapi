@@ -14,10 +14,13 @@ class OfferEntityConfiguration : IEntityTypeConfiguration<Offer>
         //Primary key de la table
         builder.HasKey(item => item.OfferId);
 
+        // builder.HasMany(x => x.Comments)
+        // .WithOne(item => item.OfferId);
+
+        builder.Property(x => x.Deadline)
+        .HasColumnType("date");
+
     }
     #endregion
 
 }
-
-//https://medium.com/net-core/build-a-restful-web-api-with-asp-net-core-6-30747197e229 le blog
-// https://www.youtube.com/watch?v=fAsZP70uiic video

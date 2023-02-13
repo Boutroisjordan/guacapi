@@ -13,7 +13,7 @@ public class AuthenticateResponse
 
     public AuthenticateResponse(User user, string jwtToken, string refreshToken)
     {
-        Id = user.Id;
+        Id = user.UserId;
         Username = user.Username;
         JwtToken = jwtToken;
         RefreshToken = refreshToken;

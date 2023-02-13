@@ -1,5 +1,5 @@
 ﻿using System.Text.Json.Serialization;
-
+using GuacAPI.Models;
 namespace GuacAPI.Entities;
 
 public class User
@@ -8,7 +8,7 @@ public class User
 
     #region Properties
 
-    public int Id { get; set; }
+    public int UserId { get; set; }
     public string Username { get; set; }
     public string Email { get; set; }
     public string FirstName { get; set; }
@@ -21,6 +21,10 @@ public class User
 
     [JsonIgnore] public string PasswordHash { get; set; }
     [JsonIgnore] public List<RefreshToken> RefreshTokens { get; set; }
+
+    public List<Comment> Comments {get; set;}
+
+    public List<Order> Orders {get; set;}
 
 
     //user data to object for form submission and validation

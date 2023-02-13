@@ -16,3 +16,11 @@ public class Region
 
     #endregion
 }
+public class RegionRegister
+{
+    #region Properties
+
+    [Required] public string Name { get; set; }
+
+    #endregion
+}

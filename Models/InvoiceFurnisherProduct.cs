@@ -20,4 +20,13 @@ public class InvoiceFurnisherProduct
 
     #endregion
 }
+public class InvoiceFurnisherProductRegister
+
+{
+    #region Properties
+    public int QuantityProduct {get; set;}
+    public int InvoiceFurnisherId {get; set;}
+    public int ProductId { get; set; }
+    #endregion
+}
 

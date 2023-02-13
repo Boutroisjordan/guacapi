@@ -100,7 +100,7 @@ public class FurnisherController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateFurnisher(Furnisher furnisher)
+    public async Task<IActionResult> CreateFurnisher(FurnisherRegister furnisher)
     {
         try
         {
@@ -120,7 +120,7 @@ public class FurnisherController : ControllerBase
 
     [HttpPut]
     [Route("{id}")]
-    public async Task<IActionResult> UpdateFurnisher(int id, Furnisher furnisher)
+    public async Task<IActionResult> UpdateFurnisher(int id, FurnisherRegister furnisher)
     {
         try
         {

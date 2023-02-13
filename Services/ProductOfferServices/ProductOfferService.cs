@@ -28,5 +28,22 @@ public class ProductOfferService : IProductOfferService
          return offers;
      }
 
+//TODO l'édit des productOffer comme invoice furnisher 
+         public async Task<ProductOffer> EditProductOffer(int id, int OfferId, ProductOffer request)
+    {
+        // Ajouter l'offre à la base de données
+        var productOffer = await _context.ProductOffers.FirstOrDefaultAsync(x => x.ProductId == id && x.OfferId == OfferId);
+
+        if (productOffer is null)
+        {
+            throw new Exception("product offer doesn't find");
+        };
+        productOffer.QuantityProduct = request.QuantityProduct;
+    
+        await _context.SaveChangesAsync();
+
+        return productOffer;
+    }
+
 
 }
