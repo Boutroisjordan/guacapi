@@ -16,6 +16,7 @@ public class AutoMapperProfile : Profile
         CreateMap<CommentRegister, Comment>();
         CreateMap<DomainRegister, Domain>();
         CreateMap<FurnisherRegister, Furnisher>();
+        CreateMap<RegionRegister, Region>();
 
         // User -> AuthenticateResponse 
         CreateMap<User, AuthenticateResponse>();

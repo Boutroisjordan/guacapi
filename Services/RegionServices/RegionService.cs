@@ -1,19 +1,21 @@
 using GuacAPI.Models;
 using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
+using GuacAPI.Helpers;
  
 namespace GuacAPI.Services;
 
 public class RegionService : IRegionService
 {
-    #region Fields
     private readonly DataContext _context;
-    #endregion
+    private readonly IMapper _mapper;
 
     // #region Constructors
-    public RegionService(DataContext context)
+    public RegionService(DataContext context, IMapper mapper)
     {
         this._context = context;
+        this._mapper = mapper;
     }
 
     public async Task<List<Region>> GetAllRegions()
@@ -21,30 +23,30 @@ public class RegionService : IRegionService
         var regions = await _context.Regions.ToListAsync();
         return regions;
     }
-    //-------
+
     public async Task<Region> GetOne(int id)
     {
         var region = await _context.Regions.Include(i => i.Products).Where(i => i.RegionID == id).FirstOrDefaultAsync();
         return region;
     }
 
-    public async Task<Region> AddRegion(Region region)
+    public async Task<Region> AddRegion(RegionRegister request)
     {
+        Region region = _mapper.Map<Region>(request);
+
         var savedRegion = _context.Regions.Add(region).Entity;
         await _context.SaveChangesAsync();
 
         return savedRegion;
     }
 
-    public void SaveChanges()
-    {
-        this._context.SaveChanges();
-    }
 
-    public async Task<Region> UpdateRegion(int id, Region request)
+    public async Task<Region> UpdateRegion(int id, RegionRegister request)
     {
 
         var region = await _context.Regions.FindAsync(id);
+
+        var newRegion = _mapper.Map(request, region);
 
         if (region != null)
         {

@@ -6,9 +6,8 @@ public interface IRegionService
 {
     Task<List<Region>> GetAllRegions();
     Task<Region> GetOne(int id);
-    Task<Region> AddRegion(Region item);
-    Task<Region> UpdateRegion(int id, Region region);
+    Task<Region> AddRegion(RegionRegister item);
+    Task<Region> UpdateRegion(int id, RegionRegister region);
     Task<List<Region>> DeleteRegion(int id);
-    void SaveChanges();
 
 }

@@ -132,46 +132,5 @@ public class InvoiceService : IInvoiceService
         return invoiceFurnisher;
     }
 
-    // public async Task<Order> Update(int id, OrderUpdateDTO request)
-    // {
-
-    //     var entityOrder = await _context.Orders.FindAsync(id);
-    //     Order order = _mapper.Map<Order>(request);
-
-    //     order.OrderOffers.ForEach(offer =>
-    //     {
-
-    //         var orderOffer = _context.OrderOffers.FirstOrDefault(x => x.OfferId == offer.OfferId && x.OrderId == offer.OrderId);
-
-    //         if (orderOffer != null)
-    //         {
-    //             orderOffer.Quantity = offer.Quantity;
-    //         }
-    //         else
-    //         {
-    //             if (_context.Offers.Any(x => x.OfferId == offer.OfferId) == true)
-    //             {
-    //                 _context.OrderOffers.Add(offer);
-    //             }
-    //         }
-    //     });
-
-    //     var exceptItems = entityOrder.OrderOffers.Except(order.OrderOffers);
-
-    //     if (exceptItems != null)
-    //     {
-    //         foreach (var item in exceptItems)
-    //         {
-    //             _context.OrderOffers.Remove(item);
-    //         }
-    //     }
-
-    //     Order newOrder = _mapper.Map(entityOrder, order);
-
-
-    //     await _context.SaveChangesAsync();
-
-    //     return order;
-    // }
 
 }
