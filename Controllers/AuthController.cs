@@ -102,21 +102,20 @@ namespace guacapi.Controllers
         [HttpPost("refresh-token")]
     public IActionResult RefreshToken(int id)
 {
-    var refreshToken = checkTokenHeader();
-
+    var refreshToken = Request.Cookies["refreshToken"] ?? Request.Cookies["FirstToken"];
             if (refreshToken == null)
             {
                 var user = _userService.GetById(id);
                 if (user == null)
                 {
-                    return BadRequest();
+                    return BadRequest( new { message = "User not found" });
                 }
                 // checkToken associated with the userId on refreshTokens
                 var tokenUser = user.RefreshTokens.Find(x => x.UserId == id);
 
                 if (tokenUser == null)
                 {
-                    return BadRequest();
+                    return BadRequest( );
                 }
                 if(tokenUser.TokenExpires < DateTime.UtcNow){
                     var newToken = _userService.RefreshToken(tokenUser.Token, id);
@@ -144,8 +143,12 @@ namespace guacapi.Controllers
             {
                 return BadRequest(new { message = "Refresh token expired" });
             }
-            SetTokenCookie(userByToken.RefreshTokens.Find(x => x.Token == refreshToken).Token, userByToken.Id);
-            return StatusCode(201,userByToken.RefreshTokens);
+            else if (userByToken.RefreshTokens.Find(x => x.Token == refreshToken).TokenExpires > DateTime.UtcNow && userByToken.RefreshTokens.Find(x => x.Token == refreshToken).Token != null)
+            {
+                SetTokenCookie(userByToken.RefreshTokens.Find(x => x.Token == refreshToken).Token, userByToken.Id);
+                    return StatusCode(201,userByToken.RefreshTokens);
+            }
+            return StatusCode(404 , "User not found");
 }
 
         [HttpGet("GetAllUsers")]
@@ -244,7 +247,7 @@ private string checkTokenHeader(){
     {
         return token;
     }
-    return null;
+    throw new Exception("Refresh token is missing");
 }
 
         private string IpAddress()

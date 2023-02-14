@@ -108,11 +108,18 @@ public class UserService : IUserService
         if (user.RefreshTokens != null)
         {
              // trouve moi les tokens qui sont actifs
-            var refreshToken = user.RefreshTokens.SingleOrDefault(x => x.IsActive);
+            var refreshToken = user.RefreshTokens.SingleOrDefault(x => x.TokenExpires > DateTime.UtcNow);
+            if (refreshToken != null)
+            {
+                // supprime les tokens qui sont inactifs
+                RemoveOldRefreshTokens(user);
+                _context.Update(user);
+                _context.SaveChanges();
+            }
+        
         }
-        user.RefreshTokens = new List<RefreshToken> { new RefreshToken { Token = tokenBdd.newToken, TokenExpires = tokenBdd.newTokenExpires, Created = DateTime.UtcNow } };
- 
-        _context.Update(user);
+       user.RefreshTokens.Add(tokenBdd);
+        _context.Update(tokenBdd);
         _context.SaveChanges();
         if (tokenBdd.Token != null) return new AuthenticateResponse(user, jwtToken, tokenBdd.Token, tokenBdd.TokenExpires);
         return new AuthenticateResponse(user, jwtToken, tokenBdd.newToken, tokenBdd.newTokenExpires);
@@ -122,58 +129,18 @@ public class UserService : IUserService
     {
         // mais user peut etre null
 
-        var user = GetUser(id) ?? GetUserByRefreshToken(token);
-    
-        if (user.RefreshTokens != null)
-        {
-            var refreshToken = user.RefreshTokens.Single(x => x.Token == token);
-
-            if (!refreshToken.IsActive)
-            {
-                RemoveOldRefreshTokens(user);
-                _context.Update(user);
-                _context.SaveChanges();
-            }
-
-            if (refreshToken.Token != null && refreshToken.TokenExpires > DateTime.UtcNow)
-            {
-                var cookiesToken = _httpContextAccessor.HttpContext.Request.Cookies["refreshToken"] ?? _httpContextAccessor.HttpContext.Request.Cookies["FirstToken"];
-                if (cookiesToken == null)
-                {
-                    var cookiesOptions = new CookieOptions
-                    {
-                        HttpOnly = true,
-                        Expires = user.RefreshTokens.Single(x => x.Token == token).TokenExpires,
-                    };
-                    // renvoie le cookie avec le token
-                    _httpContextAccessor.HttpContext.Response.Cookies.Append("FirstToken", refreshToken.Token, cookiesOptions);
-                }
-                return new AuthenticateResponse(user, _jwtUtils.GenerateToken(user), refreshToken.Token, refreshToken.TokenExpires);
-            }
-            if (refreshToken.newToken != null && refreshToken.newTokenExpires > DateTime.UtcNow)
-            {
-                 var cookiesToken = _httpContextAccessor.HttpContext.Request.Cookies["refreshToken"] ?? _httpContextAccessor.HttpContext.Request.Cookies["FirstToken"];
-                if(cookiesToken == null) {
-                    var cookiesOptions = new CookieOptions
-                    {
-                        HttpOnly = true,
-                        Expires = user.RefreshTokens.Single(x => x.newToken == token).newTokenExpires,
-                    };
-                // renvoie le cookie avec le token
-                _httpContextAccessor.HttpContext.Response.Cookies.Append("refreshToken", refreshToken.newToken, cookiesOptions);
-                }
-
-                return new AuthenticateResponse(user, _jwtUtils.GenerateToken(user), refreshToken.newToken, refreshToken.newTokenExpires);
-            }
-
-            if (refreshToken.newTokenExpires < DateTime.UtcNow)
-            {
-                RemoveOldRefreshTokens(user);
-                throw new AppException("RefreshToken est expiré");
-            }
-
+        var user = GetUser(id);
+        var refreshToken = user.RefreshTokens.SingleOrDefault(x => x.Token == token);
+  
             refreshToken.newToken = _jwtUtils.GenerateRefreshToken(token).newToken;
             refreshToken.newTokenExpires = DateTime.UtcNow.AddDays(7);
+            _httpContextAccessor.HttpContext.Response.Cookies.Append("refreshToken", refreshToken.newToken, new CookieOptions
+            {
+                HttpOnly = true,
+                SameSite = SameSiteMode.Strict,
+                Secure = true,
+                Expires = refreshToken.newTokenExpires
+            });
             user.RefreshTokens.Add(refreshToken);
             _context.Update(refreshToken);
             _context.SaveChanges();
@@ -181,8 +148,6 @@ public class UserService : IUserService
             return new AuthenticateResponse(user, jwtToken, refreshToken.Token,refreshToken.TokenExpires);
         }
 
-        throw new Exception("refresh token is null");
-    }
     
     public void ResetPassword(ResetPasswordRequest model)
     {

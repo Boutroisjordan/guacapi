@@ -121,7 +121,7 @@ public class JwtUtils : IJwtUtils
         {
             Token = GetUniqueToken(),
             // token is valid for 7 days
-            TokenExpires = DateTime.UtcNow.AddDays(1),
+            TokenExpires = DateTime.UtcNow.AddMinutes(1),
             Created = DateTime.UtcNow,
         };
 
