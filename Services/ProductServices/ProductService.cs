@@ -52,7 +52,29 @@ public class ProductService : IProductService
 
 
 
-        var saveProduct = _context.Products.Add(product).Entity;
+        Product saveProduct = _context.Products.Add(product).Entity;
+        await _context.SaveChangesAsync();
+        
+        List<ProductOffer> ListProductOffer = new List<ProductOffer>() {
+            new ProductOffer() {
+                ProductId = saveProduct.ProductId,
+                QuantityProduct = 1
+            }
+        };
+
+
+
+        Offer offerunit = new Offer() {
+            Name = saveProduct.Name,
+            isB2B = false,
+            isDraft = false,
+            Price = product.Price,
+            ImageUrl = "string",
+            ProductOffers = ListProductOffer
+        };
+
+        
+        _context.Offers.Add(offerunit);
         await _context.SaveChangesAsync();
 
         return saveProduct;

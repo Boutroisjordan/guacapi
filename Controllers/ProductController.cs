@@ -14,14 +14,16 @@ public class ProductController : ControllerBase
     #region Fields
 
     private IProductService _productService;
+    private IOfferService _offerService;
 
     #endregion
 
     #region Constructors
 
-    public ProductController(IProductService productService)
+    public ProductController(IProductService productService, IOfferService offerService)
     {
         this._productService = productService;
+        this._offerService = offerService;
     }
 
     #endregion
