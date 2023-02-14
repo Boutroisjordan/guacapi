@@ -42,6 +42,7 @@ public class DataContext : DbContext
             .HasOne(po => po.Product)
             .WithMany(p => p.ProductOffers)
             .HasForeignKey(po => po.ProductId);
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<ProductOffer>()
             .HasOne(po => po.Offer)
