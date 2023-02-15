@@ -4,7 +4,7 @@ using GuacAPI.Entities;
 using GuacAPI.Models;
 
 namespace GuacAPI.Context;
- 
+
 public class DataContext : DbContext
 {
     #region Constructor
@@ -27,6 +27,8 @@ public class DataContext : DbContext
         modelBuilder.ApplyConfiguration(new OfferEntityConfiguration());
         modelBuilder.ApplyConfiguration(new RegionEntityConfiguration());
         modelBuilder.ApplyConfiguration(new ProductOfferEntityConfiguration());
+
+        modelBuilder.ApplyConfiguration(new RoleEntityConfiguration());
          modelBuilder.ApplyConfiguration(new InvoiceFurnisherEntityConfiguration());
          modelBuilder.ApplyConfiguration(new InvoiceFurnisherProductEntityConfiguration());
          modelBuilder.ApplyConfiguration(new CommentEntityConfiguration());
@@ -53,7 +55,7 @@ public class DataContext : DbContext
 
 //Invoices furnisher many to many
         modelBuilder.Entity<InvoiceFurnisherProduct>()
-        .HasKey(po => new { po.InvoiceFurnisherId, po.ProductId });
+            .HasKey(po => new { po.InvoiceFurnisherId, po.ProductId });
 
         modelBuilder.Entity<InvoiceFurnisherProduct>()
             .HasOne(cfp => cfp.InvoiceFurnisher)
@@ -93,6 +95,7 @@ public class DataContext : DbContext
     public DbSet<Appellation> Appellations { get; set; }
     public DbSet<User> Users { get; set; }
 
+
     public DbSet<Offer> Offers { get; set; }
     public DbSet<ProductOffer> ProductOffers {get; set;}
     public DbSet<InvoiceFurnisher> InvoicesFurnisher {get; set;}
@@ -101,5 +104,7 @@ public class DataContext : DbContext
     public DbSet<Order> Orders {get; set;}
     public DbSet<OrderStatus> OrderStatus {get; set;}
     public DbSet<OrderOffer> OrderOffers {get; set;}
+    public object RefreshTokens { get; internal set; }
 
 }
+

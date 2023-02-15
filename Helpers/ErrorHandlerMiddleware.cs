@@ -33,6 +33,16 @@ public class ErrorHandlerMiddleware
                     // not found error
                     response.StatusCode = (int)HttpStatusCode.NotFound;
                     break;
+
+                case UnauthorizedAccessException e:
+                    // not found error
+                    response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    break;
+                case Exception e:
+                    // unhandled error
+                    response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    break;
+                    
                 default:
                     // unhandled error
                     response.StatusCode = (int)HttpStatusCode.InternalServerError;
