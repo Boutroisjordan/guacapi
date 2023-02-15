@@ -25,7 +25,8 @@ public class OfferService : IOfferService
 
     public async Task<List<Offer>> GetAllOffers()
     {
-        var offers = await _context.Offers.ToListAsync();
+         var offers = await _context.Offers.Include(x => x.ProductOffers)
+        .ThenInclude(x => x.Product).ToListAsync();
         return offers;
     }
     public async Task<List<Offer>> GetDraftOffer()
