@@ -9,6 +9,7 @@ public class Product
     #region Properties
     public int ProductId { get; set; }
     [Required] public string Name { get; set; }
+    [Required] public string ImageUrl { get; set; }
     [Required] public int Price { get; set; }
     [Required] public int Stock { get; set; }
     public int Millesime { get; set; }
@@ -39,6 +40,7 @@ public class Product
 public class ProductRegister 
 {
     [Required] public string Name { get; set; }
+    [Required] public string ImageUrl { get; set; }
     [Required] public int Price { get; set; }
     [Required] public int Stock { get; set; }
     [Required] public int Millesime { get; set; }
