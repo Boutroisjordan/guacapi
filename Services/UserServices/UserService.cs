@@ -108,15 +108,14 @@ public class UserService : IUserService
         if (user.RefreshTokens != null)
         {
              // trouve moi les tokens qui sont actifs
-            var refreshToken = user.RefreshTokens.SingleOrDefault(x => x.TokenExpires > DateTime.UtcNow);
+            var refreshToken = user.RefreshTokens.FirstOrDefault(x => x.TokenExpires > DateTime.UtcNow || x.newTokenExpires > DateTime.UtcNow);
             if (refreshToken != null)
             {
                 // supprime les tokens qui sont inactifs
-                RemoveOldRefreshTokens(user);
-                _context.Update(user);
-                _context.SaveChanges();
+                user.RefreshTokens.Remove(refreshToken);
+                _context.Remove(refreshToken);
             }
-        
+
         }
        user.RefreshTokens.Add(tokenBdd);
         _context.Update(tokenBdd);
@@ -129,18 +128,24 @@ public class UserService : IUserService
     {
         // mais user peut etre null
 
-        var user = GetUser(id);
-        var refreshToken = user.RefreshTokens.SingleOrDefault(x => x.Token == token);
-  
+       var user =GetById(id);
+    if (user == null)
+    {
+        return null; // or throw an exception, depending on your needs
+    }
+
+    var tokenUser = user.RefreshTokens?.Find(x => x.UserId == id);
+    if (tokenUser == null)
+    {
+        return null; // or throw an exception, depending on your needs
+    }
+        var refreshToken = user.RefreshTokens.FirstOrDefault(x => x.Token == token);
+        if(refreshToken != null) {
+            user.RefreshTokens.Remove(refreshToken);
+            _context.Remove(refreshToken);
+        }
             refreshToken.newToken = _jwtUtils.GenerateRefreshToken(token).newToken;
             refreshToken.newTokenExpires = DateTime.UtcNow.AddDays(7);
-            _httpContextAccessor.HttpContext.Response.Cookies.Append("refreshToken", refreshToken.newToken, new CookieOptions
-            {
-                HttpOnly = true,
-                SameSite = SameSiteMode.Strict,
-                Secure = true,
-                Expires = refreshToken.newTokenExpires
-            });
             user.RefreshTokens.Add(refreshToken);
             _context.Update(refreshToken);
             _context.SaveChanges();

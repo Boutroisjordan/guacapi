@@ -100,9 +100,9 @@ namespace guacapi.Controllers
 
         [AllowAnonymous]
         [HttpPost("refresh-token")]
-    public IActionResult RefreshToken(int id)
+  public IActionResult RefreshToken(int id)
 {
-    var refreshToken = Request.Cookies["refreshToken"] ?? Request.Cookies["FirstToken"];
+  var refreshToken = Request.Cookies["refreshToken"] ?? Request.Cookies["FirstToken"];
             if (refreshToken == null)
             {
                 var user = _userService.GetById(id);
@@ -119,10 +119,19 @@ namespace guacapi.Controllers
                 }
                 if(tokenUser.TokenExpires < DateTime.UtcNow){
                     var newToken = _userService.RefreshToken(tokenUser.Token, id);
-                    SetTokenCookie(newToken.RefreshToken, id);
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Expires = DateTime.UtcNow.AddDays(7)
+                };
+                Response.Cookies.Append("refreshToken", newToken.RefreshToken, cookieOptions);
                     return StatusCode(201,newToken);
                 } else if(tokenUser.TokenExpires > DateTime.UtcNow && tokenUser.Token != null){
-                    SetTokenCookie(tokenUser.Token, id);
+                    var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Expires = tokenUser.TokenExpires
+                };
                     return StatusCode(201,tokenUser);
                 }
                 
@@ -138,18 +147,29 @@ namespace guacapi.Controllers
                 } 
             if(userByToken.RefreshTokens.Find(x => x.Token == refreshToken).TokenExpires < DateTime.UtcNow){
                  var newToken = _userService.RefreshToken(userByToken.RefreshTokens.Find(x => x.Token == refreshToken).Token, userByToken.Id);
-                SetTokenCookie(newToken.RefreshToken, userByToken.Id);
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Expires = DateTime.UtcNow.AddDays(7)
+                };
+                
             } else if (userByToken.RefreshTokens.Find(x => x.Token == refreshToken).newTokenExpires < DateTime.UtcNow && userByToken.RefreshTokens.Find(x => x.Token == refreshToken).newToken != null)
             {
                 return BadRequest(new { message = "Refresh token expired" });
             }
-            else if (userByToken.RefreshTokens.Find(x => x.Token == refreshToken).TokenExpires > DateTime.UtcNow && userByToken.RefreshTokens.Find(x => x.Token == refreshToken).Token != null)
+            else if (userByToken.RefreshTokens.Find(x => x.Token == refreshToken).newTokenExpires > DateTime.UtcNow && userByToken.RefreshTokens.Find(x => x.Token == refreshToken).newToken != null)
             {
-                SetTokenCookie(userByToken.RefreshTokens.Find(x => x.Token == refreshToken).Token, userByToken.Id);
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Expires = userByToken.RefreshTokens.Find(x => x.Token == refreshToken).newTokenExpires
+                };
                     return StatusCode(201,userByToken.RefreshTokens);
             }
             return StatusCode(404 , "User not found");
 }
+
+
 
         [HttpGet("GetAllUsers")]
         public IActionResult GetAll()
@@ -185,11 +205,11 @@ namespace guacapi.Controllers
 
         // helper methods
 
-        private void SetTokenCookie(string token,int id)
+ private void SetTokenCookie(string token,int id)
         {
             // append cookie with refresh token to the http response
             var user = _userService.GetById(id);
-            var tokenId = user.RefreshTokens.Find(x => x.Token == token);
+            var tokenId = user.RefreshTokens.Find(x => x.UserId == user.Id);
             if(tokenId == null) {
                 user.RefreshTokens.Find(x => x.newToken == token);
               var cookieOptionsRefresh = new CookieOptions
@@ -206,6 +226,8 @@ namespace guacapi.Controllers
             };
             Response.Cookies.Append("FirstToken", token, cookieOptions);
         }
+
+
 
        private IActionResult CheckTokenToBDD(string token, int id)
 {
