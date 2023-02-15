@@ -285,6 +285,10 @@ namespace GuacAPI.Migrations
                     b.Property<int>("FurnisherId")
                         .HasColumnType("int");
 
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Millesime")
                         .HasColumnType("int");
 
@@ -328,6 +332,7 @@ namespace GuacAPI.Migrations
                             AppellationId = 1,
                             DomainId = 1,
                             FurnisherId = 1,
+                            ImageUrl = "",
                             Millesime = 2010,
                             Name = "product 1",
                             Price = 12,
@@ -403,7 +408,6 @@ namespace GuacAPI.Migrations
                     b.ToTable("InvoiceFurnisher", (string)null);
                 });
 
-
             modelBuilder.Entity("Order", b =>
                 {
                     b.Property<int>("OrderId")
@@ -463,11 +467,9 @@ namespace GuacAPI.Migrations
 
                     b.ToTable("OrderStatus", (string)null);
 
-
                     b.HasData(
                         new
                         {
-
                             OrderStatusId = 1,
                             OrderStatusName = "Non payer"
                         },
@@ -495,7 +497,47 @@ namespace GuacAPI.Migrations
                         {
                             OrderStatusId = 6,
                             OrderStatusName = "Annuler"
+                        });
+                });
 
+            modelBuilder.Entity("Role", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Role");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Administrator",
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Client web",
+                            Name = "Client"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Fournisseur",
+                            Name = "Furnisher"
                         });
                 });
 
@@ -746,7 +788,6 @@ namespace GuacAPI.Migrations
                     b.Navigation("InvoicesFurnisherProduct");
                 });
 
-
             modelBuilder.Entity("Order", b =>
                 {
                     b.Navigation("OrderOffers");
@@ -755,7 +796,11 @@ namespace GuacAPI.Migrations
             modelBuilder.Entity("OrderStatus", b =>
                 {
                     b.Navigation("Orders");
+                });
 
+            modelBuilder.Entity("Role", b =>
+                {
+                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

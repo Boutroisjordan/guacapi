@@ -69,7 +69,7 @@ public class ProductService : IProductService
             isB2B = false,
             isDraft = false,
             Price = product.Price,
-            ImageUrl = "string",
+            ImageUrl = product.ImageUrl,
             ProductOffers = ListProductOffer
         };
 

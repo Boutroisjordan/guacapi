@@ -146,7 +146,7 @@ namespace guacapi.Controllers
                     return BadRequest();
                 } 
             if(userByToken.RefreshTokens.Find(x => x.Token == refreshToken).TokenExpires < DateTime.UtcNow){
-                 var newToken = _userService.RefreshToken(userByToken.RefreshTokens.Find(x => x.Token == refreshToken).Token, userByToken.Id);
+                 var newToken = _userService.RefreshToken(userByToken.RefreshTokens.Find(x => x.Token == refreshToken).Token, userByToken.UserId);
                 var cookieOptions = new CookieOptions
                 {
                     HttpOnly = true,
@@ -209,7 +209,7 @@ namespace guacapi.Controllers
         {
             // append cookie with refresh token to the http response
             var user = _userService.GetById(id);
-            var tokenId = user.RefreshTokens.Find(x => x.UserId == user.Id);
+            var tokenId = user.RefreshTokens.Find(x => x.UserId == user.UserId);
             if(tokenId == null) {
                 user.RefreshTokens.Find(x => x.newToken == token);
               var cookieOptionsRefresh = new CookieOptions
