@@ -14,9 +14,9 @@ public interface IDomainService
     Task<Domain> GetDomainById(int id);
     Task<Domain> GetDomainByName(string name);
 
-    Task<Domain> AddDomain(Domain domain);
+    Task<Domain> AddDomain(DomainRegister domain);
 
-    Task<Domain> UpdateDomain(int id, Domain domain);
+    Task<Domain> UpdateDomain(int id, DomainRegister domain);
     Task<Domain> DeleteDomain(int id);
 
 }

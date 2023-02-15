@@ -24,11 +24,11 @@ namespace GuacAPI.Migrations
 
             modelBuilder.Entity("GuacAPI.Entities.User", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("UserId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -57,7 +57,7 @@ namespace GuacAPI.Migrations
                     b.Property<DateTime?>("VerifiedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                    b.HasKey("UserId");
 
                     b.HasIndex("RoleId");
 
@@ -109,6 +109,38 @@ namespace GuacAPI.Migrations
                             AppellationId = 1,
                             Name = "IGP"
                         });
+                });
+
+            modelBuilder.Entity("GuacAPI.Models.Comment", b =>
+                {
+                    b.Property<int>("CommentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CommentId"));
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("OfferId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PreviousCommentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rate")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CommentId");
+
+                    b.HasIndex("OfferId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Comment", (string)null);
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Domain", b =>
@@ -204,6 +236,9 @@ namespace GuacAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OfferId"));
 
+                    b.Property<DateTime?>("Deadline")
+                        .HasColumnType("date");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -215,6 +250,12 @@ namespace GuacAPI.Migrations
 
                     b.Property<double>("Price")
                         .HasColumnType("float");
+
+                    b.Property<bool>("isB2B")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("isDraft")
+                        .HasColumnType("bit");
 
                     b.HasKey("OfferId");
 
@@ -362,44 +403,99 @@ namespace GuacAPI.Migrations
                     b.ToTable("InvoiceFurnisher", (string)null);
                 });
 
-            modelBuilder.Entity("Role", b =>
+
+            modelBuilder.Entity("Order", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("OrderId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
 
-                    b.Property<string>("Description")
-                        .IsRequired()
+                    b.Property<int>("OrderStatusId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("orderedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("OrderId");
+
+                    b.HasIndex("OrderStatusId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Order", (string)null);
+                });
+
+            modelBuilder.Entity("OrderOffer", b =>
+                {
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OfferId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("OrderId", "OfferId");
+
+                    b.HasIndex("OfferId");
+
+                    b.ToTable("OrderOffers");
+                });
+
+            modelBuilder.Entity("OrderStatus", b =>
+                {
+                    b.Property<int>("OrderStatusId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderStatusId"));
+
+                    b.Property<string>("OrderStatusName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.HasKey("OrderStatusId");
 
-                    b.HasKey("Id");
+                    b.ToTable("OrderStatus", (string)null);
 
-                    b.ToTable("Role");
 
                     b.HasData(
                         new
                         {
-                            Id = 1,
-                            Description = "Administrator",
-                            Name = "Admin"
+
+                            OrderStatusId = 1,
+                            OrderStatusName = "Non payer"
                         },
                         new
                         {
-                            Id = 2,
-                            Description = "Client web",
-                            Name = "Client"
+                            OrderStatusId = 2,
+                            OrderStatusName = "Payment refuser"
                         },
                         new
                         {
-                            Id = 3,
-                            Description = "Fournisseur",
-                            Name = "Furnisher"
+                            OrderStatusId = 3,
+                            OrderStatusName = "Payed"
+                        },
+                        new
+                        {
+                            OrderStatusId = 4,
+                            OrderStatusName = "En attente de Livraison"
+                        },
+                        new
+                        {
+                            OrderStatusId = 5,
+                            OrderStatusName = "Livré"
+                        },
+                        new
+                        {
+                            OrderStatusId = 6,
+                            OrderStatusName = "Annuler"
+
                         });
                 });
 
@@ -448,6 +544,25 @@ namespace GuacAPI.Migrations
                     b.Navigation("RefreshTokens");
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("GuacAPI.Models.Comment", b =>
+                {
+                    b.HasOne("GuacAPI.Models.Offer", "offer")
+                        .WithMany("Comments")
+                        .HasForeignKey("OfferId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GuacAPI.Entities.User", "user")
+                        .WithMany("Comments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("offer");
+
+                    b.Navigation("user");
                 });
 
             modelBuilder.Entity("GuacAPI.Models.InvoiceFurnisherProduct", b =>
@@ -540,6 +655,51 @@ namespace GuacAPI.Migrations
                     b.Navigation("Furnisher");
                 });
 
+            modelBuilder.Entity("Order", b =>
+                {
+                    b.HasOne("OrderStatus", "OrderStatus")
+                        .WithMany("Orders")
+                        .HasForeignKey("OrderStatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GuacAPI.Entities.User", "user")
+                        .WithMany("Orders")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("OrderStatus");
+
+                    b.Navigation("user");
+                });
+
+            modelBuilder.Entity("OrderOffer", b =>
+                {
+                    b.HasOne("GuacAPI.Models.Offer", "offer")
+                        .WithMany()
+                        .HasForeignKey("OfferId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Order", "order")
+                        .WithMany("OrderOffers")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("offer");
+
+                    b.Navigation("order");
+                });
+
+            modelBuilder.Entity("GuacAPI.Entities.User", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("Orders");
+                });
+
             modelBuilder.Entity("GuacAPI.Models.AlcoholType", b =>
                 {
                     b.Navigation("Products");
@@ -564,6 +724,8 @@ namespace GuacAPI.Migrations
 
             modelBuilder.Entity("GuacAPI.Models.Offer", b =>
                 {
+                    b.Navigation("Comments");
+
                     b.Navigation("ProductOffers");
                 });
 
@@ -584,9 +746,16 @@ namespace GuacAPI.Migrations
                     b.Navigation("InvoicesFurnisherProduct");
                 });
 
-            modelBuilder.Entity("Role", b =>
+
+            modelBuilder.Entity("Order", b =>
                 {
-                    b.Navigation("Users");
+                    b.Navigation("OrderOffers");
+                });
+
+            modelBuilder.Entity("OrderStatus", b =>
+                {
+                    b.Navigation("Orders");
+
                 });
 #pragma warning restore 612, 618
         }

@@ -2,7 +2,7 @@ using GuacAPI.Models;
 using GuacAPI.Context;
 using Microsoft.AspNetCore.Mvc;
 using GuacAPI.Services;
-
+using System.IO;
 namespace GuacAPI.Controllers;
  
 [Route("[controller]")]
@@ -12,14 +12,16 @@ public class OfferController : ControllerBase
     #region Fields
 
     private IOfferService _offerService;
+    private readonly IWebHostEnvironment _environment;
 
     #endregion
 
     #region Constructors
 
-    public OfferController(IOfferService offerService)
+    public OfferController(IOfferService offerService, IWebHostEnvironment environment)
     {
         this._offerService = offerService;
+        this._environment = environment;
     }
 
     #endregion
@@ -28,6 +30,20 @@ public class OfferController : ControllerBase
      public async Task<IActionResult> GetAllOffers()
      {
          var offerList = await _offerService.GetAllOffers();
+         if (offerList == null)
+         {
+             return BadRequest();
+         }
+         else if (offerList.Count == 0)
+         {
+             return NoContent();
+         }
+         return Ok(offerList);
+     }
+     [HttpGet("draft")]
+     public async Task<IActionResult> GetAllDraftOffers()
+     {
+         var offerList = await _offerService.GetDraftOffer();
          if (offerList == null)
          {
              return BadRequest();
@@ -88,10 +104,10 @@ public class OfferController : ControllerBase
       }
 
      [HttpPost]
-     public async Task<IActionResult> AddOne(Offer offer)
+     public async Task<IActionResult> AddOne(OfferRegister request)
      {
 
-         var addedOffer = await _offerService.AddOffer(offer);
+         var addedOffer = await _offerService.AddOffer(request);
 
          if (addedOffer == null)
          {
@@ -102,7 +118,7 @@ public class OfferController : ControllerBase
 
      [HttpPut]
      [Route("{id}")]
-     public async Task<IActionResult> UpdateOffer(int id, Offer request)
+     public async Task<IActionResult> UpdateOffer(int id, OfferRegister request)
      {
          var updatedOffer = await _offerService.UpdateOffer(id, request);
 
@@ -126,6 +142,52 @@ public class OfferController : ControllerBase
          }
 
          return Ok(offer);
+     }
+    [HttpPost("UploadFile")]
+     public async Task<String> UploadImage(IFormFile inputFile)
+     {
+        // bool Results = false;
+        try {
+            var file = Request.Form.Files[0];
+            string fName = file.FileName;
+            
+            string[] splitpath = file.FileName.Split('.');
+            var myUniqueFileName = string.Format(@"{0}." + splitpath[1], DateTime.Now.Ticks);
+            string path = Path.Combine("Images", myUniqueFileName);
+            string absolutePath = Path.Combine(_environment.ContentRootPath, path);
+            if(System.IO.File.Exists(absolutePath))
+            {
+                throw new Exception("file name already exist");
+            }
+            using (var stream = new FileStream(absolutePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+            // return $"{file.FileName} successfully uploaded to the Server";
+            return path;
+        } 
+        catch (Exception ex) {
+            throw new Exception($"error : {ex}");
+        }
+     }
+    [HttpGet("DeleteFile")]
+     public IActionResult DeleteImage(string path)
+     {
+        // bool Results = false;
+        try {
+            var completePath = Path.Combine(_environment.ContentRootPath, path);
+            if(!System.IO.File.Exists(completePath))
+            {
+                throw new Exception("file doesn't exist");
+            }
+
+            System.IO.File.Delete(completePath);
+            // return $"{file.FileName} successfully uploaded to the Server";
+            return Ok("Image Deleted");
+        } 
+        catch (Exception ex) {
+            throw new Exception($"error : {ex}");
+        }
      }
 }
 

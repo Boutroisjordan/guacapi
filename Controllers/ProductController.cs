@@ -14,14 +14,16 @@ public class ProductController : ControllerBase
     #region Fields
 
     private IProductService _productService;
+    private IOfferService _offerService;
 
     #endregion
 
     #region Constructors
 
-    public ProductController(IProductService productService)
+    public ProductController(IProductService productService, IOfferService offerService)
     {
         this._productService = productService;
+        this._offerService = offerService;
     }
 
     #endregion
@@ -57,6 +59,19 @@ public class ProductController : ControllerBase
 
         return Ok(product);
     }
+    [HttpGet]
+    [Route("byName/{name}")]
+    public async Task<IActionResult> GetByName(string name)
+    {
+        var product = await _productService.GetByName(name);
+
+        if (product == null)
+        {
+            return BadRequest();
+        }
+
+        return Ok(product);
+    }
 
     [HttpGet]
     [Route("stock/{id}")]
@@ -67,7 +82,7 @@ public class ProductController : ControllerBase
             return Ok(productStock);
         }
     [HttpPost, Authorize]
-    public async Task<IActionResult> AddOne(Product request)
+    public async Task<IActionResult> AddOne(ProductRegister request)
     {
         var addedProduct = await _productService.AddProduct(request);
 
@@ -81,7 +96,7 @@ public class ProductController : ControllerBase
 
     [HttpPut, Authorize]
     [Route("{id}")]
-    public async Task<IActionResult> UpdateProduct(int id, Product request)
+    public async Task<IActionResult> UpdateProduct(int id, ProductRegister request)
     {
         var updatedProduct = await _productService.UpdateProduct(id, request);
 

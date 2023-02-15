@@ -75,7 +75,7 @@ namespace guacapi.Controllers
                     return BadRequest();
                 }
 
-                await _userService.DeleteUser(user.Id);
+                await _userService.DeleteUser(user.UserId);
             }
 
             return Ok();

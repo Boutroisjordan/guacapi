@@ -54,14 +54,11 @@ public class RegionController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddOne(Region request)
+    public async Task<IActionResult> AddOne(RegionRegister request)
     {
         IActionResult result = this.BadRequest();
 
-        var addedRegion = await _regionService.AddRegion(new Region()
-        {
-            Name = request.Name
-        });
+        var addedRegion = await _regionService.AddRegion(request);
 
         if (addedRegion == null)
         {
@@ -73,7 +70,7 @@ public class RegionController : ControllerBase
     [HttpPut]
     [Route("{id}")]
 
-    public async Task<IActionResult> UpdateRegion(int id, Region request)
+    public async Task<IActionResult> UpdateRegion(int id, RegionRegister request)
     {
         var updatedRegion = await _regionService.UpdateRegion(id, request);
 

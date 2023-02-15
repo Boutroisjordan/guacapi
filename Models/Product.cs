@@ -9,6 +9,7 @@ public class Product
     #region Properties
     public int ProductId { get; set; }
     [Required] public string Name { get; set; }
+    [Required] public string ImageUrl { get; set; }
     [Required] public int Price { get; set; }
     [Required] public int Stock { get; set; }
     public int Millesime { get; set; }
@@ -34,4 +35,21 @@ public class Product
       public List<InvoiceFurnisherProduct> InvoicesFurnisherProduct {get; set;}
 
     #endregion
+}
+
+public class ProductRegister 
+{
+    [Required] public string Name { get; set; }
+    [Required] public string ImageUrl { get; set; }
+    [Required] public int Price { get; set; }
+    [Required] public int Stock { get; set; }
+    [Required] public int Millesime { get; set; }
+    [Required] public float AlcoholDegree { get; set; }
+    [Required] public string Reference { get; set; }
+     [Required]public int FurnisherId { get; set; }
+     [Required] public int DomainId {get; set;}
+     [Required] public int RegionId {get; set;}
+     [Required] public int AlcoholTypeId {get; set;}
+     [Required] public int AppellationId {get; set;}
+
 }

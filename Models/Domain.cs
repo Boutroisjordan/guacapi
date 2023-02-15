@@ -1,7 +1,7 @@
 namespace GuacAPI.Models;
 using System.Text.Json.Serialization;
  
-// Le domiane qui l'a produit
+
 public class Domain
 {
     #region Properties
@@ -9,10 +9,12 @@ public class Domain
     public string Name { get; set; }
     public List<Product> Products {get; set;}
     
-    public  Domain()
-    {
-        Products = new List<Product>();
-    }
-    
+    #endregion
+}
+public class DomainRegister
+{
+    #region Properties
+    public string Name { get; set; }
+      
     #endregion
 }

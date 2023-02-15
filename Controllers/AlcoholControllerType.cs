@@ -78,7 +78,7 @@ public class AlcoholControllerType : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddAlcoholType(AlcoholType type)
+    public async Task<IActionResult> AddAlcoholType(AlcoholTypeRegister type)
     {
         var addAlcohol = await _alcoholService.AddAlcoholType(type);
 
@@ -92,7 +92,7 @@ public class AlcoholControllerType : ControllerBase
 
     [HttpPut]
     [Route("{id}")]
-    public async Task<IActionResult> UpdateAlcoholType(int id, AlcoholType type)
+    public async Task<IActionResult> UpdateAlcoholType(int id, AlcoholTypeRegister type)
     {
         if (id <= 0)
         {

@@ -15,8 +15,8 @@ public interface IAlcoholService
     Task<AlcoholType> GetAlcoholTypeById(int id);
     Task<AlcoholType> GetAlcoholByLabel(string label);
 
-    Task<AlcoholType> AddAlcoholType(AlcoholType alcohol);
+    Task<AlcoholType> AddAlcoholType(AlcoholTypeRegister alcohol);
 
-    Task<AlcoholType> UpdateAlcoholType(int id, AlcoholType alcohol);
+    Task<AlcoholType> UpdateAlcoholType(int id, AlcoholTypeRegister alcohol);
     Task<AlcoholType> DeleteAlcoholType(int id);
 }

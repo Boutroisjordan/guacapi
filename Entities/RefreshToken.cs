@@ -17,11 +17,11 @@ public class RefreshToken
     public string newToken { get; set; }
     public DateTime newTokenExpires { get; set; }
     public DateTime Created { get; set; }
+
     public bool IsTokenExpired => DateTime.UtcNow >= TokenExpires;
     public bool IsNewTokenExpired => DateTime.UtcNow >= newTokenExpires;
     public bool IsActive => !IsNewTokenExpired;
     public int UserId { get; set; }
     
- 
 
 } // navigation property
