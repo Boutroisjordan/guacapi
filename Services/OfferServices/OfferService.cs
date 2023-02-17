@@ -126,7 +126,7 @@ public class OfferService : IOfferService
          //Trouve l'offre
         var entityOffers = await _context.Offers.Where(x => x.OfferId == id).FirstOrDefaultAsync();
         //Map Update dans une offre
-        Offer offer = _mapper.Map<Offer>(request);
+        Offer offer = _mapper.Map(request, entityOffers);
         offer.OfferId = id;
         offer.ProductOffers.ForEach(product =>
         {
