@@ -137,11 +137,16 @@ public class OfferService : IOfferService
                 productOffer.QuantityProduct = product.QuantityProduct;
             } else
             {
-                if (_context.Offers.Any(x => x.OfferId == product.OfferId) == true && _context.Products.Any(x => x.ProductId == product.ProductId) == true)
+                if (_context.Products.Any(x => x.ProductId == product.ProductId) == true)
                 {
-                    _context.ProductOffers.Add(product);
+                 ProductOffer po = new ProductOffer() {
+                        OfferId = id,
+                        ProductId = product.ProductId,
+                        QuantityProduct = product.QuantityProduct,
+                    };
+                    _context.ProductOffers.Add(po);
                 } else {
-                    throw new Exception("Offer id or Product id not found");
+                    throw new Exception(" Product id not found");
                 }
             }
         });
