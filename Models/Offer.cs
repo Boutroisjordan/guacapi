@@ -13,7 +13,7 @@ public class Offer
     public int OfferId { get; set; }
     public string Name {get; set;}
     public string Description {get; set;}
-    public double Price {get; set;}
+    public int Price {get; set;}
     public string ImageUrl {get; set;}
     public DateTime? Deadline {get; set;} = null;
     public bool isB2B {get; set;} = false;
@@ -30,7 +30,7 @@ public class OfferRegister
     #region Properties
     public string Name {get; set;}
     public string Description {get; set;}
-    public double Price {get; set;}
+    public int Price {get; set;}
     public string ImageUrl {get; set;}
     public DateTime? Deadline {get; set;} = null;
     public bool isB2B {get; set;} = false;

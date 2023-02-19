@@ -58,10 +58,10 @@ public class OfferService : IOfferService
         var offer = await _context.Offers
         .Include(o => o.ProductOffers)
         .ThenInclude(x => x.Product)
-        .Where(x => x.ProductOffers.Any(item => item.Product != null && item.Product.Stock - item.QuantityProduct >= 0) == true && x.OfferId == id)
+        .Where(x => x.ProductOffers.Any(item => item.Product != null && (item.Product.Stock - item.QuantityProduct >= 0 || item.Product.RestockOption == true)) == true && x.OfferId == id)
         .Where(x => x.Deadline == null || x.Deadline > DateTime.Now)
         .Where(x => x.isDraft == false)
-        .FirstOrDefaultAsync();
+        .ToListAsync();
 
         if (offer is null)
         {
@@ -75,7 +75,7 @@ public class OfferService : IOfferService
         var offer = await _context.Offers
         .Include(o => o.ProductOffers)
         .ThenInclude(x => x.Product)
-        .Where(x => x.ProductOffers.Any(item => item.Product != null && item.Product.Stock - item.QuantityProduct >= 0) == false || x.Deadline < DateTime.Now && x.Deadline != null)
+        .Where(x => x.ProductOffers.Any(item => item.Product != null && (item.Product.Stock - item.QuantityProduct >= 0 && item.Product.RestockOption == false)) || x.Deadline < DateTime.Now && x.Deadline != null)
         .ToListAsync();
 
         if (offer is null)
@@ -126,7 +126,7 @@ public class OfferService : IOfferService
          //Trouve l'offre
         var entityOffers = await _context.Offers.Where(x => x.OfferId == id).FirstOrDefaultAsync();
         //Map Update dans une offre
-        Offer offer = _mapper.Map<Offer>(request);
+        Offer offer = _mapper.Map(request, entityOffers);
         offer.OfferId = id;
         offer.ProductOffers.ForEach(product =>
         {
@@ -137,9 +137,14 @@ public class OfferService : IOfferService
                 productOffer.QuantityProduct = product.QuantityProduct;
             } else
             {
-                if (_context.Offers.Any(x => x.OfferId == product.OfferId) == true && _context.Products.Any(x => x.ProductId == product.ProductId) == true)
+                if (_context.Products.Any(x => x.ProductId == product.ProductId) == true)
                 {
-                    _context.ProductOffers.Add(product);
+                 ProductOffer po = new ProductOffer() {
+                        OfferId = id,
+                        ProductId = product.ProductId,
+                        QuantityProduct = product.QuantityProduct,
+                    };
+                    _context.ProductOffers.Add(po);
                 } else {
                     throw new Exception("Offer id or Product id not found");
                 }

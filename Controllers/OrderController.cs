@@ -47,18 +47,44 @@ public class OrderController : ControllerBase
          }
          return Ok(orderList);
      }
+     [HttpGet("statusOrder")]
+     public async Task<IActionResult> GetAllStatus()
+     {
+         var orderList = await _orderService.GetAllStatus();
+         if (orderList == null)
+         {
+             return BadRequest();
+         }
+         else if (orderList.Count == 0)
+         {
+             return NoContent();
+         }
+         return Ok(orderList);
+     }
 
      [HttpGet]
      [Route("{id}")]
      public async Task<IActionResult> GetOne(int id)
      {
-         var offer = await _orderService.GetOne(id);
+         var order = await _orderService.GetOne(id);
 
-         if (offer == null)
+         if (order == null)
          {
              return BadRequest();
          }
-         return this.Ok(offer);
+         return this.Ok(order);
+     }
+     [HttpGet]
+     [Route("commander/{id}")]
+     public async Task<IActionResult> Commander(int id)
+     {
+         var order = await _orderService.Commander(id);
+
+         if (order == null)
+         {
+             return BadRequest();
+         }
+         return this.Ok(order);
      }
 
 
@@ -90,7 +116,7 @@ public class OrderController : ControllerBase
 
      [HttpPut]
      [Route("{id}")]
-     public async Task<IActionResult> UpdateOffer(int id, OrderUpdateDTO request)
+     public async Task<IActionResult> UpdateOrder(int id, OrderUpdateDTO request)
      {
          var updatedOffer = await _orderService.Update(id, request);
 
@@ -100,6 +126,19 @@ public class OrderController : ControllerBase
          }
 
          return Ok(updatedOffer);
+     }
+     [HttpPut]
+     [Route("ChangeStatus/{id}/{statusId}")]
+     public async Task<IActionResult> UpdateOrder(int id, int statusId)
+     {
+         var updatedOrder = await _orderService.UpdateStatus(id, statusId);
+
+         if (updatedOrder == null)
+         {
+             BadRequest();
+         }
+
+         return Ok(updatedOrder);
      }
 
      [HttpDelete]

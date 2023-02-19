@@ -32,9 +32,8 @@ class ProductEntityConfiguration : IEntityTypeConfiguration<Product>
         //     .HasForeignKey(fp => fp.ProductId);
 
         builder.HasData(
-            new Product { ProductId = 1, Name = "product 1", ImageUrl="", Price = 12, Stock = 155, Millesime = 2010, AlcoholDegree = 2, Reference = "jndijfndjn", FurnisherId = 1, DomainId = 1, RegionId = 1, AlcoholTypeId = 1, AppellationId = 1 }
+            new Product { ProductId = 1, Name = "product 1", ImageUrl="", RestockOption=true ,Price = 12, Stock = 155, Millesime = 2010, AlcoholDegree = 2, Reference = "jndijfndjn", FurnisherId = 1, DomainId = 1, RegionId = 1, AlcoholTypeId = 1, AppellationId = 1 }
         );
-
 
     }
 

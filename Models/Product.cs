@@ -12,6 +12,7 @@ public class Product
     [Required] public string ImageUrl { get; set; }
     [Required] public int Price { get; set; }
     [Required] public int Stock { get; set; }
+    [Required] public bool RestockOption { get; set; } = true;
     public int Millesime { get; set; }
     [Required] public float AlcoholDegree { get; set; }
     [Required] public string Reference { get; set; }
@@ -43,6 +44,7 @@ public class ProductRegister
     [Required] public string ImageUrl { get; set; }
     [Required] public int Price { get; set; }
     [Required] public int Stock { get; set; }
+    [Required] public bool RestockOption { get; set; }
     [Required] public int Millesime { get; set; }
     [Required] public float AlcoholDegree { get; set; }
     [Required] public string Reference { get; set; }

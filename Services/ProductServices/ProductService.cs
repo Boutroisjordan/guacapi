@@ -50,8 +50,6 @@ public class ProductService : IProductService
 
         Product product = _mapper.Map<Product>(request);
 
-
-
         Product saveProduct = _context.Products.Add(product).Entity;
         await _context.SaveChangesAsync();
         
@@ -61,7 +59,6 @@ public class ProductService : IProductService
                 QuantityProduct = 1
             }
         };
-
 
 
         Offer offerunit = new Offer() {
@@ -104,10 +101,8 @@ public class ProductService : IProductService
 
 
             await _context.SaveChangesAsync();
-
             return product;
         // }
-
     }
 
     public async Task<List<Product>> DeleteProduct(int id)
