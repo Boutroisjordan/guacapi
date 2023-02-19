@@ -103,7 +103,7 @@ public class UserService : IUserService
         if (user == null || BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash) == false)
             throw new AppException("Username or password is incorrect");
         TimeSpan accessTokenExpires = TimeSpan.FromMinutes(15);
-        var jwtToken = _jwtUtils.GenerateAccessToken(user, accessTokenExpires);
+        var jwtToken = _jwtUtils.GenerateAccessToken(user);
 
 
 
@@ -123,8 +123,8 @@ public class UserService : IUserService
         user.RefreshTokens.Add(jwtToken);
         _context.Update(jwtToken);
         _context.SaveChanges();
-        if (jwtToken.Token != null) return new AuthenticateResponse(user, jwtToken.Token, jwtToken.Token, jwtToken.TokenExpires);
-        return new AuthenticateResponse(user, jwtToken.Token, jwtToken.newToken, jwtToken.newTokenExpires);
+        if (jwtToken.Token != null) return new AuthenticateResponse(user, jwtToken.Token, jwtToken.newToken, jwtToken.TokenExpires, jwtToken.newTokenExpires);
+        return new AuthenticateResponse(user, jwtToken.Token,jwtToken.newToken, jwtToken.TokenExpires, jwtToken.newTokenExpires);
     }
 
    public AuthenticateResponse RefreshToken(string token, int id)
@@ -154,10 +154,10 @@ public class UserService : IUserService
     _context.SaveChanges();
 
     // Generate a new JWT token for the user
-    var jwtToken = _jwtUtils.GenerateAccessToken(user , TimeSpan.FromMinutes(15));
+    var jwtToken = _jwtUtils.GenerateAccessToken(user);
 
     // Return an updated AuthenticateResponse object
-    return new AuthenticateResponse(user, jwtToken.newToken, newRefreshToken.Token, newRefreshToken.TokenExpires);
+    return new AuthenticateResponse(user, jwtToken.newToken, newRefreshToken.Token, newRefreshToken.TokenExpires, jwtToken.newTokenExpires);
 }
     
     public void ResetPassword(ResetPasswordRequest model)

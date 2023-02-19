@@ -104,7 +104,7 @@ public class DataContext : DbContext
     public DbSet<Order> Orders {get; set;}
     public DbSet<OrderStatus> OrderStatus {get; set;}
     public DbSet<OrderOffer> OrderOffers {get; set;}
-    public object RefreshTokens { get; internal set; }
+    public DbSet<RefreshToken> RefreshTokens { get;  set; }
 
 }
 
