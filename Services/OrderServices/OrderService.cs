@@ -168,7 +168,7 @@ public class OrderService : IOrderService
                         InvoiceFurnisher facture = new InvoiceFurnisher() {
                             FurnisherId = productItem.Product.FurnisherId,
                             InvoicesFurnisherProduct = new List<InvoiceFurnisherProduct>() {
-                                new InvoiceFurnisherProduct() {ProductId = productItem.ProductId, QuantityProduct = Math.Abs(totalQueryProduct)}
+                                new InvoiceFurnisherProduct() {ProductId = productItem.ProductId, QuantityProduct = product.Stock < 0 ? totalQueryProduct: Math.Abs(result)}
                             },
                             Date = DateTime.Now,
                             InvoiceNumber = "your invoice number"
