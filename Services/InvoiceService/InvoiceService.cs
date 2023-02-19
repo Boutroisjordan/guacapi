@@ -72,16 +72,6 @@ public class InvoiceService : IInvoiceService
 
     public async Task<InvoiceFurnisher> UpdateInvoiceFurnisher(InvoiceFurnisherUpdate request, int id)
     {
-        // var invoiceFurnisher = await _context.InvoicesFurnisher.FirstOrDefaultAsync(u => u.InvoiceFurnisherId == id);
-        // if (invoiceFurnisher == null) return null;
-
-        // InvoiceFurnisher addedInvoice = _mapper.Map(request, invoiceFurnisher);
-
-
-        // // user.Username = request.Username;
-        // await _context.SaveChangesAsync();
-        // return addedInvoice;
-
         //Récupérer la facture
         var entityInvoice = await _context.InvoicesFurnisher.Where(x => x.InvoiceFurnisherId == id).FirstOrDefaultAsync();
 
@@ -132,5 +122,20 @@ public class InvoiceService : IInvoiceService
         return invoiceFurnisher;
     }
 
+    public async Task<InvoiceFurnisher> ChangeStatus(int id, int StatusId) {
+        var invoice = await _context.InvoicesFurnisher.Include(x => x.InvoicesFurnisherProduct).ThenInclude(y => y.Product).Where(x => x.InvoiceFurnisherId == id).FirstOrDefaultAsync();
+        
+        invoice.InvoicesFurnisherProduct.ForEach(itemProduct => {
+            var product = _context.Products.Find(itemProduct.ProductId);
+
+            if(product is null) {
+                throw new Exception("Product doesn't find");
+            }
+
+            product.Stock += itemProduct.QuantityProduct;
+        });
+
+        return invoice;
+    }
 
 }

@@ -9,5 +9,6 @@ public interface IInvoiceService
     Task<List<InvoiceFurnisher>> GetAllInvoicesFurnisher();
     Task<InvoiceFurnisher> GetInvoiceFurnisher(int id);
     Task<InvoiceFurnisher> UpdateInvoiceFurnisher(InvoiceFurnisherUpdate request, int id);
+    Task<InvoiceFurnisher> ChangeStatus(int id, int StatusId);
 
 }

@@ -10,6 +10,7 @@ public class Order
 {
   public int OrderId { get; set; }
   public int UserId {get; set;}
+  public int Total {get; set;}
   public User user {get; set;}
   public List<OrderOffer> OrderOffers {get; set;}
   public DateTime orderedAt {get; set;} = DateTime.Today;

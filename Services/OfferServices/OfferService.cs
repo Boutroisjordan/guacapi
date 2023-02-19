@@ -58,10 +58,10 @@ public class OfferService : IOfferService
         var offer = await _context.Offers
         .Include(o => o.ProductOffers)
         .ThenInclude(x => x.Product)
-        .Where(x => x.ProductOffers.Any(item => item.Product != null && item.Product.Stock - item.QuantityProduct >= 0) == true && x.OfferId == id)
+        .Where(x => x.ProductOffers.Any(item => item.Product != null && (item.Product.Stock - item.QuantityProduct >= 0 || item.Product.RestockOption == true)) == true && x.OfferId == id)
         .Where(x => x.Deadline == null || x.Deadline > DateTime.Now)
         .Where(x => x.isDraft == false)
-        .FirstOrDefaultAsync();
+        .ToListAsync();
 
         if (offer is null)
         {
@@ -75,7 +75,7 @@ public class OfferService : IOfferService
         var offer = await _context.Offers
         .Include(o => o.ProductOffers)
         .ThenInclude(x => x.Product)
-        .Where(x => x.ProductOffers.Any(item => item.Product != null && item.Product.Stock - item.QuantityProduct >= 0) == false || x.Deadline < DateTime.Now && x.Deadline != null)
+        .Where(x => x.ProductOffers.Any(item => item.Product != null && (item.Product.Stock - item.QuantityProduct >= 0 && item.Product.RestockOption == false)) || x.Deadline < DateTime.Now && x.Deadline != null)
         .ToListAsync();
 
         if (offer is null)

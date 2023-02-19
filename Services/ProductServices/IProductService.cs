@@ -5,7 +5,6 @@ namespace GuacAPI.Services;
 public interface IProductService
 {
 
-
     Task<List<Product>> GetAllProducts();
     Task<Product> GetOne(int id);
     Task<Product> GetByName(string name);
