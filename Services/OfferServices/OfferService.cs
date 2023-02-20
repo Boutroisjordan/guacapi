@@ -6,7 +6,7 @@ using AutoMapper;
 using GuacAPI.Helpers;
 
 namespace GuacAPI.Services;
- 
+
 public class OfferService : IOfferService
 {
     #region Fields
@@ -25,8 +25,8 @@ public class OfferService : IOfferService
 
     public async Task<List<Offer>> GetAllOffers()
     {
-         var offers = await _context.Offers.Include(x => x.ProductOffers)
-        .ThenInclude(x => x.Product).ToListAsync();
+        var offers = await _context.Offers.Include(x => x.ProductOffers)
+       .ThenInclude(x => x.Product).ToListAsync();
         return offers;
     }
     public async Task<List<Offer>> GetDraftOffer()
@@ -67,7 +67,7 @@ public class OfferService : IOfferService
         {
             return false;
         }
-        
+
         return true;
     }
     public async Task<List<Offer>> GetUnavailableOffers()
@@ -113,78 +113,30 @@ public class OfferService : IOfferService
     {
 
         var offer = _mapper.Map<Offer>(request);
-        
+
         var addedOffer = _context.Offers.Add(offer).Entity;
         await _context.SaveChangesAsync();
-        
+
         return addedOffer;
     }
 
-     public async Task<Offer> UpdateOffer(int id, OfferRegister request)
-     {
+    public async Task<Offer> UpdateOffer(int id, OfferRegister request)
+    {
 
          //Trouve l'offre
-        var entityOffers = await _context.Offers.Where(x => x.OfferId == id).FirstOrDefaultAsync();
+        var entityOffers = _context.Offers.Include(x => x.ProductOffers).Where(x => x.OfferId == id).FirstOrDefault();
+
         //Map Update dans une offre
         Offer offer = _mapper.Map(request, entityOffers);
         offer.OfferId = id;
-        offer.ProductOffers.ForEach(product =>
-        {
-            var productOffer = _context.ProductOffers.FirstOrDefault(x => x.OfferId == product.OfferId && x.ProductId == product.ProductId);
-            if (productOffer != null)
-            {
-                Console.Write($"achanger productOffer : {productOffer}");
-                productOffer.QuantityProduct = product.QuantityProduct;
-            } else
-            {
-                if (_context.Products.Any(x => x.ProductId == product.ProductId) == true)
-                {
-                 ProductOffer po = new ProductOffer() {
-                        OfferId = id,
-                        ProductId = product.ProductId,
-                        QuantityProduct = product.QuantityProduct,
-                    };
-                    _context.ProductOffers.Add(po);
-                } else {
-                    throw new Exception(" Product id not found");
-                }
-            }
-        });
-
-
-        var exceptItems = entityOffers.ProductOffers.Except(offer.ProductOffers);
-
-        if (exceptItems != null)
-        {
-            foreach (var item in exceptItems)
-            {
-                _context.ProductOffers.Remove(item);
-            }
-        }
 
         await _context.SaveChangesAsync();
-        // Offer newOffer = _mapper.Map(offer, entityOffers);
-
-
-        // entityOffers = offer;
-
-        // entityOffers.ProductOffers = offer.ProductOffers;
-        
-        entityOffers.Deadline = offer.Deadline;
-        entityOffers.Name = offer.Name;
-        entityOffers.ImageUrl = offer.ImageUrl;
-        entityOffers.isB2B = offer.isB2B;
-        entityOffers.isDraft = offer.isDraft;
-        entityOffers.Price = offer.Price;
-
-
-        await _context.SaveChangesAsync();
-
-
 
         return entityOffers;
         // return newOffer;
-}
+    }
+
+
 
 
 

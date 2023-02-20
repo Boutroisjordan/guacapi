@@ -50,6 +50,7 @@ public class ProductRegister
     [Required] public string Reference { get; set; }
      [Required]public int FurnisherId { get; set; }
      [Required] public int DomainId {get; set;}
+    //  [Required] public string DomainName {get; set;}
      [Required] public int RegionId {get; set;}
      [Required] public int AlcoholTypeId {get; set;}
      [Required] public int AppellationId {get; set;}

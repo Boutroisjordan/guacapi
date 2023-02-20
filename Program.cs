@@ -21,8 +21,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 //Db context
-builder.Services.AddDbContext<DataContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<DataContext>(options => {
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.EnableSensitiveDataLogging(true);
+});
+
 
 //Instancie la class DefaultProductRepository à chaque fois qu'il rencontre une Interface IProductRepository (interface ne s'intanscie pas toute seule)
 //builder.Services.AddScoped<IProductRepository, DefaultProductRepository>();

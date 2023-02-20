@@ -48,6 +48,12 @@ public class ProductService : IProductService
 
         // var furnisherById = await _context.Furnishers.FindAsync(request.FurnisherId);
 
+    // var checkDomain = _context.Domains.Where(x => x.Name == request.DomainName).FirstOrDefault();
+    // var newDomain
+    // if(checkDomain is null) {
+    //    newDomain = _context.Domains.Add(request.DomainName)
+    // }
+
         Product product = _mapper.Map<Product>(request);
 
         Product saveProduct = _context.Products.Add(product).Entity;
