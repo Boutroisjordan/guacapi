@@ -20,7 +20,7 @@ namespace guacapi.Controllers
     {
         private readonly IUserService _userService;
         private readonly IJwtUtils _jwtUtils;
-          private readonly AppSettings _appSettings;
+        private readonly AppSettings _appSettings;
         private readonly DataContext _context;
         public AuthController(IUserService userService, IJwtUtils jwtUtils, IOptions<AppSettings> appSettings, DataContext context)
         {
@@ -28,7 +28,7 @@ namespace guacapi.Controllers
             _jwtUtils = jwtUtils;
             _appSettings = appSettings.Value;
             _context = context;
-          
+
         }
 
 
@@ -104,88 +104,64 @@ namespace guacapi.Controllers
         {
             // Supprimer tous les cookies de token
             Response.Cookies.Delete("refreshToken");
-            Response.Cookies.Delete("FirstToken");
+            Response.Cookies.Delete("AccessToken");
 
             var response = _userService.Login(model);
-        
-           if (response.RefreshToken != null) {
-        SetTokenCookie(response.JwtToken, response.Id, response.RefreshToken, response.TokenExpires, response.RefreshExpires);
-           }
-           
-          
-           
+
+            if (response.RefreshToken != null)
+            {
+                SetTokenCookie(response.JwtToken, response.Id, response.RefreshToken, response.TokenExpires, response.RefreshExpires);
+            }
+
             return StatusCode(200, response);
-        
+
         }
 
 
-        [HttpPost("refresh-token")]
-  public IActionResult RefreshToken(int userId)
-{
-    var refreshToken = Request.Cookies["refreshToken"] ?? Request.Cookies["FirstToken"];
-
-    if (refreshToken != null)
-    {
-        try
+        [HttpPost("RefreshToken")]
+        public IActionResult RefreshToken()
         {
-        
-            var principal = _jwtUtils.GetPrincipalFromToken(refreshToken, _appSettings.Secret);
-            var userIdClaim = principal.Claims.FirstOrDefault(c => c.Type ==  "id" );
-            if (userIdClaim != null)
+            var refreshToken = Request.Cookies["refreshToken"];
+
+            if (refreshToken != null)
             {
-                var userIdFromToken = int.Parse(userIdClaim.Value);
-                if (userIdFromToken == userId)
+                try
                 {
-                    var user = _userService.GetById(userId);
+
+                    var user = _userService.GetUserByRefreshToken(refreshToken);
+
                     if (user != null)
                     {
-                        var refreshTokenFromDb = user.RefreshTokens.FirstOrDefault(rt => rt.Token == refreshToken);
-                        if (refreshTokenFromDb != null)
+                        if (user.RefreshToken != null && user.RefreshToken.Token != null && user.RefreshToken.TokenExpires > DateTime.UtcNow)
                         {
-                            if (!refreshTokenFromDb.IsActive)
-                            {
-                                return BadRequest(new { message = "Refresh token is no longer active" });
-                            }
-
-                            var newAccessToken = _jwtUtils.GenerateAccessToken(user);
-                            var newRefreshToken = _jwtUtils.GenerateRefreshToken(user);
-                            refreshTokenFromDb.TokenExpires = DateTime.UtcNow.AddDays(7);
-                            refreshTokenFromDb.newTokenExpires = DateTime.UtcNow.AddMinutes(15);
-                            refreshTokenFromDb.newToken = newRefreshToken.newToken;
-                            _context.Update(refreshTokenFromDb);
-                            _context.SaveChanges();
-
-                            var cookieOptions = new CookieOptions
-                            {
-                                HttpOnly = true,
-                                Expires = DateTime.UtcNow.AddDays(7)
-                            };
-                            Response.Cookies.Append("refreshToken", newRefreshToken.newToken, cookieOptions);
-
-                            return StatusCode(201, new
-                            {
-                                access_token = newAccessToken,
-                                refresh_token = newRefreshToken
-                            });
+                            return Unauthorized(new { message = "Encore valable fdp" });
                         }
+
+                        var newRefreshToken = _jwtUtils.GenerateRefreshToken(user);
+                        user.RefreshToken.TokenExpires = DateTime.UtcNow.AddHours(1);
+                        user.RefreshToken.Token = newRefreshToken.Token;
+                        _context.Update(user);
+                        _context.SaveChanges();
+
+                        var cookieOptions = new CookieOptions
+                        {
+                            HttpOnly = true,
+                            Expires = DateTime.UtcNow.AddHours(1)
+                        };
+                        Response.Cookies.Append("AccessToken", newRefreshToken.Token, cookieOptions);
+
+                        return Ok(newRefreshToken.Token);
                     }
+
+                }
+                catch (SecurityTokenException)
+                {
+                    return Unauthorized(new { message = "Unauthorized" });
                 }
             }
+
+            return Unauthorized(new { message = "Unauthorized" });
         }
-        catch (SecurityTokenException)
-        {
-            return BadRequest(new { message = "Invalid refresh token" });
-        }
-    }
-
-    return BadRequest(new { message = "No refresh token found" });
-}
-
-
-
-
-
-
 
         [HttpGet("GetAllUsers")]
         public IActionResult GetAll()
@@ -208,7 +184,7 @@ namespace guacapi.Controllers
         public IActionResult GetRefreshTokens(int id)
         {
             var user = _userService.GetById(id);
-            return Ok(user.RefreshTokens);
+            return Ok(user.RefreshToken);
         }
 
         [HttpPut("UpdateUser/{id}")]
@@ -222,99 +198,97 @@ namespace guacapi.Controllers
             return Ok();
         }
 
+        [HttpGet("GetUserByToken")]
+        public IActionResult GetUserByToken()
+        {
+            var refreshToken = Request.Cookies["refreshToken"];
+            if (refreshToken != null)
+            {
+                var user = _userService.GetUserByRefreshToken(refreshToken);
+                if (user == null)
+                {
+                    return BadRequest();
+                }
+
+                return Ok(user);
+            }
+
+            return Unauthorized(new { message = "Unauthorized" });
+        }
+
         // helper methods
 
-      private void SetTokenCookie(string token, int id, string refreshToken, DateTime tokenExpires, DateTime newTokenExpires)
-{
-    // append cookie with refresh token to the http response
-    var user = _userService.GetById(id);
-        
-    var cookieOptionsRefresh = new CookieOptions
-    {
-        HttpOnly = true,
-        Expires = newTokenExpires
-    };
-    Response.Cookies.Append("refreshToken", refreshToken, cookieOptionsRefresh);
-
-    var cookieOptions = new CookieOptions
-    {
-        HttpOnly = true,
-        Expires = tokenExpires
-    };
-    Response.Cookies.Append("FirstToken", token, cookieOptions);
-}
-
-
-
-
-        private IActionResult CheckTokenToBDD(string token, int id)
+        private void SetTokenCookie(string token, int id, string refreshToken, DateTime tokenExpires, DateTime newTokenExpires)
         {
-            var user = _userService.GetById(id);
-            var tokenId = user.RefreshTokens.Find(x => x.Token == token);
-            if (tokenId.TokenExpires < DateTime.UtcNow && tokenId.Token != null)
+            // append cookie with refresh token to the http response
+            var cookieToken = Request.Cookies["refreshToken"];
+            if (cookieToken == null)
             {
-                user.RefreshTokens.Remove(user.RefreshTokens.Find(x => x.Token == token));
-
-                return Unauthorized(new { message = "Unauthorized" });
-            }
-
-            if (tokenId == null)
-            {
-                if (user.RefreshTokens.Find(x => x.newToken == token).newToken != null)
+                var cookieOptionsRefresh = new CookieOptions
                 {
-                    if (user.RefreshTokens.Find(x => x.newToken == token).newTokenExpires < DateTime.UtcNow)
-                    {
-                        user.RefreshTokens.Remove(user.RefreshTokens.Find(x => x.newToken == token));
+                    HttpOnly = true,
+                    Expires = newTokenExpires
+                };
+                Response.Cookies.Append("refreshToken", refreshToken, cookieOptionsRefresh);
 
-                        return Unauthorized(new { message = "Unauthorized" });
-                    }
-                    else
-                    {
-                        return StatusCode(201, user.RefreshTokens.Find(x => x.newToken == token));
-                    }
-                }
-                else
+                var cookieOptions = new CookieOptions
                 {
-                    return Unauthorized(new { message = "Unauthorized" });
+                    HttpOnly = true,
+                    Expires = tokenExpires
+                };
+                Response.Cookies.Append("AccessToken", token, cookieOptions);
+            }
+            var user = _userService.GetUserByRefreshToken(cookieToken);
+            if (user != null && user.RefreshToken.newToken != null && user.RefreshToken.newTokenExpires > DateTime.UtcNow)
+            {
+                if (user.RefreshToken.TokenExpires < DateTime.UtcNow)
+                {
+                    var cookieOptionsRefreshAccess = new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Expires = tokenExpires
+                    };
+                    Response.Cookies.Append("refreshToken", refreshToken, cookieOptionsRefreshAccess);
                 }
-            };
-            return StatusCode(201, user.RefreshTokens.Find(x => x.Token == token));
-        }
-
-        private string checkTokenHeader()
-        {
-            var token = Request.Cookies["refreshToken"] ?? Request.Cookies["FirstToken"];
-            if (token != null)
-            {
-                return token;
             }
-            throw new Exception("Refresh token is missing");
         }
 
-        private string IpAddress()
-        {
-            // get source ip address for the current request
-            if (Request.Headers.ContainsKey("X-Forwarded-For"))
-                return Request.Headers["X-Forwarded-For"]!;
-            else
-                return HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString()!;
-        }
 
-        private RefreshToken GetRefreshToken(string ipAddress)
-        {
-            var users = _userService.GetAll();
 
-            foreach (var user in users)
-            {
-                //     var refreshToken = user.RefreshTokens.FirstOrDefault(x => x.IpAddress == ipAddress);
 
-                //     if (refreshToken != null)
-                //     {
-                //         return refreshToken;
-                //     }
-            }
+        // private IActionResult CheckTokenToBDD(string token, int id)
+        // {
+        // var user = _userService.GetById(id);
+        // var tokenId = user.RefreshTokens.Find(x => x.Token == token);
+        // if (tokenId.TokenExpires < DateTime.UtcNow && tokenId.Token != null)
+        // {
+        //     user.RefreshTokens.Remove(user.RefreshTokens.Find(x => x.Token == token));
 
-            return null;
-        }
+        //     return Unauthorized(new { message = "Unauthorized" });
+        // }
+
+        // if (tokenId == null)
+        // {
+        //     if (user.RefreshTokens.Find(x => x.newToken == token).newToken != null)
+        //     {
+        //         if (user.RefreshTokens.Find(x => x.newToken == token).newTokenExpires < DateTime.UtcNow)
+        //         {
+        //             user.RefreshTokens.Remove(user.RefreshTokens.Find(x => x.newToken == token));
+
+        //             return Unauthorized(new { message = "Unauthorized" });
+        //         }
+        //         else
+        //         {
+        //             return StatusCode(201, user.RefreshTokens.Find(x => x.newToken == token));
+        //         }
+        //     }
+        //     else
+        //     {
+        //         return Unauthorized(new { message = "Unauthorized" });
+        //     }
+        // };
+        // return StatusCode(201, user.RefreshTokens.FirstOr(x => x.Token == token));
     }
+
+
 }

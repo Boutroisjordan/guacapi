@@ -21,7 +21,7 @@ public class User
 
 
     [JsonIgnore] public string PasswordHash { get; set; }
-    [JsonIgnore] public List<RefreshToken> RefreshTokens { get; set; }
+    [JsonIgnore] public RefreshToken RefreshToken { get; set; }
 
 
     public List<Comment> Comments {get; set;}

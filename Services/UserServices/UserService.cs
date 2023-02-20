@@ -96,61 +96,42 @@ public class UserService : IUserService
         _context.SaveChanges();
     }
 
-    public AuthenticateResponse Login(AuthenticateRequest model)
-    {
-        var user = _context.Users.SingleOrDefault(u => u.Username == model.Username);
-        
-        if (user == null || BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash) == false)
-            throw new AppException("Username or password is incorrect");
-        TimeSpan accessTokenExpires = TimeSpan.FromMinutes(15);
-        var jwtToken = _jwtUtils.GenerateAccessToken(user);
-
-
-
-        // si y a deja un token, le supprimer et en creer un nouveau 
-        if (user.RefreshTokens != null)
-        {
-             // trouve moi les tokens qui sont actifs
-            var refreshToken = user.RefreshTokens.FirstOrDefault(x => x.TokenExpires > DateTime.UtcNow || x.newTokenExpires > DateTime.UtcNow);
-            if (refreshToken != null)
-            {
-                // supprime les tokens qui sont inactifs
-                user.RefreshTokens.Remove(refreshToken);
-                _context.Remove(refreshToken);
-            }
-        }
-        // ajoute le nouveau token
-        user.RefreshTokens.Add(jwtToken);
-        _context.Update(jwtToken);
-        _context.SaveChanges();
-        if (jwtToken.Token != null) return new AuthenticateResponse(user, jwtToken.Token, jwtToken.newToken, jwtToken.TokenExpires, jwtToken.newTokenExpires);
-        return new AuthenticateResponse(user, jwtToken.Token,jwtToken.newToken, jwtToken.TokenExpires, jwtToken.newTokenExpires);
-    }
-
-   public AuthenticateResponse RefreshToken(string token, int id)
+   public AuthenticateResponse Login(AuthenticateRequest model)
 {
-    var user = GetById(id);
+    var user = _context.Users.SingleOrDefault(u => u.Username == model.Username);
+
+    if (user == null || BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash) == false)
+        throw new AppException("Username or password is incorrect");
+
+    var jwtToken = _jwtUtils.GenerateAccessToken(user);
+
+    // Save changes to the database
+    _context.SaveChanges();
+
+    return new AuthenticateResponse(user, jwtToken.Token, jwtToken.newToken, jwtToken.TokenExpires, jwtToken.newTokenExpires);
+}
+
+
+
+    public AuthenticateResponse RefreshToken(string token, int id)
+{
+    var user = GetUserByRefreshToken(token);
+
     if (user == null)
     {
         return null;
     }
-
-    var refreshToken = user.RefreshTokens.FirstOrDefault(x => x.Token == token);
-    if (refreshToken == null)
-    {
-        return null;
-    }
-
+  
     // Generate a new refresh token for the user
     var newRefreshToken = _jwtUtils.GenerateRefreshToken(user);
 
     // Update the old refresh token with the new refresh token
-    refreshToken.newToken = newRefreshToken.Token;
-    refreshToken.newTokenExpires = newRefreshToken.TokenExpires;
+    user.RefreshToken.newToken = newRefreshToken.Token;
+    user.RefreshToken.newTokenExpires = newRefreshToken.TokenExpires;
 
     // Update the user and refresh token in the database
     _context.Update(user);
-    _context.Update(refreshToken);
+    _context.Update(newRefreshToken);
     _context.SaveChanges();
 
     // Generate a new JWT token for the user
@@ -200,11 +181,11 @@ public class UserService : IUserService
 
     public User GetUserByRefreshToken(string token)
     {
+    
         var user = _context.Users.SingleOrDefault(u =>
-            u.RefreshTokens != null && u.RefreshTokens.Any(t => t.Token == token || t.newToken == token));
-        Console.WriteLine(token +  "dans le service getUseByRefreshToken");
-        if (user == null)
-            throw new AppException("Invalid token bite 5");
+             u.RefreshToken != null && u.RefreshToken.newToken == token);
+        
+        if (user == null) throw new KeyNotFoundException("User not found");
         return user;
     }
 
@@ -214,9 +195,9 @@ public class UserService : IUserService
     private void RemoveOldRefreshTokens(User user)
     {
         // remove nez refresh tokens that have expired
-       // tu supprimes le token le plus ancien 
-        user.RefreshTokens.Remove(user.RefreshTokens.OrderBy(x => x.TokenExpires).First());
-       
+        // tu supprimes le token le plus ancien 
+        return ;
+
     }
 
 

@@ -4,6 +4,7 @@ using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuacAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230220183713_One to one refresh")]
+    partial class Onetoonerefresh
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,7 +56,7 @@ namespace GuacAPI.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("RefreshToken");
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("GuacAPI.Entities.User", b =>
@@ -578,7 +581,7 @@ namespace GuacAPI.Migrations
             modelBuilder.Entity("GuacAPI.Entities.RefreshToken", b =>
                 {
                     b.HasOne("GuacAPI.Entities.User", "User")
-                        .WithOne("RefreshToken")
+                        .WithOne("RefreshTokens")
                         .HasForeignKey("GuacAPI.Entities.RefreshToken", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -748,7 +751,7 @@ namespace GuacAPI.Migrations
 
                     b.Navigation("Orders");
 
-                    b.Navigation("RefreshToken");
+                    b.Navigation("RefreshTokens");
                 });
 
             modelBuilder.Entity("GuacAPI.Models.AlcoholType", b =>
