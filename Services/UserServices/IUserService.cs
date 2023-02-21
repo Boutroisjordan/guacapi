@@ -15,7 +15,7 @@ public interface IUserService
     Task<User> DeleteUser(int id);
     void Register(RegisterRequest request);
     AuthenticateResponse Login(AuthenticateRequest request);
-    AuthenticateResponse RefreshToken(string token, int id);
+
     User GetUserByRefreshToken(string token);
     void Update(int id, UpdateRequest model);
     

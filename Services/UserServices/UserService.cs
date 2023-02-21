@@ -106,6 +106,7 @@ public class UserService : IUserService
     var jwtToken = _jwtUtils.GenerateAccessToken(user);
 
     // Save changes to the database
+    
     _context.SaveChanges();
 
     return new AuthenticateResponse(user, jwtToken.Token, jwtToken.newToken, jwtToken.TokenExpires, jwtToken.newTokenExpires);
@@ -113,33 +114,7 @@ public class UserService : IUserService
 
 
 
-    public AuthenticateResponse RefreshToken(string token, int id)
-{
-    var user = GetUserByRefreshToken(token);
-
-    if (user == null)
-    {
-        return null;
-    }
   
-    // Generate a new refresh token for the user
-    var newRefreshToken = _jwtUtils.GenerateRefreshToken(user);
-
-    // Update the old refresh token with the new refresh token
-    user.RefreshToken.newToken = newRefreshToken.Token;
-    user.RefreshToken.newTokenExpires = newRefreshToken.TokenExpires;
-
-    // Update the user and refresh token in the database
-    _context.Update(user);
-    _context.Update(newRefreshToken);
-    _context.SaveChanges();
-
-    // Generate a new JWT token for the user
-    var jwtToken = _jwtUtils.GenerateAccessToken(user);
-
-    // Return an updated AuthenticateResponse object
-    return new AuthenticateResponse(user, jwtToken.newToken, newRefreshToken.Token, newRefreshToken.TokenExpires, jwtToken.newTokenExpires);
-}
     
     public void ResetPassword(ResetPasswordRequest model)
     {
@@ -181,24 +156,16 @@ public class UserService : IUserService
 
     public User GetUserByRefreshToken(string token)
     {
-    
-        var user = _context.Users.SingleOrDefault(u =>
-             u.RefreshToken != null && u.RefreshToken.newToken == token);
-        
-        if (user == null) throw new KeyNotFoundException("User not found");
+        Console.WriteLine("token: " + token);
+        var user = _context.Users.Include(u => u.RefreshToken)
+                              .FirstOrDefault(u => u.RefreshToken.Token == token || u.RefreshToken.newToken == token);
+        if (user == null) throw new KeyNotFoundException("Missing refresh token in database");
         return user;
     }
 
 
 
 
-    private void RemoveOldRefreshTokens(User user)
-    {
-        // remove nez refresh tokens that have expired
-        // tu supprimes le token le plus ancien 
-        return ;
-
-    }
 
 
     private User GetUser(int id)

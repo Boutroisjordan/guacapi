@@ -103,8 +103,7 @@ namespace guacapi.Controllers
         public IActionResult Authenticate(AuthenticateRequest model)
         {
             // Supprimer tous les cookies de token
-            Response.Cookies.Delete("refreshToken");
-            Response.Cookies.Delete("AccessToken");
+
 
             var response = _userService.Login(model);
 
@@ -127,7 +126,6 @@ namespace guacapi.Controllers
             {
                 try
                 {
-
                     var user = _userService.GetUserByRefreshToken(refreshToken);
 
                     if (user != null)
@@ -166,9 +164,14 @@ namespace guacapi.Controllers
         [HttpGet("GetAllUsers")]
         public IActionResult GetAll()
         {
-            var refreshToken = Request.Cookies["refreshToken"] ?? Request.Cookies["FirstToken"];
+            var refreshToken = Request.Cookies["AccessToken"] ?? Request.Cookies["refreshToken"];
             if (refreshToken == null)
                 return Unauthorized(new { message = "Unauthorized" });
+            var user = CheckToken(refreshToken);
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Unauthorized" });
+            }
             var users = _userService.GetAll();
             return Ok(users);
         }
@@ -201,19 +204,16 @@ namespace guacapi.Controllers
         [HttpGet("GetUserByToken")]
         public IActionResult GetUserByToken()
         {
-            var refreshToken = Request.Cookies["refreshToken"];
-            if (refreshToken != null)
+            var refreshToken = Request.Cookies["AccessToken"] ?? Request.Cookies["refreshToken"];
+            if (refreshToken == null)
+                return Unauthorized(new { message = "Unauthorized" });
+            var user = CheckToken(refreshToken);
+            if (user == null)
             {
-                var user = _userService.GetUserByRefreshToken(refreshToken);
-                if (user == null)
-                {
-                    return BadRequest();
-                }
-
-                return Ok(user);
+                return Unauthorized(new { message = "Unauthorized" });
             }
+            return Ok(new { user = user.RefreshToken });
 
-            return Unauthorized(new { message = "Unauthorized" });
         }
 
         // helper methods
@@ -252,6 +252,55 @@ namespace guacapi.Controllers
                 }
             }
         }
+
+        private User CheckToken(string token)
+        {
+
+            if (token != null)
+            {
+                Console.WriteLine("token is null");
+                var user = _userService.GetUserByRefreshToken(token);
+                if (user.RefreshToken.Token != null && user.RefreshToken.TokenExpires > DateTime.UtcNow)
+                {
+                    var timeLeft = (int)(user.RefreshToken.TokenExpires - DateTime.UtcNow).TotalSeconds;
+                    var expirationTime = DateTimeOffset.UtcNow.AddSeconds(timeLeft);
+                    var cookieOptions = new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Expires = expirationTime
+                    };
+                    Response.Cookies.Append("AccessToken", user.RefreshToken.Token, cookieOptions);
+                    return user;
+                }
+                else if (user.RefreshToken.Token != null && user.RefreshToken.TokenExpires < DateTime.UtcNow && user.RefreshToken.newTokenExpires > DateTime.UtcNow && user.RefreshToken.newToken != null)
+                {
+                    // generate new AccessToken for user 
+                    var newAccessToken = _jwtUtils.GenerateAccessToken(user);
+                    var cookieOptions = new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Expires = DateTime.UtcNow.AddHours(1)
+                    };
+                    // update user with new AccessToken
+                    user.RefreshToken.TokenExpires = DateTime.UtcNow.AddHours(1);
+                    user.RefreshToken.Token = newAccessToken.Token;
+                    _context.Update(user);
+                    _context.SaveChanges();
+                    // append cookie with new AccessToken to the http response
+
+                    Response.Cookies.Append("AccessToken", newAccessToken.Token, cookieOptions);
+                    return user;
+                }
+                else
+                {
+                    throw new UnauthorizedAccessException("Access token not found or expired.");
+                }
+
+            }
+            throw new UnauthorizedAccessException("Invalid access token.");
+
+        }
+
 
 
 

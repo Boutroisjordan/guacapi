@@ -69,7 +69,7 @@ public class JwtUtils : IJwtUtils
 
         var refreshToken = _context.RefreshToken.SingleOrDefault(r => r.UserId == user.UserId);
 
-        if(refreshToken.newToken != null && refreshToken.newTokenExpires > DateTime.UtcNow)
+        if (refreshToken.newToken != null && refreshToken.newTokenExpires > DateTime.UtcNow)
         {
             return new RefreshToken
             {
