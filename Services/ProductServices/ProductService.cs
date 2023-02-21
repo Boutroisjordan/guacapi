@@ -48,27 +48,22 @@ public class ProductService : IProductService
 
         // var furnisherById = await _context.Furnishers.FindAsync(request.FurnisherId);
 
-    // var checkDomain = _context.Domains.Where(x => x.Name == request.DomainName).FirstOrDefault();
-    // var newDomain
-    // if(checkDomain is null) {
-    //    newDomain = _context.Domains.Add(request.DomainName)
-    // }
-
         Product product = _mapper.Map<Product>(request);
 
-        Product saveProduct = _context.Products.Add(product).Entity;
+        var saveProduct = await _context.Products.AddAsync(product);
         await _context.SaveChangesAsync();
         
+        //Créer une offre unique lors de la création d'un produit
         List<ProductOffer> ListProductOffer = new List<ProductOffer>() {
             new ProductOffer() {
-                ProductId = saveProduct.ProductId,
+                ProductId = saveProduct.Entity.ProductId,
                 QuantityProduct = 1
             }
         };
 
 
         Offer offerunit = new Offer() {
-            Name = saveProduct.Name,
+            Name = saveProduct.Entity.Name,
             isB2B = false,
             isDraft = false,
             Price = product.Price,
@@ -80,35 +75,8 @@ public class ProductService : IProductService
         _context.Offers.Add(offerunit);
         await _context.SaveChangesAsync();
 
-        return saveProduct;
-    }
-
-    public async Task<Product> UpdateProduct(int id, ProductRegister request)
-    {
-
-        var product = await _context.Products.FindAsync(id);
-
-        var newProduct = _mapper.Map(request, product);
-
-        // if (product != null)
-        // {
-
-            // product.Name = request.Name;
-            // product.Price = request.Price;
-            // product.Stock = request.Stock;
-            // product.Millesime = request.Millesime;
-            // product.AlcoholDegree = request.AlcoholDegree;
-            // product.AlcoholTypeId = request.AlcoholTypeId;
-            // product.Reference = request.Reference;
-            // product.FurnisherId = request.FurnisherId;
-            // product.DomainId = request.DomainId;
-            // product.RegionId = request.RegionId;
-            // product.AppellationId = request.AppellationId;
-
-
-            await _context.SaveChangesAsync();
-            return product;
-        // }
+        return saveProduct.Entity;
+    
     }
 
     public async Task<List<Product>> DeleteProduct(int id)
