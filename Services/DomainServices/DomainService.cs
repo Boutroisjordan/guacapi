@@ -44,9 +44,9 @@ public class DomainService : IDomainService
 
         Domain domain = _mapper.Map<Domain>(request);
 
-        var savedDomain = _context.Domains.Add(domain).Entity;
+        var savedDomain = await _context.Domains.AddAsync(domain);
         await _context.SaveChangesAsync();
-        return savedDomain;
+        return savedDomain.Entity;
     }
 
     public async Task<Domain> UpdateDomain(int id, DomainRegister request)
