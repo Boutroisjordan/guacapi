@@ -221,36 +221,22 @@ namespace guacapi.Controllers
         private void SetTokenCookie(string token, int id, string refreshToken, DateTime tokenExpires, DateTime newTokenExpires)
         {
             // append cookie with refresh token to the http response
-            var cookieToken = Request.Cookies["refreshToken"];
-            if (cookieToken == null)
-            {
-                var cookieOptionsRefresh = new CookieOptions
-                {
-                    HttpOnly = true,
-                    Expires = newTokenExpires
-                };
-                Response.Cookies.Append("refreshToken", refreshToken, cookieOptionsRefresh);
 
-                var cookieOptions = new CookieOptions
-                {
-                    HttpOnly = true,
-                    Expires = tokenExpires
-                };
-                Response.Cookies.Append("AccessToken", token, cookieOptions);
-            }
-            var user = _userService.GetUserByRefreshToken(cookieToken);
-            if (user != null && user.RefreshToken.newToken != null && user.RefreshToken.newTokenExpires > DateTime.UtcNow)
+            var cookieOptionsRefresh = new CookieOptions
             {
-                if (user.RefreshToken.TokenExpires < DateTime.UtcNow)
-                {
-                    var cookieOptionsRefreshAccess = new CookieOptions
-                    {
-                        HttpOnly = true,
-                        Expires = tokenExpires
-                    };
-                    Response.Cookies.Append("refreshToken", refreshToken, cookieOptionsRefreshAccess);
-                }
-            }
+                HttpOnly = true,
+                Expires = newTokenExpires
+            };
+            Response.Cookies.Append("refreshToken", refreshToken, cookieOptionsRefresh);
+
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = tokenExpires
+            };
+            Response.Cookies.Append("AccessToken", token, cookieOptions);
+
+
         }
 
         private User CheckToken(string token)
