@@ -28,7 +28,7 @@ public class AlcoholControllerType : ControllerBase
     #endregion
 
     #region methods
-
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAllTypes()
     {

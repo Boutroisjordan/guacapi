@@ -27,6 +27,7 @@ public class DataContext : DbContext
         modelBuilder.ApplyConfiguration(new OfferEntityConfiguration());
         modelBuilder.ApplyConfiguration(new RegionEntityConfiguration());
         modelBuilder.ApplyConfiguration(new ProductOfferEntityConfiguration());
+        modelBuilder.ApplyConfiguration(new UserEntityConfiguration());
 
         modelBuilder.ApplyConfiguration(new RoleEntityConfiguration());
          modelBuilder.ApplyConfiguration(new InvoiceFurnisherEntityConfiguration());

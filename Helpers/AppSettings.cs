@@ -4,5 +4,5 @@ public class AppSettings
 {
     public string Secret { get; set; }
     
-    public int RefreshTokenTTl { get; set; }
+    public DateTime RefreshTokenExpiryTime { get; set; }
 }

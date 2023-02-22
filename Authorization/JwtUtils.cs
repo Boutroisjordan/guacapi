@@ -15,7 +15,7 @@ using System.Text;
 public interface IJwtUtils
 {
     public RefreshToken GenerateAccessToken(User user);
-    public int? ValidateToken(string token);
+    public string ValidateToken(string token);
     public ClaimsPrincipal GetPrincipalFromToken(string token, string signingKey);
     public RefreshToken GenerateRefreshToken(User user);
 }
@@ -117,7 +117,7 @@ public class JwtUtils : IJwtUtils
     }
 
 
-    public int? ValidateToken(string token)
+    public string ValidateToken(string token)
     {
 
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -140,9 +140,9 @@ public class JwtUtils : IJwtUtils
 
             var jwtToken = (JwtSecurityToken)validatedToken;
             var userId = int.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
-
+            var tokenBdd = _context.RefreshToken.SingleOrDefault(r => r.UserId == userId);
             // return user id from JWT token if validation successful
-            return userId;
+            return tokenBdd.Token;
         }
         catch
         {

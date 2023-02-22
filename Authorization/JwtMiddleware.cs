@@ -24,11 +24,11 @@ public class JwtMiddleware
         var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
         if (token != null)
         {
-            var userId = jwtUtils.ValidateToken(token);
-            if (userId != null)
+             var AccessToken = jwtUtils.ValidateToken(token);
+            if (AccessToken != null)
             {
                 // attach user to context on successful jwt validation
-                context.Items["User"] = userService.GetUserById(userId.Value);
+                context.Items["User"] = userService.GetUserByRefreshToken(AccessToken);
             }
         }
 

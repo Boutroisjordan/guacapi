@@ -200,7 +200,7 @@ namespace guacapi.Controllers
             _userService.Update(id, model);
             return Ok();
         }
-
+        [Authorize]
         [HttpGet("GetUserByToken")]
         public IActionResult GetUserByToken()
         {
@@ -244,7 +244,7 @@ namespace guacapi.Controllers
 
             if (token != null)
             {
-                Console.WriteLine("token is null");
+            Console.WriteLine("token : " + token);
                 var user = _userService.GetUserByRefreshToken(token);
                 if (user.RefreshToken.Token != null && user.RefreshToken.TokenExpires > DateTime.UtcNow)
                 {

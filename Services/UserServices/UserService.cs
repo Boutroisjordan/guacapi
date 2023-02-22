@@ -16,16 +16,16 @@ namespace GuacAPI.Services.UserServices;
 
 public class UserService : IUserService
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
+
     private readonly DataContext _context;
     private readonly IJwtUtils _jwtUtils;
     private readonly IMapper _mapper;
     private readonly AppSettings _appSettings;
 
-    public UserService(IHttpContextAccessor httpContextAccessor, DataContext context,
+    public UserService(DataContext context,
         IJwtUtils jwtUtils, IMapper mapper, IOptions<AppSettings> appSettings)
     {
-        _httpContextAccessor = httpContextAccessor;
+
         _context = context;
         _jwtUtils = jwtUtils;
         _mapper = mapper;
@@ -53,7 +53,7 @@ public class UserService : IUserService
 
     public async Task<User> GetUserByUsername(string username)
     {
-        
+
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
         return user;
     }
@@ -96,33 +96,31 @@ public class UserService : IUserService
         _context.SaveChanges();
     }
 
-   public AuthenticateResponse Login(AuthenticateRequest model)
-{
-    var user = _context.Users.SingleOrDefault(u => u.Username == model.Username);
-    // var user = await _context.Users.Where(u => u.Username == model.Username).SingleOrDefaultAsync();
+    public AuthenticateResponse Login(AuthenticateRequest model)
+    {
+        var user = _context.Users.SingleOrDefault(u => u.Username == model.Username);
+        // var user = await _context.Users.Where(u => u.Username == model.Username).SingleOrDefaultAsync();
+
+        if (user == null || BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash) == false)
+            throw new AppException("Username or password is incorrect");
+
+        var jwtToken = _jwtUtils.GenerateAccessToken(user);
+
+        // Save changes to the database
+        _context.SaveChanges();
+
+        return new AuthenticateResponse(user, jwtToken.Token, jwtToken.newToken, jwtToken.TokenExpires, jwtToken.newTokenExpires);
+    }
 
 
 
-    if (user == null || BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash) == false)
-        throw new AppException("Username or password is incorrect");
-
-    var jwtToken = _jwtUtils.GenerateAccessToken(user);
-
-    // Save changes to the database
-    _context.SaveChanges();
-
-    return new AuthenticateResponse(user, jwtToken.Token, jwtToken.newToken, jwtToken.TokenExpires, jwtToken.newTokenExpires);
-}
 
 
-
-  
-    
     public void ResetPassword(ResetPasswordRequest model)
     {
         var user = GetUserByEmail(model.Email);
         // validate
-        
+
     }
 
     public void Update(int id, UpdateRequest model)
@@ -143,7 +141,7 @@ public class UserService : IUserService
         _context.SaveChanges();
     }
 
-    
+
     public IEnumerable<User> GetAll()
     {
         return _context.Users;
@@ -161,7 +159,7 @@ public class UserService : IUserService
         Console.WriteLine("token: " + token);
         var user = _context.Users.Include(u => u.RefreshToken)
                               .FirstOrDefault(u => u.RefreshToken.Token == token || u.RefreshToken.newToken == token);
-        if (user == null) throw new KeyNotFoundException("Missing refresh token in database");
+        if (user == null) throw new KeyNotFoundException("Tous les tokens sont expirés");
         return user;
     }
 
