@@ -73,21 +73,15 @@ namespace guacapi.Controllers
 
 
         [HttpDelete("delete/{id}")]
-        public async Task<ActionResult> Delete()
-        {
-            var username = User.Identity?.Name;
-            if (username != null)
-            {
-                var user = await _userService.GetUserByUsername(username);
+        public async Task<ActionResult> Delete(int id)
+        {        
+               var user = await _userService.DeleteUser(id);
                 if (user == null)
                 {
-                    return BadRequest();
+                     return BadRequest();
                 }
 
-                await _userService.DeleteUser(user.UserId);
-            }
-
-            return Ok();
+            return Ok( new { message = "User deleted successfully" });
         }
 
 
@@ -103,8 +97,6 @@ namespace guacapi.Controllers
         public IActionResult Authenticate(AuthenticateRequest model)
         {
             // Supprimer tous les cookies de token
-
-
             var response =  _userService.Login(model);
 
             if (response.RefreshToken != null)
@@ -132,7 +124,14 @@ namespace guacapi.Controllers
                     {
                         if (user.RefreshToken != null && user.RefreshToken.Token != null && user.RefreshToken.TokenExpires > DateTime.UtcNow)
                         {
-                            return Unauthorized(new { message = "Encore valable fdp" });
+                              var timeLeft = (int)(user.RefreshToken.TokenExpires - DateTime.UtcNow).TotalSeconds;
+                            var expirationTime = DateTimeOffset.UtcNow.AddSeconds(timeLeft);
+                            var CookieOptions = new CookieOptions
+                            {
+                                HttpOnly = true,
+                                Expires = expirationTime
+                            };
+                            return Ok(new { token = user.RefreshToken.Token, expiration = expirationTime.ToUnixTimeSeconds() });
                         }
 
                         var newRefreshToken = _jwtUtils.GenerateRefreshToken(user);
@@ -191,14 +190,12 @@ namespace guacapi.Controllers
         }
 
         [HttpPut("UpdateUser/{id}")]
-        public IActionResult Update(int id, UpdateRequest model)
+        public async Task<IActionResult> Update(int id, UpdateRequest model)
         {
-            var refreshToken = Request.Cookies["refreshToken"];
-            if (refreshToken != null)
-                return Unauthorized(new { message = "Unauthorized" });
-
-            _userService.Update(id, model);
-            return Ok();
+          var updatedUser = await _userService.UpdateUser(id, model);
+            if(updatedUser == null)
+                return BadRequest(new { message = "User not found" });
+            return Ok( updatedUser);
         }
         [Authorize]
         [HttpGet("GetUserByToken")]

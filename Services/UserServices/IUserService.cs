@@ -11,7 +11,7 @@ public interface IUserService
     Task<User> GetUserById(int id);
     Task<User> GetUserByUsername(string username);
     Task<User> GetUserByEmail(string email);
-    Task<User> UpdateUser(User user, int id);
+    Task<User> UpdateUser(int id, UpdateRequest model);
     Task<User> DeleteUser(int id);
     void Register(RegisterRequest request);
     // AuthenticateResponse Login(AuthenticateRequest request);

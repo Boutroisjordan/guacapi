@@ -65,11 +65,13 @@ public class UserService : IUserService
     }
 
 
-    public async Task<User> UpdateUser(User request, int id)
+    public async Task<User> UpdateUser(int id, UpdateRequest request)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
         if (user == null) return null;
         user.Username = request.Username;
+        user.Email = request.Email;
+    
         await _context.SaveChangesAsync();
         return user;
     }
