@@ -84,6 +84,8 @@ public class DataContext : DbContext
             .WithMany()
             .HasForeignKey(ifp => ifp.OfferId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<User>().HasOne(u => u.RefreshToken).WithOne(rt => rt.User).HasForeignKey<RefreshToken>(rt => rt.UserId).OnDelete(DeleteBehavior.Cascade);
     }
 
 
@@ -104,7 +106,7 @@ public class DataContext : DbContext
     public DbSet<Order> Orders {get; set;}
     public DbSet<OrderStatus> OrderStatus {get; set;}
     public DbSet<OrderOffer> OrderOffers {get; set;}
-    public object RefreshTokens { get; internal set; }
+    public DbSet<RefreshToken> RefreshToken { get;  set; }
 
 }
 

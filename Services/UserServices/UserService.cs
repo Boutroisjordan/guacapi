@@ -96,63 +96,25 @@ public class UserService : IUserService
         _context.SaveChanges();
     }
 
-    public AuthenticateResponse Login(AuthenticateRequest model, string ipAddress)
-    {
-        var user = _context.Users.SingleOrDefault(u => u.Username == model.Username);
-        
-        if (user == null || BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash) == false)
-            throw new AppException("Username or password is incorrect");
-        var jwtToken = _jwtUtils.GenerateToken(user);
-        var tokenBdd = _jwtUtils.GenerateToken(ipAddress);
-        // si y a deja un token, le supprimer et en creer un nouveau 
-        if (user.RefreshTokens != null)
-        {
-             // trouve moi les tokens qui sont actifs
-            var refreshToken = user.RefreshTokens.FirstOrDefault(x => x.TokenExpires > DateTime.UtcNow || x.newTokenExpires > DateTime.UtcNow);
-            if (refreshToken != null)
-            {
-                // supprime les tokens qui sont inactifs
-                user.RefreshTokens.Remove(refreshToken);
-                _context.Remove(refreshToken);
-            }
+   public AuthenticateResponse Login(AuthenticateRequest model)
+{
+    var user = _context.Users.SingleOrDefault(u => u.Username == model.Username);
 
-        }
-       user.RefreshTokens.Add(tokenBdd);
-        _context.Update(tokenBdd);
-        _context.SaveChanges();
-        if (tokenBdd.Token != null) return new AuthenticateResponse(user, jwtToken, tokenBdd.Token, tokenBdd.TokenExpires);
-        return new AuthenticateResponse(user, jwtToken, tokenBdd.newToken, tokenBdd.newTokenExpires);
-    }
+    if (user == null || BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash) == false)
+        throw new AppException("Username or password is incorrect");
 
-    public AuthenticateResponse RefreshToken(string token, int id)
-    {
-        // mais user peut etre null
+    var jwtToken = _jwtUtils.GenerateAccessToken(user);
 
-       var user =GetById(id);
-    if (user == null)
-    {
-        return null; // or throw an exception, depending on your needs
-    }
+    // Save changes to the database
+    
+    _context.SaveChanges();
 
-    var tokenUser = user.RefreshTokens?.Find(x => x.UserId == id);
-    if (tokenUser == null)
-    {
-        return null; // or throw an exception, depending on your needs
-    }
-        var refreshToken = user.RefreshTokens.FirstOrDefault(x => x.Token == token);
-        if(refreshToken != null) {
-            user.RefreshTokens.Remove(refreshToken);
-            _context.Remove(refreshToken);
-        }
-            refreshToken.newToken = _jwtUtils.GenerateRefreshToken(token).newToken;
-            refreshToken.newTokenExpires = DateTime.UtcNow.AddDays(7);
-            user.RefreshTokens.Add(refreshToken);
-            _context.Update(refreshToken);
-            _context.SaveChanges();
-            var jwtToken = _jwtUtils.GenerateToken(user);
-            return new AuthenticateResponse(user, jwtToken, refreshToken.Token,refreshToken.TokenExpires);
-        }
+    return new AuthenticateResponse(user, jwtToken.Token, jwtToken.newToken, jwtToken.TokenExpires, jwtToken.newTokenExpires);
+}
 
+
+
+  
     
     public void ResetPassword(ResetPasswordRequest model)
     {
@@ -194,34 +156,16 @@ public class UserService : IUserService
 
     public User GetUserByRefreshToken(string token)
     {
-        var user = _context.Users.SingleOrDefault(u =>
-            u.RefreshTokens != null && u.RefreshTokens.Any(t => t.Token == token));
-
-        if (user == null)
-            throw new AppException("Invalid token");
+        Console.WriteLine("token: " + token);
+        var user = _context.Users.Include(u => u.RefreshToken)
+                              .FirstOrDefault(u => u.RefreshToken.Token == token || u.RefreshToken.newToken == token);
+        if (user == null) throw new KeyNotFoundException("Missing refresh token in database");
         return user;
     }
 
-    private RefreshToken RotateRefreshToken(RefreshToken refreshToken, string ipAddress)
-    {
-        var newRefreshToken = _jwtUtils.GenerateRefreshToken(ipAddress);
-        if (newRefreshToken is null)
-        {
-            throw new Exception("token is null");
-        }
-
-        newRefreshToken.Token = refreshToken.Token;
-        return newRefreshToken;
-    }
 
 
-    private void RemoveOldRefreshTokens(User user)
-    {
-        // remove nez refresh tokens that have expired
-       // tu supprimes le token le plus ancien 
-        user.RefreshTokens.Remove(user.RefreshTokens.OrderBy(x => x.TokenExpires).First());
-       
-    }
+
 
 
     private User GetUser(int id)

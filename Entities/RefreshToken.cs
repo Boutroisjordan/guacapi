@@ -21,7 +21,8 @@ public class RefreshToken
     public bool IsTokenExpired => DateTime.UtcNow >= TokenExpires;
     public bool IsNewTokenExpired => DateTime.UtcNow >= newTokenExpires;
     public bool IsActive => !IsNewTokenExpired;
+    public User User { get; set; }
     public int UserId { get; set; }
-    
+
 
 } // navigation property

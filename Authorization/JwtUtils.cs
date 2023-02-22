@@ -14,11 +14,10 @@ using System.Text;
 
 public interface IJwtUtils
 {
-    public string GenerateToken(User user);
+    public RefreshToken GenerateAccessToken(User user);
     public int? ValidateToken(string token);
-
-    public RefreshToken GenerateRefreshToken(string ipAddress);
-    public RefreshToken GenerateToken(string ipAddress);
+    public ClaimsPrincipal GetPrincipalFromToken(string token, string signingKey);
+    public RefreshToken GenerateRefreshToken(User user);
 }
 
 public class JwtUtils : IJwtUtils
@@ -26,42 +25,104 @@ public class JwtUtils : IJwtUtils
     private readonly DataContext _context;
     private readonly AppSettings _appSettings;
 
+
     public JwtUtils(IOptions<AppSettings> appSettings, DataContext context)
     {
         _context = context;
         _appSettings = appSettings.Value;
-    }
 
-    public string GenerateToken(User user)
+    }
+    // generate token that is valid for 7 days
+    // var tokenHandler = new JwtSecurityTokenHandler();
+    // if(_appSettings.Secret is null) {
+    //     throw new Exception("secret is null");
+    // }
+    // var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+    // var tokenDescriptor = new SecurityTokenDescriptor
+    // {
+    //     Subject = new ClaimsIdentity(new[] { new Claim("id", user.UserId.ToString()) }),
+    //     Expires = DateTime.UtcNow.AddDays(7),
+    //     SigningCredentials =
+    //         new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+    // };
+    // var token = tokenHandler.CreateToken(tokenDescriptor);
+    // var tokenBdd = new RefreshToken
+    // {
+    //     Token = tokenHandler.WriteToken(token),
+    //     TokenExpires = DateTime.UtcNow.AddDays(7),
+    //     Created = DateTime.UtcNow,
+    // };
+    // return tokenHandler.WriteToken(token);        
+    public RefreshToken GenerateAccessToken(User user)
     {
-        // generate token that is valid for 7 days
         var tokenHandler = new JwtSecurityTokenHandler();
-        if(_appSettings.Secret is null) {
-            throw new Exception("secret is null");
-        }
         var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+
+        // Crée un token d'accès valide pendant une heure
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(new[] { new Claim("id", user.UserId.ToString()) }),
-            Expires = DateTime.UtcNow.AddDays(7),
-            SigningCredentials =
-                new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            Expires = DateTime.UtcNow.AddHours(1),
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        var tokenBdd = new RefreshToken
+        var accessToken = tokenHandler.CreateToken(tokenDescriptor);
+
+        var refreshToken = _context.RefreshToken.SingleOrDefault(r => r.UserId == user.UserId);
+
+        if (refreshToken.newToken != null && refreshToken.newTokenExpires > DateTime.UtcNow)
         {
-            Token = tokenHandler.WriteToken(token),
-            TokenExpires = DateTime.UtcNow.AddDays(7),
+            return new RefreshToken
+            {
+                Token = tokenHandler.WriteToken(accessToken),
+                TokenExpires = tokenDescriptor.Expires ?? throw new Exception("Could not create access token"),
+                newToken = refreshToken.newToken,
+                newTokenExpires = refreshToken.newTokenExpires,
+                Created = DateTime.UtcNow,
+            };
+        }
+
+
+        // Crée un token de rafraîchissement valide pendant 7 jours
+        var refreshTokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new[] { new Claim("id", user.UserId.ToString()) }),
+            Expires = DateTime.UtcNow.AddDays(7),
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        };
+        var newRefreshToken =  tokenHandler.CreateToken(refreshTokenDescriptor);
+
+        // Stocke le refresh token dans la base de données pour une persistance de connexion
+        var refreshTokenBdd = new RefreshToken
+        {
+            Token = tokenHandler.WriteToken(accessToken),
+            TokenExpires = tokenDescriptor.Expires ?? throw new Exception("Could not create access token"),
+            newToken = tokenHandler.WriteToken(newRefreshToken),
+            newTokenExpires = refreshTokenDescriptor.Expires ?? throw new Exception("Could not create refresh token"),
+            Created = DateTime.UtcNow,
+            UserId = user.UserId,
+        };
+        _context.RefreshToken.Add(refreshTokenBdd);
+
+        _context.SaveChanges();
+
+        // Retourne les informations de token pour une utilisation immédiate
+        return new RefreshToken
+        {
+            Token = tokenHandler.WriteToken(accessToken),
+            TokenExpires = tokenDescriptor.Expires ?? throw new Exception("Could not create access token"),
+            newToken = refreshTokenBdd.Token,
+            newTokenExpires = refreshTokenBdd.TokenExpires,
             Created = DateTime.UtcNow,
         };
-        return tokenHandler.WriteToken(token);
     }
+
 
     public int? ValidateToken(string token)
     {
 
         var tokenHandler = new JwtSecurityTokenHandler();
-        if(_appSettings.Secret is null) {
+        if (_appSettings.Secret is null)
+        {
             throw new Exception("secret is null");
         }
         var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
@@ -90,54 +151,79 @@ public class JwtUtils : IJwtUtils
         }
     }
 
-    public RefreshToken GenerateRefreshToken(string ipAddress)
+    public RefreshToken GenerateRefreshToken(User user)
     {
-        var refreshToken = new RefreshToken
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+
+        // Create claims for refresh token
+        var claims = new List<Claim>
+    {
+        new Claim("id", user.UserId.ToString())
+    };
+        var refreshToken = _context.RefreshToken.SingleOrDefault(r => r.UserId == user.UserId);
+
+        // Generate refresh access token
+        var refreshAccessToken = new SecurityTokenDescriptor
         {
-            newToken = GetUniqueToken(),
-            // token is valid for 7 days
-            newTokenExpires = DateTime.UtcNow.AddDays(7),
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.UtcNow.AddHours(1),
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
+        var newRefreshTokenAccess = tokenHandler.CreateToken(refreshAccessToken);
 
-        return refreshToken;
-
-        string GetUniqueToken()
+        var refreshTokenBdd = new RefreshToken
         {
-            // token is a cryptographically strong random sequence of values
-            // ensure token is unique by checking against db
-            var tokenIsUnique = !_context.Users.Any(u =>
-                u.RefreshTokens.Any(t => t.Token == Convert.ToBase64String(RandomNumberGenerator.GetBytes(64))));
-
-            if (!tokenIsUnique)
-                return GetUniqueToken();
-
-            return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-        }
-    }
-
-       public RefreshToken GenerateToken(string ipAddress)
-    {
-        var refreshToken = new RefreshToken
-        {
-            Token = GetUniqueToken(),
-            // token is valid for 7 days
-            TokenExpires = DateTime.UtcNow.AddMinutes(1),
+            Token = tokenHandler.WriteToken(newRefreshTokenAccess),
+            TokenExpires = refreshAccessToken.Expires ?? throw new Exception("Could not create refresh token"),
             Created = DateTime.UtcNow,
+            newToken = refreshToken.newToken,
+            newTokenExpires = refreshToken.newTokenExpires,
+            UserId = user.UserId
         };
+        _context.RefreshToken.Update(refreshTokenBdd);
+        return refreshTokenBdd;
+    }
 
-        return refreshToken;
 
-        string GetUniqueToken()
+
+    public ClaimsPrincipal GetPrincipalFromToken(string token, string signingKey)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(signingKey);
+        Console.WriteLine(key);
+        Console.WriteLine(token);
+        try
         {
-            // token is a cryptographically strong random sequence of values
-            // ensure token is unique by checking against db
-            var tokenIsUnique = !_context.Users.Any(u =>
-                u.RefreshTokens.Any(t => t.Token == Convert.ToBase64String(RandomNumberGenerator.GetBytes(64))));
+            Console.WriteLine("try");
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                RequireExpirationTime = true,
+                ClockSkew = TimeSpan.Zero
+            };
 
-            if (!tokenIsUnique)
-                return GetUniqueToken();
+            var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+            if (!IsJwtWithValidSecurityAlgorithm(validatedToken))
+            {
+                return null;
+            }
 
-            return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+            return principal;
+        }
+        catch
+        {
+            return null;
         }
     }
+
+    private bool IsJwtWithValidSecurityAlgorithm(SecurityToken validatedToken)
+    {
+        return (validatedToken is JwtSecurityToken jwtSecurityToken) &&
+               jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase);
+    }
+
 }

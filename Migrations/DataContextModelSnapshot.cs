@@ -22,6 +22,40 @@ namespace GuacAPI.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("GuacAPI.Entities.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("TokenExpires")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("newToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("newTokenExpires")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("RefreshToken");
+                });
+
             modelBuilder.Entity("GuacAPI.Entities.User", b =>
                 {
                     b.Property<int>("UserId")
@@ -1200,49 +1234,22 @@ namespace GuacAPI.Migrations
                         });
                 });
 
+            modelBuilder.Entity("GuacAPI.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("GuacAPI.Entities.User", "User")
+                        .WithOne("RefreshToken")
+                        .HasForeignKey("GuacAPI.Entities.RefreshToken", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("GuacAPI.Entities.User", b =>
                 {
                     b.HasOne("Role", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId");
-
-                    b.OwnsMany("GuacAPI.Entities.RefreshToken", "RefreshTokens", b1 =>
-                        {
-                            b1.Property<int>("Id")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("int");
-
-                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
-
-                            b1.Property<DateTime>("Created")
-                                .HasColumnType("datetime2");
-
-                            b1.Property<string>("Token")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<DateTime>("TokenExpires")
-                                .HasColumnType("datetime2");
-
-                            b1.Property<int>("UserId")
-                                .HasColumnType("int");
-
-                            b1.Property<string>("newToken")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<DateTime>("newTokenExpires")
-                                .HasColumnType("datetime2");
-
-                            b1.HasKey("Id");
-
-                            b1.HasIndex("UserId");
-
-                            b1.ToTable("RefreshToken");
-
-                            b1.WithOwner()
-                                .HasForeignKey("UserId");
-                        });
-
-                    b.Navigation("RefreshTokens");
 
                     b.Navigation("Role");
                 });
@@ -1399,6 +1406,8 @@ namespace GuacAPI.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("Orders");
+
+                    b.Navigation("RefreshToken");
                 });
 
             modelBuilder.Entity("GuacAPI.Models.AlcoholType", b =>

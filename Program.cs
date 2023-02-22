@@ -42,6 +42,7 @@ builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSet
 // configure DI for application services
 builder.Services.AddScoped<IJwtUtils, JwtUtils>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddMemoryCache();
 
 //permet d'ajouter du context http 
 builder.Services.AddHttpContextAccessor();
