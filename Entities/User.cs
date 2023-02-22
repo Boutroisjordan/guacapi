@@ -23,7 +23,8 @@ public class User
     public string Bio { get; set; }
     
     public DateTime? VerifiedAt { get; set; }
-    public Role? Role { get; set; }
+    public int RoleId {get; set;}
+    public Role Role { get; set; }
 
 
     [JsonIgnore] public string PasswordHash { get; set; }
