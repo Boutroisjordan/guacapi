@@ -96,9 +96,12 @@ public class UserService : IUserService
         _context.SaveChanges();
     }
 
-   public AuthenticateResponse Login(AuthenticateRequest model)
+   public async Task<AuthenticateResponse> Login(AuthenticateRequest model)
 {
-    var user = _context.Users.SingleOrDefault(u => u.Username == model.Username);
+    // var user = _context.Users.SingleOrDefault(u => u.Username == model.Username);
+    var user = await _context.Users.Where(u => u.Username == model.Username).SingleOrDefaultAsync();
+
+
 
     if (user == null || BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash) == false)
         throw new AppException("Username or password is incorrect");
@@ -106,8 +109,7 @@ public class UserService : IUserService
     var jwtToken = _jwtUtils.GenerateAccessToken(user);
 
     // Save changes to the database
-    
-    _context.SaveChanges();
+   await _context.SaveChangesAsync();
 
     return new AuthenticateResponse(user, jwtToken.Token, jwtToken.newToken, jwtToken.TokenExpires, jwtToken.newTokenExpires);
 }

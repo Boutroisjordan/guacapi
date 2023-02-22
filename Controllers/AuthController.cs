@@ -100,12 +100,12 @@ namespace guacapi.Controllers
 
 
         [HttpPost("Login")]
-        public IActionResult Authenticate(AuthenticateRequest model)
+        public async Task<IActionResult> Authenticate(AuthenticateRequest model)
         {
             // Supprimer tous les cookies de token
 
 
-            var response = _userService.Login(model);
+            var response = await _userService.Login(model);
 
             if (response.RefreshToken != null)
             {
