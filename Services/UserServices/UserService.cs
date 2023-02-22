@@ -96,10 +96,10 @@ public class UserService : IUserService
         _context.SaveChanges();
     }
 
-   public async Task<AuthenticateResponse> Login(AuthenticateRequest model)
+   public AuthenticateResponse Login(AuthenticateRequest model)
 {
-    // var user = _context.Users.SingleOrDefault(u => u.Username == model.Username);
-    var user = await _context.Users.Where(u => u.Username == model.Username).SingleOrDefaultAsync();
+    var user = _context.Users.SingleOrDefault(u => u.Username == model.Username);
+    // var user = await _context.Users.Where(u => u.Username == model.Username).SingleOrDefaultAsync();
 
 
 
@@ -109,7 +109,7 @@ public class UserService : IUserService
     var jwtToken = _jwtUtils.GenerateAccessToken(user);
 
     // Save changes to the database
-   await _context.SaveChangesAsync();
+    _context.SaveChanges();
 
     return new AuthenticateResponse(user, jwtToken.Token, jwtToken.newToken, jwtToken.TokenExpires, jwtToken.newTokenExpires);
 }
