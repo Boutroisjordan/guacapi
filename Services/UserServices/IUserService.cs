@@ -18,7 +18,7 @@ public interface IUserService
     AuthenticateResponse Login(AuthenticateRequest model);
     User GetUserByRefreshToken(string token);
     void Update(int id, UpdateRequest model);
-    
+
     IEnumerable<User> GetAll();
     User GetById(int id);
 }

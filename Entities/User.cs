@@ -15,7 +15,13 @@ public class User
     public string LastName { get; set; }
     public string Phone { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
-
+    public string Ville { get; set; }
+    public string Pays { get; set; }
+    public string Adress { get; set; }
+    public string Rue { get; set; }
+    public string CodePostal { get; set; }
+    public string Bio { get; set; }
+    
     public DateTime? VerifiedAt { get; set; }
     public Role? Role { get; set; }
 

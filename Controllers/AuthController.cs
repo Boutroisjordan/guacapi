@@ -189,6 +189,7 @@ namespace guacapi.Controllers
             return Ok(user.RefreshToken);
         }
 
+
         [HttpPut("UpdateUser/{id}")]
         public async Task<IActionResult> Update(int id, UpdateRequest model)
         {
@@ -197,6 +198,7 @@ namespace guacapi.Controllers
                 return BadRequest(new { message = "User not found" });
             return Ok( updatedUser);
         }
+        
         [Authorize]
         [HttpGet("GetUserByToken")]
         public IActionResult GetUserByToken()
