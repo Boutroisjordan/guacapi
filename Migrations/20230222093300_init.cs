@@ -598,7 +598,8 @@ namespace GuacAPI.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_RefreshToken_UserId",
                 table: "RefreshToken",
-                column: "UserId");
+                column: "UserId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_RoleId",
