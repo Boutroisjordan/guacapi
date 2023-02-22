@@ -81,7 +81,7 @@ public class ProductController : ControllerBase
 
             return Ok(productStock);
         }
-    [HttpPost, Authorize]
+    [HttpPost]
     public async Task<IActionResult> AddOne(ProductRegister request)
     {
         var addedProduct = await _productService.AddProduct(request);
@@ -94,7 +94,7 @@ public class ProductController : ControllerBase
         return Ok(addedProduct);
     }
 
-    [HttpPut, Authorize]
+    [HttpPut]
     [Route("{id}")]
     public async Task<IActionResult> UpdateProduct(int id, ProductRegister request)
     {
