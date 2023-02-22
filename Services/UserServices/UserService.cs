@@ -54,7 +54,7 @@ public class UserService : IUserService
     public async Task<User> GetUserByUsername(string username)
     {
 
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+        var user = await _context.Users.Include(x => x.Role).FirstOrDefaultAsync(u => u.Username == username);
         return user;
     }
 
@@ -68,6 +68,7 @@ public class UserService : IUserService
     public async Task<User> UpdateUser(int id, UpdateRequest request)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
+        var newProduct = _mapper.Map(request, user);
         if (user == null) return null;
         user.Username = request.Username;
         user.Email = request.Email;
@@ -94,6 +95,7 @@ public class UserService : IUserService
 
         var register = _mapper.Map<User>(request);
         register.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+        register.RoleId = 2;
         _context.Users.Add(register);
         _context.SaveChanges();
     }
