@@ -108,12 +108,12 @@ public class UserService : IUserService
         if (user == null || BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash) == false)
             throw new AppException("Username or password is incorrect");
 
-        var jwtToken = _jwtUtils.GenerateAccessToken(user);
+        var AccessToken = _jwtUtils.GenerateAccessToken(user);
 
         // Save changes to the database
         _context.SaveChanges();
 
-        return new AuthenticateResponse(user, jwtToken.Token, jwtToken.newToken, jwtToken.TokenExpires, jwtToken.newTokenExpires);
+        return new AuthenticateResponse(user, AccessToken.AccessToken, AccessToken.NewToken, AccessToken.AccessTokenExpires, AccessToken.NewTokenExpires);
     }
 
 
@@ -162,7 +162,7 @@ public class UserService : IUserService
     {
         Console.WriteLine("token: " + token);
         var user = _context.Users.Include(u => u.RefreshToken)
-                              .FirstOrDefault(u => u.RefreshToken.Token == token || u.RefreshToken.newToken == token);
+                              .FirstOrDefault(u => u.RefreshToken.AccessToken == token || u.RefreshToken.NewToken == token);
         if (user == null) throw new KeyNotFoundException("Tous les tokens sont expirés");
         return user;
     }

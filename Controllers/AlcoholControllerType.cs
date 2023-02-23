@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace GuacAPI.Controllers;
 
 using GuacAPI.Services;
- 
+
 [Route("[controller]")]
 [ApiController]
 public class AlcoholControllerType : ControllerBase
@@ -13,7 +13,7 @@ public class AlcoholControllerType : ControllerBase
     #region Fields
 
     private IAlcoholService _alcoholService;
-        private readonly IConfiguration _configuration;
+    private readonly IConfiguration _configuration;
 
     #endregion
 
@@ -28,15 +28,9 @@ public class AlcoholControllerType : ControllerBase
     #endregion
 
     #region methods
-    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAllTypes()
     {
-        // if (apiKey != _configuration["ApiKey:Key"])
-        // {
-        //     return Unauthorized();
-        // }
-        
         var types = await _alcoholService.GetAllTypes();
 
         if (types == null)
@@ -50,7 +44,6 @@ public class AlcoholControllerType : ControllerBase
 
         return Ok(types);
     }
-
     [HttpGet]
     [Route("{id}")]
     public async Task<IActionResult> GetAlcoholTypeById(int id)
@@ -63,7 +56,6 @@ public class AlcoholControllerType : ControllerBase
         var type = await _alcoholService.GetAlcoholTypeById(id);
         return Ok(type);
     }
-
     [HttpGet]
     [Route("GetByLabel/{label}")]
     public async Task<IActionResult> GetAlcoholByLabel(string label)
@@ -76,7 +68,7 @@ public class AlcoholControllerType : ControllerBase
         var typeLabel = await _alcoholService.GetAlcoholByLabel(label);
         return Ok(typeLabel);
     }
-
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> AddAlcoholType(AlcoholTypeRegister type)
     {
@@ -108,7 +100,7 @@ public class AlcoholControllerType : ControllerBase
 
         return Ok(updateAlcohol);
     }
-
+    [Authorize]
     [HttpDelete]
     [Route("{id}")]
     public async Task<IActionResult> DeleteAlcoholType(int id)

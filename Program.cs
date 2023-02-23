@@ -13,6 +13,7 @@ using Swashbuckle.AspNetCore.Filters;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.FileProviders;
 using System.Reflection;
+using GuacAPI.Services.EmailServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -91,7 +92,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-                
+    var emailConfig= builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();          
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
