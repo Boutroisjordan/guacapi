@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using GuacAPI.Authorization;
 using Microsoft.EntityFrameworkCore;
-using GuacAPI.Models;
+
 using GuacAPI.Context;
 using GuacAPI.ExtensionMethods;
 using GuacAPI.Helpers;
@@ -14,6 +14,7 @@ using System.Text.Json.Serialization;
 using Microsoft.Extensions.FileProviders;
 using System.Reflection;
 using GuacAPI.Services.EmailServices;
+using GuacAPI.Models.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +23,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 //Db context
-builder.Services.AddDbContext<DataContext>(options => {
+builder.Services.AddDbContext<DataContext>(options =>
+{
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     options.EnableSensitiveDataLogging(true);
 });
@@ -42,6 +44,7 @@ builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSet
 
 // configure DI for application services
 builder.Services.AddScoped<IJwtUtils, JwtUtils>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddMemoryCache();
 
@@ -63,21 +66,21 @@ builder.Services.AddSwaggerGen(options =>
 
 });
 
-   builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-       .AddJwtBearer(options =>
-       {
-           var value = builder.Configuration.GetSection("AppSettings:Secret").Value;
-           if (value != null)
-               options.TokenValidationParameters = new TokenValidationParameters
-               {
-                   ValidateIssuerSigningKey = true,
-                   IssuerSigningKey =
-                       new SymmetricSecurityKey(
-                           Encoding.UTF8.GetBytes(value)),
-                   ValidateIssuer = false,
-                   ValidateAudience = false
-               };
-       });
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        var value = builder.Configuration.GetSection("AppSettings:Secret").Value;
+        if (value != null)
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey =
+                    new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(value)),
+                ValidateIssuer = false,
+                ValidateAudience = false
+            };
+    });
 
 
 builder.Services.AddCors(options =>
@@ -92,7 +95,8 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-    var emailConfig= builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();          
+var emailConfig = builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
+builder.Services.AddSingleton(emailConfig);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -107,11 +111,11 @@ if (app.Environment.IsDevelopment())
 app.UseStaticFiles();// For the wwwroot folder
 
 app.UseStaticFiles(new StaticFileOptions
-        {
-            FileProvider = new PhysicalFileProvider(
+{
+    FileProvider = new PhysicalFileProvider(
                 Path.Combine(Directory.GetCurrentDirectory(), "Images")),
-            RequestPath = "/Images"
-        });
+    RequestPath = "/Images"
+});
 
 
 

@@ -6,12 +6,12 @@ using GuacAPI.Helpers;
 using GuacAPI.Models;
 using GuacAPI.Models.Users;
 using GuacAPI.Services.UserServices;
-using GuacAPI.Services.EmailServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using GuacAPI.Services.EmailServices;
 
 namespace guacapi.Controllers
 {
@@ -23,15 +23,18 @@ namespace guacapi.Controllers
         private readonly IJwtUtils _jwtUtils;
         private readonly AppSettings _appSettings;
         private readonly DataContext _context;
+        private readonly IEmailService _emailService;
 
 
-        public AuthController(IUserService userService, IJwtUtils jwtUtils, IOptions<AppSettings> appSettings, DataContext context)
+
+        public AuthController(IUserService userService, IJwtUtils jwtUtils, IOptions<AppSettings> appSettings, DataContext context, IEmailService emailService)
         {
             _userService = userService;
             _jwtUtils = jwtUtils;
             _appSettings = appSettings.Value;
             _context = context;
-         
+            _emailService = emailService;
+
         }
     
 
@@ -74,24 +77,24 @@ namespace guacapi.Controllers
             return Unauthorized(new { message = "Unauthorized" });
         }
 
-        // [HttpGet("TestEmail")]
-        // public IActionResult TestEmail() 
-        // {
-        //     var message = new MessageMail(new string[] { "leceethibaut@gmail.com" }, "Test", "<h1>Test</h1>");
-        //     _emailService.SendEmail(message);
-        //     return StatusCode(StatusCodes.Status200OK, new { Status = "Success", Message = "Email sent successfully" });
-        // }
+        [HttpGet("TestEmail")]
+        public IActionResult TestEmail() 
+        {
+            var message = new MessageMail(new string[] { "leceethibaut@gmail.com" }, "Test", "<h1>Test</h1>");
+            _emailService.SendEmail(message);
+            return StatusCode(StatusCodes.Status200OK, new { Status = "Success", Message = "Email sent successfully" });
+        }
 
         [HttpDelete("delete/{id}")]
         public async Task<ActionResult> Delete(int id)
-        {        
-               var user = await _userService.DeleteUser(id);
-                if (user == null)
-                {
+        {
+            var user = await _userService.DeleteUser(id);
+            if (user == null)
+            {
                 return BadRequest();
-                }
+            }
 
-            return Ok( new { message = "User deleted successfully" });
+            return Ok(new { message = "User deleted successfully" });
         }
 
 
@@ -107,7 +110,7 @@ namespace guacapi.Controllers
         public IActionResult Authenticate(AuthenticateRequest model)
         {
             // Supprimer tous les cookies de token
-            var response =  _userService.Login(model);
+            var response = _userService.Login(model);
 
             if (response.RefreshToken != null)
             {
@@ -119,7 +122,7 @@ namespace guacapi.Controllers
 
         }
 
-        
+
         [HttpPost("RefreshToken")]
         public IActionResult RefreshToken()
         {
@@ -135,7 +138,7 @@ namespace guacapi.Controllers
                     {
                         if (user.RefreshToken != null && user.RefreshToken.AccessToken != null && user.RefreshToken.AccessTokenExpires > DateTime.UtcNow)
                         {
-                              var timeLeft = (int)(user.RefreshToken.AccessTokenExpires - DateTime.UtcNow).TotalSeconds;
+                            var timeLeft = (int)(user.RefreshToken.AccessTokenExpires - DateTime.UtcNow).TotalSeconds;
                             var expirationTime = DateTimeOffset.UtcNow.AddSeconds(timeLeft);
                             var CookieOptions = new CookieOptions
                             {
@@ -170,7 +173,7 @@ namespace guacapi.Controllers
 
             return Unauthorized(new { message = "Unauthorized" });
         }
-       
+
         [HttpGet("GetAllUsers")]
         public IActionResult GetAll()
         {
@@ -197,12 +200,12 @@ namespace guacapi.Controllers
         [HttpPut("UpdateUser/{id}")]
         public async Task<IActionResult> Update(int id, UpdateRequest model)
         {
-          var updatedUser = await _userService.UpdateUser(id, model);
-            if(updatedUser == null)
+            var updatedUser = await _userService.UpdateUser(id, model);
+            if (updatedUser == null)
                 return BadRequest(new { message = "User not found" });
-            return Ok( updatedUser);
+            return Ok(updatedUser);
         }
-        
+
         [Authorize]
         [HttpGet("GetUserByToken")]
         public IActionResult GetUserByToken()
@@ -248,7 +251,7 @@ namespace guacapi.Controllers
 
             if (token != null)
             {
-            Console.WriteLine("token : " + token);
+                Console.WriteLine("token : " + token);
                 var user = _userService.GetUserByRefreshToken(token);
                 if (user.RefreshToken.AccessToken != null && user.RefreshToken.AccessTokenExpires > DateTime.UtcNow)
                 {

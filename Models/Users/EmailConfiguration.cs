@@ -1,12 +1,14 @@
 
-
-public class EmailConfiguration
+namespace GuacAPI.Models.Users
 {
-    public string From { get; set; }
+    public class EmailConfiguration
+    {
+        public string From { get; set; }
 
-    public string SmtpServer { get; set; }
-    public int SmtpPort { get; set; }
-    public string SmtpUsername { get; set; }
-    public string SmtpPassword { get; set; }
+        public string SmtpServer { get; set; }
+        public int Port { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
 
+    }
 }

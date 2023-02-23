@@ -2,14 +2,14 @@ using GuacAPI.Models.Users;
 using MailKit.Net.Smtp;
 using MimeKit;
 
-namespace GuacAPI.Services.EmailServices
-{
+namespace GuacAPI.Services.EmailServices;
+
     public class EmailService : IEmailService
     {
-        private readonly EmailConfiguration _emailConfiguration;
-        public EmailService(EmailConfiguration emailConfiguration)
+        private readonly EmailConfiguration _emailConfig;
+        public EmailService(EmailConfiguration emailConfig)
         {
-            _emailConfiguration = emailConfiguration;
+        _emailConfig = emailConfig;
         }
 
         public void SendEmail(MessageMail message)
@@ -20,7 +20,7 @@ namespace GuacAPI.Services.EmailServices
         private MimeMessage CreateEmailMessage(MessageMail message)
         {
             var emailMessage = new MimeMessage();
-            emailMessage.From.Add(new MailboxAddress("email", _emailConfiguration.From));
+            emailMessage.From.Add(new MailboxAddress("email", _emailConfig.From));
             emailMessage.To.AddRange(message.To);
             emailMessage.Subject = message.Subject;
             var builder = new BodyBuilder();
@@ -33,8 +33,8 @@ namespace GuacAPI.Services.EmailServices
             using var smtp = new SmtpClient();
             try
             {
-                smtp.Connect(_emailConfiguration.SmtpServer, _emailConfiguration.SmtpPort);
-                smtp.Authenticate(_emailConfiguration.SmtpUsername, _emailConfiguration.SmtpPassword);
+                smtp.Connect(_emailConfig.SmtpServer, _emailConfig.Port);
+                smtp.Authenticate(_emailConfig.Username, _emailConfig.Password);
                 smtp.Send(mailMessage);
 
             }
@@ -51,4 +51,3 @@ namespace GuacAPI.Services.EmailServices
         }
 
     }
-}
