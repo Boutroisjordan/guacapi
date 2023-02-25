@@ -12,6 +12,8 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using GuacAPI.Services.EmailServices;
+using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography;
 
 namespace guacapi.Controllers
 {
@@ -89,7 +91,8 @@ namespace guacapi.Controllers
             return Ok(new { message = "Email verified successfully" });
 
         }
-
+   [Authorize
+        (Roles = "Admin")]
         [HttpDelete("delete/{id}")]
         public async Task<ActionResult> Delete(int id)
         {
@@ -190,6 +193,8 @@ namespace guacapi.Controllers
             return Unauthorized(new { message = "Unauthorized" });
         }
 
+
+        [Authorize (Roles = "Admin")]
         [HttpGet("GetAllUsers")]
         public IActionResult GetAll()
         {
@@ -197,14 +202,18 @@ namespace guacapi.Controllers
             var users = _userService.GetAll();
             return Ok(users);
         }
-        [Authorize]
+
+
+        [Authorize (Roles = "Admin")]
         [HttpGet("GetUserById/{id}")]
         public IActionResult GetById(int id)
         {
             var byId = _userService.GetById(id);
             return Ok(byId);
         }
-        [Authorize]
+
+
+        [Authorize (Roles = "Admin")]
         [HttpGet("GetRefreshById/{id}/refresh-tokens")]
         public IActionResult GetRefreshTokens(int id)
         {
@@ -212,7 +221,8 @@ namespace guacapi.Controllers
             return Ok(user.RefreshToken);
         }
 
-        [Authorize]
+        [Authorize
+        (Roles = "Admin")]
         [HttpPut("UpdateUser/{id}")]
         public async Task<IActionResult> Update(int id, UpdateRequest model)
         {
@@ -222,7 +232,7 @@ namespace guacapi.Controllers
             return Ok(updatedUser);
         }
 
-        [Authorize]
+        [Authorize (Roles = "Admin")]
         [HttpGet("GetUserByToken")]
         public IActionResult GetUserByToken()
         {
@@ -237,6 +247,17 @@ namespace guacapi.Controllers
             return Ok(new { user = user.RefreshToken });
 
         }
+
+        // [HttpPost("ForgotPassword")]
+        // public IActionResult ForgotPassword([Required] string email) {
+        //         if(email == null)
+        //         {
+        //             return BadRequest(new { message = "Email is required" });
+        //         }
+        //         _userService.ResetPassword(email);
+        //         return Ok(new { message = "Email sent successfully" });
+
+        // }
 
         // helper methods
 
@@ -259,6 +280,17 @@ namespace guacapi.Controllers
                 Expires = tokenExpires
             };
             Response.Cookies.Append("AccessToken", token, cookieOptions);
+
+        }
+
+        private string CreateRandomToken()
+        {
+            var token = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(token);
+                return Convert.ToBase64String(token);
+            }
 
         }
 

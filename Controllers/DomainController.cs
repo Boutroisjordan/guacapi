@@ -2,6 +2,7 @@ using GuacAPI.Models;
 using GuacAPI.Context;
 using Microsoft.AspNetCore.Mvc;
 using GuacAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GuacAPI.Controllers;
  
@@ -56,7 +57,9 @@ public class DomainController : ControllerBase
         return Ok(domain);
     }
 
+ [Authorize (Roles = "Admin")]
     [HttpPost]
+    
     public async Task<IActionResult> AddDomain(DomainRegister request)
     {
 
@@ -71,6 +74,7 @@ public class DomainController : ControllerBase
     }
 
     [HttpPut]
+     [Authorize (Roles = "Admin")]
     [Route("{id}")]
     public async Task<IActionResult> UpdateDomain(int id, DomainRegister request)
     {
@@ -84,6 +88,7 @@ public class DomainController : ControllerBase
         return Ok(domain);
     }
 
+ [Authorize (Roles = "Admin")]
     [HttpDelete]
     [Route("{id}")]
     public async Task<IActionResult> DeleteDomain(int id)

@@ -68,7 +68,7 @@ public class AlcoholControllerType : ControllerBase
         var typeLabel = await _alcoholService.GetAlcoholByLabel(label);
         return Ok(typeLabel);
     }
-    [Authorize]
+    [Authorize (Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> AddAlcoholType(AlcoholTypeRegister type)
     {
@@ -81,7 +81,7 @@ public class AlcoholControllerType : ControllerBase
 
         return Ok(addAlcohol);
     }
-
+    [Authorize (Roles = "Admin")]
     [HttpPut]
     [Route("{id}")]
     public async Task<IActionResult> UpdateAlcoholType(int id, AlcoholTypeRegister type)
@@ -100,8 +100,8 @@ public class AlcoholControllerType : ControllerBase
 
         return Ok(updateAlcohol);
     }
-    [Authorize]
-    [HttpDelete]
+ [Authorize (Roles = "Admin")]
+     [HttpDelete]
     [Route("{id}")]
     public async Task<IActionResult> DeleteAlcoholType(int id)
     {

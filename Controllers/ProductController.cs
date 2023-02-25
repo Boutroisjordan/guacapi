@@ -81,6 +81,9 @@ public class ProductController : ControllerBase
 
             return Ok(productStock);
         }
+
+
+         [Authorize (Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> AddOne(ProductRegister request)
     {
@@ -95,6 +98,8 @@ public class ProductController : ControllerBase
     }
 
     [HttpPut]
+
+     [Authorize (Roles = "Admin")]
     [Route("{id}")]
     public async Task<IActionResult> UpdateProduct(int id, ProductRegister request)
     {
@@ -109,7 +114,7 @@ public class ProductController : ControllerBase
     }
 
 
-    [HttpDelete, Authorize]
+    [HttpDelete, Authorize(Roles = "Admin")]
     [Route("{id}")]
     public async Task<IActionResult> DeleteProduct(int id)
     {

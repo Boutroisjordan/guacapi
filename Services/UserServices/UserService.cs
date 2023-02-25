@@ -133,14 +133,30 @@ public void VerifyEmail(string token, string email) {
 
 }
 
+    
 
 
 
-    public void ResetPassword(ResetPasswordRequest model)
+    public void ResetPassword(string email)
     {
-        var user = GetUserByEmail(model.Email);
+        var user = _context.Users.SingleOrDefault(u => u.Email == email);
         // validate
+        if (user == null) throw new AppException("Email '" + email + "' is not found");
+        user.VerifyToken = Guid.NewGuid().ToString();
+        _context.Users.Update(user);
+        _context.SaveChanges();
+    }
 
+    public void ChangePassword(ChangePasswordRequest model)
+    {
+        var user = _context.Users.SingleOrDefault(u => u.Email == model.Email);
+        // validate
+        if (user == null) throw new AppException("Email '" + model.Email + "' is not found");
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.ConfirmPassword);
+        user.VerifyToken = null;
+        _context.Users.Update(user);
+        _context.SaveChanges();
     }
 
     public void Update(int id, UpdateRequest model)

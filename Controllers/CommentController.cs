@@ -58,6 +58,7 @@ public class CommentController : ControllerBase
         return Ok(product);
     }
 
+ [Authorize (Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> AddOne(CommentRegister request)
     {
@@ -71,6 +72,7 @@ public class CommentController : ControllerBase
         return Ok(addedProduct);
     }
 
+ [Authorize (Roles = "Admin")]
     [HttpPut]
     [Route("{id}")]
     public async Task<IActionResult> UpdateProduct(int id, CommentRegister request)
@@ -86,7 +88,7 @@ public class CommentController : ControllerBase
     }
 
 
-    [HttpDelete, Authorize]
+    [HttpDelete, Authorize (Roles = "Admin")]
     [Route("{id}")]
     public async Task<IActionResult> DeleteComment(int id)
     {
@@ -100,6 +102,7 @@ public class CommentController : ControllerBase
         return Ok(productList);
     }
 
+ [Authorize (Roles = "Admin")]
     [HttpDelete]
     [Route("{id}/{userId}")]
     public async Task<IActionResult> OwnerDeleteComment(int id, int userId)

@@ -5,6 +5,7 @@ using GuacAPI.Services;
 using System.IO;
 using AutoMapper;
 using GuacAPI.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GuacAPI.Controllers;
  
@@ -88,6 +89,7 @@ public class OrderController : ControllerBase
      }
 
 
+ [Authorize (Roles = "Admin")]
      [HttpPost]
      public async Task<IActionResult> AddOne(OrderRegistryDTO request)
      {
@@ -101,6 +103,8 @@ public class OrderController : ControllerBase
          return Ok(addedOffer);
      }
 
+
+      [Authorize (Roles = "Admin")]
      [HttpPost("orderOffer")]
      public async Task<IActionResult> AddOrderOffer(OrderOfferRegistryDTO request)
      {
@@ -115,6 +119,7 @@ public class OrderController : ControllerBase
      }
 
      [HttpPut]
+      [Authorize (Roles = "Admin")]
      [Route("{id}")]
      public async Task<IActionResult> UpdateOrder(int id, OrderUpdateDTO request)
      {
@@ -127,6 +132,9 @@ public class OrderController : ControllerBase
 
          return Ok(updatedOffer);
      }
+
+
+      [Authorize (Roles = "Admin")]
      [HttpPut]
      [Route("ChangeStatus/{id}/{statusId}")]
      public async Task<IActionResult> UpdateOrder(int id, int statusId)
@@ -141,6 +149,8 @@ public class OrderController : ControllerBase
          return Ok(updatedOrder);
      }
 
+
+ [Authorize (Roles = "Admin")]
      [HttpDelete]
      [Route("{id}")]
      public async Task<IActionResult> Delete(int id)

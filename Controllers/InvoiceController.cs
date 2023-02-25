@@ -10,7 +10,7 @@ using TheArtOfDev.HtmlRenderer.PdfSharp;
 using AutoMapper;
 using GuacAPI.Helpers;
 using Swashbuckle.AspNetCore;
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace GuacAPI.Controllers;
 
@@ -200,6 +200,7 @@ public class InvoiceController : ControllerBase
     ///
     ///</remarks>
     [HttpPut("invoiceProduct/{invoiceFurnisherId}/{productId}")]
+     [Authorize (Roles = "Admin")]
     public async Task<IActionResult> EditProductInvoice(int productId, int invoiceFurnisherId, InvoiceFurnisherProduct invoice)
     {
 
@@ -212,6 +213,7 @@ public class InvoiceController : ControllerBase
     }
 
     [HttpPut("{id}")]
+     [Authorize (Roles = "Admin")]
     public async Task<IActionResult> Update(int id, InvoiceFurnisherUpdate invoice)
     {
 
@@ -226,6 +228,7 @@ public class InvoiceController : ControllerBase
 
 
     [HttpDelete("{invoiceFurnisherId}/{productId}")]
+     [Authorize (Roles = "Admin")]
     public async Task<IActionResult> DeleteProductInvoice(int productId, int invoiceFurnisherId)
     {
 

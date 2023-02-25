@@ -14,17 +14,17 @@ public class RegisterRequest
     [Required] public string LastName { get; set; }
     [Required] public string Phone { get; set; }
 
-    [Required] public string Ville { get; set; }
+         public string Ville { get; set; }
 
-    [Required] public string Pays { get; set; }
+         public string Pays { get; set; }
 
-    [Required] public string Adress { get; set; }
+     public string Adress { get; set; }
 
-    [Required] public string Rue { get; set; }
+         public string Rue { get; set; }
 
-    [Required] public string CodePostal { get; set; }
+         public string CodePostal { get; set; }
 
-    [Required] public string Bio { get; set; }
+         public string Bio { get; set; }
 
 
 }

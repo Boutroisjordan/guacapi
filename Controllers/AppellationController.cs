@@ -1,5 +1,6 @@
 ﻿using GuacAPI.Models;
 using GuacAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GuacAPI.Controllers;
@@ -63,7 +64,8 @@ public class AppellationController : ControllerBase
         }
         return Ok(result);
     }
-
+    
+   [Authorize (Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> CreateAppellation(Appellation appellation)
     {
@@ -76,6 +78,7 @@ public class AppellationController : ControllerBase
         return Ok(result);
     }
 
+ [Authorize (Roles = "Admin")]
     [HttpPut]
     [Route("{id}")]
     public async Task<IActionResult> UpdateAppellation(int id, Appellation appellation)
@@ -88,6 +91,7 @@ public class AppellationController : ControllerBase
         return Ok(result);
     }
 
+ [Authorize (Roles = "Admin")]
     [HttpDelete]
     [Route("{id}")]
     public async Task<IActionResult> DeleteAppellation(int id)

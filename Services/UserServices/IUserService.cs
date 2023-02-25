@@ -18,6 +18,7 @@ public interface IUserService
     AuthenticateResponse Login(AuthenticateRequest model);
     User GetUserByRefreshToken(string token);
     void Update(int id, UpdateRequest model);
+    void ResetPassword(string email);
      void  VerifyEmail(string token,string email);
     IEnumerable<User> GetAll();
     User GetById(int id);

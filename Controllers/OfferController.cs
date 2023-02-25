@@ -3,6 +3,8 @@ using GuacAPI.Context;
 using Microsoft.AspNetCore.Mvc;
 using GuacAPI.Services;
 using System.IO;
+using Microsoft.AspNetCore.Authorization;
+
 namespace GuacAPI.Controllers;
  
 [Route("[controller]")]
@@ -104,6 +106,7 @@ public class OfferController : ControllerBase
       }
 
      [HttpPost]
+      [Authorize (Roles = "Admin")]
      public async Task<IActionResult> AddOne(OfferRegister request)
      {
 
@@ -116,6 +119,7 @@ public class OfferController : ControllerBase
          return Ok(addedOffer);
      }
 
+ [Authorize (Roles = "Admin")]
      [HttpPut]
      [Route("{id}")]
      public async Task<IActionResult> UpdateOffer(int id, OfferRegister request)
@@ -130,6 +134,7 @@ public class OfferController : ControllerBase
          return Ok(updatedOffer);
      }
 
+ [Authorize (Roles = "Admin")]
      [HttpDelete]
      [Route("{id}")]
      public async Task<IActionResult> DeleteOffer(int id)
@@ -143,6 +148,8 @@ public class OfferController : ControllerBase
 
          return Ok(offer);
      }
+
+      [Authorize (Roles = "Admin")]
     [HttpPost("UploadFile")]
      public async Task<String> UploadImage(IFormFile inputFile)
      {
@@ -170,6 +177,8 @@ public class OfferController : ControllerBase
             throw new Exception($"error : {ex}");
         }
      }
+
+      [Authorize (Roles = "Admin")]
     [HttpGet("DeleteFile")]
      public IActionResult DeleteImage(string path)
      {

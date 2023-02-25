@@ -2,6 +2,7 @@ using GuacAPI.Models;
 using GuacAPI.Context;
 using Microsoft.AspNetCore.Mvc;
 using GuacAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GuacAPI.Controllers;
  
@@ -100,6 +101,7 @@ public class FurnisherController : ControllerBase
     }
 
     [HttpPost]
+     [Authorize (Roles = "Admin")]
     public async Task<IActionResult> CreateFurnisher(FurnisherRegister furnisher)
     {
         try
@@ -119,6 +121,7 @@ public class FurnisherController : ControllerBase
     }
 
     [HttpPut]
+     [Authorize (Roles = "Admin")]
     [Route("{id}")]
     public async Task<IActionResult> UpdateFurnisher(int id, FurnisherRegister furnisher)
     {
@@ -144,6 +147,7 @@ public class FurnisherController : ControllerBase
     }
 
     [HttpDelete]
+     [Authorize (Roles = "Admin")]
     [Route("{id}")]
     public async Task<IActionResult> DeleteFurnisher(int id)
     {

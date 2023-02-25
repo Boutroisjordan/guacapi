@@ -2,6 +2,7 @@ using GuacAPI.Models;
 using GuacAPI.Context;
 using Microsoft.AspNetCore.Mvc;
 using GuacAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GuacAPI.Controllers;
  
@@ -54,6 +55,7 @@ public class RegionController : ControllerBase
     }
 
     [HttpPost]
+     [Authorize (Roles = "Admin")]
     public async Task<IActionResult> AddOne(RegionRegister request)
     {
         IActionResult result = this.BadRequest();
@@ -68,6 +70,7 @@ public class RegionController : ControllerBase
     }
 
     [HttpPut]
+     [Authorize (Roles = "Admin")]
     [Route("{id}")]
 
     public async Task<IActionResult> UpdateRegion(int id, RegionRegister request)
@@ -83,6 +86,7 @@ public class RegionController : ControllerBase
     }
 
     [HttpDelete]
+     [Authorize (Roles = "Admin")]
     [Route("{id}")]
     public async Task<IActionResult> DeleteRegion(int id)
     {
