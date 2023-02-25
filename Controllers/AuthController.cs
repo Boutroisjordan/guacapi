@@ -77,12 +77,17 @@ namespace guacapi.Controllers
             return Unauthorized(new { message = "Unauthorized" });
         }
 
-        [HttpGet("TestEmail")]
-        public IActionResult TestEmail() 
+        [HttpGet("ConfirmEmail")]
+        public IActionResult VerifyUserMail(string token,string email) 
         {
-            var message = new MessageMail(new string[] { "leceethibaut@gmail.com" }, "Test", "<h1>Test</h1>");
-            _emailService.SendEmail(message);
-            return StatusCode(StatusCodes.Status200OK, new { Status = "Success", Message = "Email sent successfully" });
+            if(token == null || email == null)
+            {
+                return BadRequest("Invalid client request");
+            }
+             _userService.VerifyEmail(token, email);
+        
+            return Ok(new { message = "Email verified successfully" });
+
         }
 
         [HttpDelete("delete/{id}")]
@@ -101,8 +106,19 @@ namespace guacapi.Controllers
         [HttpPost("Register")]
         public IActionResult Register(RegisterRequest model)
         {
-            _userService.Register(model);
-            return StatusCode(201, "User created successfully");
+            var response = _userService.Register(model);
+            if(response != null) {
+                var token = response.VerifyToken;
+                var confirmationLink = Url.Action(nameof(VerifyUserMail), "Auth", new { token, email = model.Email }, Request.Scheme);
+                var recipientName = model.FirstName + " " + model.LastName;
+                var contactEmail = "guacaprocesi@gmail.com";
+                var message = new MessageMail(new string[] { model.Email }, "Confirmation de votre compte", model.Username, contactEmail,recipientName, confirmationLink);
+                _emailService.SendEmail(message);
+                return Ok(new { message = "User registered successfully", response });
+            } else
+            {
+                return BadRequest(new { message = "User already exists" });
+            }
         }
 
 
@@ -298,38 +314,7 @@ namespace guacapi.Controllers
 
 
 
-        // private IActionResult CheckTokenToBDD(string token, int id)
-        // {
-        // var user = _userService.GetById(id);
-        // var tokenId = user.RefreshTokens.Find(x => x.Token == token);
-        // if (tokenId.TokenExpires < DateTime.UtcNow && tokenId.Token != null)
-        // {
-        //     user.RefreshTokens.Remove(user.RefreshTokens.Find(x => x.Token == token));
-
-        //     return Unauthorized(new { message = "Unauthorized" });
-        // }
-
-        // if (tokenId == null)
-        // {
-        //     if (user.RefreshTokens.Find(x => x.newToken == token).newToken != null)
-        //     {
-        //         if (user.RefreshTokens.Find(x => x.newToken == token).newTokenExpires < DateTime.UtcNow)
-        //         {
-        //             user.RefreshTokens.Remove(user.RefreshTokens.Find(x => x.newToken == token));
-
-        //             return Unauthorized(new { message = "Unauthorized" });
-        //         }
-        //         else
-        //         {
-        //             return StatusCode(201, user.RefreshTokens.Find(x => x.newToken == token));
-        //         }
-        //     }
-        //     else
-        //     {
-        //         return Unauthorized(new { message = "Unauthorized" });
-        //     }
-        // };
-        // return StatusCode(201, user.RefreshTokens.FirstOr(x => x.Token == token));
+      
     }
 
 

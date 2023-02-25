@@ -14,6 +14,8 @@ public class User
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string Phone { get; set; }
+
+    public string VerifyToken { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public string Ville { get; set; }
     public string Pays { get; set; }
@@ -22,7 +24,7 @@ public class User
     public string CodePostal { get; set; }
     public string Bio { get; set; }
     
-    public DateTime? VerifiedAt { get; set; }
+    public DateTime VerifiedAt { get; set; }
     public int RoleId {get; set;}
     public Role Role { get; set; }
 

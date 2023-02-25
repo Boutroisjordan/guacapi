@@ -86,7 +86,7 @@ public class UserService : IUserService
         return user;
     }
 
-    public void Register(RegisterRequest request)
+    public RegisterResponse Register(RegisterRequest request)
     {
         if (_context.Users.Any(x => x.Username == request.Username) ||
             _context.Users.Any(x => x.Email == request.Email))
@@ -96,8 +96,12 @@ public class UserService : IUserService
         var register = _mapper.Map<User>(request);
         register.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
         register.RoleId = 2;
+        register.VerifyToken = Guid.NewGuid().ToString();
+        
         _context.Users.Add(register);
         _context.SaveChanges();
+
+        return new RegisterResponse(register, register.VerifyToken);
     }
 
     public AuthenticateResponse Login(AuthenticateRequest model)
@@ -107,7 +111,8 @@ public class UserService : IUserService
 
         if (user == null || BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash) == false)
             throw new AppException("Username or password is incorrect");
-
+       if(user.VerifiedAt == null)
+            throw new AppException("Please verify your email address");
         var AccessToken = _jwtUtils.GenerateAccessToken(user);
 
         // Save changes to the database
@@ -116,6 +121,17 @@ public class UserService : IUserService
         return new AuthenticateResponse(user, AccessToken.AccessToken, AccessToken.NewToken, AccessToken.AccessTokenExpires, AccessToken.NewTokenExpires);
     }
 
+public void VerifyEmail(string token, string email) {
+    var user = _context.Users.SingleOrDefault(u => u.VerifyToken == token && u.Email == email);
+    if (user == null) {
+        throw new AppException("Token is incorrect");
+    }
+    user.VerifiedAt = DateTime.UtcNow;
+    user.VerifyToken = null;
+    _context.Users.Update(user);
+    _context.SaveChanges();
+
+}
 
 
 
@@ -166,8 +182,6 @@ public class UserService : IUserService
         if (user == null) throw new KeyNotFoundException("Tous les tokens sont expirés");
         return user;
     }
-
-
 
 
 

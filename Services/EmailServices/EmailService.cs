@@ -20,7 +20,7 @@ namespace GuacAPI.Services.EmailServices;
         private MimeMessage CreateEmailMessage(MessageMail message)
         {
             var emailMessage = new MimeMessage();
-            emailMessage.From.Add(new MailboxAddress("email", _emailConfig.From));
+            emailMessage.From.Add(new MailboxAddress("GuacaProMail", _emailConfig.From));
             emailMessage.To.AddRange(message.To);
             emailMessage.Subject = message.Subject;
             var builder = new BodyBuilder();

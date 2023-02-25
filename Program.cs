@@ -15,6 +15,7 @@ using Microsoft.Extensions.FileProviders;
 using System.Reflection;
 using GuacAPI.Services.EmailServices;
 using GuacAPI.Models.Users;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,7 +66,8 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 
 });
-
+builder.Services.Configure<IdentityOptions>(
+    options => options.SignIn.RequireConfirmedEmail = true);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

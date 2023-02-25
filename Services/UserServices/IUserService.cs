@@ -13,12 +13,12 @@ public interface IUserService
     Task<User> GetUserByEmail(string email);
     Task<User> UpdateUser(int id, UpdateRequest model);
     Task<User> DeleteUser(int id);
-    void Register(RegisterRequest request);
+    RegisterResponse Register(RegisterRequest request);
     // AuthenticateResponse Login(AuthenticateRequest request);
     AuthenticateResponse Login(AuthenticateRequest model);
     User GetUserByRefreshToken(string token);
     void Update(int id, UpdateRequest model);
-
+     void  VerifyEmail(string token,string email);
     IEnumerable<User> GetAll();
     User GetById(int id);
 }
