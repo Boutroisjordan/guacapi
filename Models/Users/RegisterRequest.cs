@@ -14,17 +14,8 @@ public class RegisterRequest
     [Required] public string LastName { get; set; }
     [Required] public string Phone { get; set; }
 
-         public string Ville { get; set; }
+     public string Address { get; set; }
 
-         public string Pays { get; set; }
-
-     public string Adress { get; set; }
-
-         public string Rue { get; set; }
-
-         public string CodePostal { get; set; }
-
-         public string Bio { get; set; }
 
 
 }

@@ -17,12 +17,7 @@ public class User
 
     public string VerifyToken { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
-    public string Ville { get; set; }
-    public string Pays { get; set; }
-    public string Adress { get; set; }
-    public string Rue { get; set; }
-    public string CodePostal { get; set; }
-    public string Bio { get; set; }
+    public string Address { get; set; }
     
     public DateTime VerifiedAt { get; set; }
     public int RoleId {get; set;}
