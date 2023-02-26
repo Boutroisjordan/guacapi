@@ -2,6 +2,7 @@
 using GuacAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using BCrypt;
 
 namespace GuacAPI.Context.TypeConfigurations;
 
@@ -9,6 +10,11 @@ class UserEntityConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
+        var password = BCrypt.Net.BCrypt.HashPassword("pguvepujbvpùejubpisjvpùisjfiophazjefomughazilmoufbgqkouzgfimgfl");
+
+        builder.HasData(
+            new User { UserId = 1, Username = "guacadmin", Email = "guacaprocesi@gmail.com", FirstName="admin", LastName= "admin", Phone= "00000000", PasswordHash=password, VerifyToken=null, VerifiedAt=DateTime.Now, RoleId=1, Address="" }
+        );
     }
 }
 
