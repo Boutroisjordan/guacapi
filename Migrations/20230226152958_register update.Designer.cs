@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuacAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230225134810_verifytoken pour smtp")]
-    partial class verifytokenpoursmtp
+    [Migration("20230226152958_register update")]
+    partial class registerupdate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -67,13 +67,7 @@ namespace GuacAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
-                    b.Property<string>("Adress")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Bio")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CodePostal")
+                    b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -91,28 +85,19 @@ namespace GuacAPI.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Pays")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Phone")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Rue")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Username")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("VerifiedAt")
+                    b.Property<DateTime>("VerifiedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("VerifyToken")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Ville")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UserId");

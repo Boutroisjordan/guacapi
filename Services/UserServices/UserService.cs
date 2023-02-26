@@ -35,11 +35,6 @@ public class UserService : IUserService
     // pas mettre de variable dans la function, mais utiliser le _httpContextAccessor
 
 
-    public async Task<List<User>> GetAllUsers()
-    {
-        var users = await _context.Users.ToListAsync();
-        return users;
-    }
 
     public Task<User> GetUserById(int id)
     {
@@ -50,7 +45,11 @@ public class UserService : IUserService
 
 
     //todo verifier si email deja existant
-
+ public IEnumerable<User> GetAllUsersWithRoleId(int id)
+    {
+        var users = _context.Users.Where(u => u.RoleId == id).ToList();
+        return users;
+    }
     public async Task<User> GetUserByUsername(string username)
     {
 
@@ -111,7 +110,7 @@ public class UserService : IUserService
 
         if (user == null || BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash) == false)
             throw new AppException("Username or password is incorrect");
-       if(user.VerifiedAt == null)
+       if(user.VerifiedAt == default(DateTime))
             throw new AppException("Please verify your email address");
         var AccessToken = _jwtUtils.GenerateAccessToken(user);
 

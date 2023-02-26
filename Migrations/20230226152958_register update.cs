@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GuacAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class init3 : Migration
+    public partial class registerupdate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -215,8 +215,10 @@ namespace GuacAPI.Migrations
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    VerifyToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    VerifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    VerifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     RoleId = table.Column<int>(type: "int", nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -342,10 +344,10 @@ namespace GuacAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Token = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TokenExpires = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    newToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    newTokenExpires = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AccessToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AccessTokenExpires = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    NewToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NewTokenExpires = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false)
                 },

@@ -105,7 +105,13 @@ namespace guacapi.Controllers
             return Ok(new { message = "User deleted successfully" });
         }
 
-
+[Authorize (Roles = "Admin")]
+        [HttpGet("GetUsersByRoleId/{id}")]
+           public IActionResult GetUsersByRoleId(int id)
+        {
+            var users = _userService.GetAllUsersWithRoleId(id);
+            return Ok(users);
+        }
         [HttpPost("Register")]
         public IActionResult Register(RegisterRequest model)
         {
