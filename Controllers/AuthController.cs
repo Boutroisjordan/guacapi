@@ -123,7 +123,7 @@ namespace guacapi.Controllers
                 var contactEmail = "guacaprocesi@gmail.com";
                 var message = new MessageMail(new string[] { model.Email }, "Confirmation de votre compte", model.Username, contactEmail,recipientName, confirmationLink);
                 _emailService.SendEmail(message);
-                return Ok(new { message = "User registered successfully", response });
+                return Created("User registered successfully", response);
             } else
             {
                 return BadRequest(new { message = "User already exists" });
@@ -216,6 +216,22 @@ namespace guacapi.Controllers
         {
             var byId = _userService.GetById(id);
             return Ok(byId);
+        }
+
+
+          [Authorize]
+        [HttpGet("GetMesInfos")]
+        public IActionResult GetMesInfos()
+        {
+            var refreshToken = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            if (refreshToken == null)
+                return Unauthorized(new { message = "Unauthorized" });
+            var user = CheckToken(refreshToken);
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Unauthorized" });
+            }
+            return Ok(new { user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone,user.RoleId});
         }
 
 
