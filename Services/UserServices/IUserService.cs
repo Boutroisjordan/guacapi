@@ -11,13 +11,13 @@ public interface IUserService
     Task<User> GetUserById(int id);
     Task<User> GetUserByUsername(string username);
     Task<User> GetUserByEmail(string email);
-    Task<User> UpdateUser(int id, UpdateRequest model);
+    Task<User> UpdateUserByAdmin(int id, UpdateRequestAdmin model);
+    Task<User> UpdateUserByUser(int id, UserUpdateRequest model);
     Task<User> DeleteUser(int id);
     RegisterResponse Register(RegisterRequest request);
     // AuthenticateResponse Login(AuthenticateRequest request);
     AuthenticateResponse Login(AuthenticateRequest model);
     User GetUserByRefreshToken(string token);
-    void Update(int id, UpdateRequest model);
     void ResetPassword(string email);
      void  VerifyEmail(string token,string email);
     IEnumerable<User> GetAll();

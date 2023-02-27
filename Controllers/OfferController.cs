@@ -6,7 +6,7 @@ using System.IO;
 using Microsoft.AspNetCore.Authorization;
 
 namespace GuacAPI.Controllers;
- 
+
 [Route("[controller]")]
 [ApiController]
 public class OfferController : ControllerBase
@@ -28,141 +28,146 @@ public class OfferController : ControllerBase
 
     #endregion
 
-     [HttpGet]
-     public async Task<IActionResult> GetAllOffers()
-     {
-         var offerList = await _offerService.GetAllOffers();
-         if (offerList == null)
-         {
-             return BadRequest();
-         }
-         else if (offerList.Count == 0)
-         {
-             return NoContent();
-         }
-         return Ok(offerList);
-     }
-     [HttpGet("draft")]
-     public async Task<IActionResult> GetAllDraftOffers()
-     {
-         var offerList = await _offerService.GetDraftOffer();
-         if (offerList == null)
-         {
-             return BadRequest();
-         }
-         else if (offerList.Count == 0)
-         {
-             return NoContent();
-         }
-         return Ok(offerList);
-     }
+    [HttpGet]
+    public async Task<IActionResult> GetAllOffers()
+    {
+        var offerList = await _offerService.GetAllOffers();
+        if (offerList == null)
+        {
+            return BadRequest();
+        }
+        else if (offerList.Count == 0)
+        {
+            return NoContent();
+        }
+        return Ok(offerList);
+    }
+    [HttpGet("draft")]
+    public async Task<IActionResult> GetAllDraftOffers()
+    {
+        var offerList = await _offerService.GetDraftOffer();
+        if (offerList == null)
+        {
+            return BadRequest();
+        }
+        else if (offerList.Count == 0)
+        {
+            return NoContent();
+        }
+        return Ok(offerList);
+    }
 
-     [HttpGet]
-     [Route("{id}")]
-     public async Task<IActionResult> GetOneOffer(int id)
-     {
-         var offer = await _offerService.GetOfferById(id);
+    [HttpGet]
+    [Route("{id}")]
+    public async Task<IActionResult> GetOneOffer(int id)
+    {
+        var offer = await _offerService.GetOfferById(id);
 
-         if (offer == null)
-         {
-             return BadRequest();
-         }
-         return this.Ok(offer);
-     }
+        if (offer == null)
+        {
+            return BadRequest();
+        }
+        return this.Ok(offer);
+    }
 
-//Check la disponibilité d'un produit avant d'aller sur la page, route de vérificiation clément
-     [HttpGet]
-     [Route("checkOfferIsAvailable/{id}")]
-     public async Task<IActionResult> checkAvailabilityOfOneOffer(int id)
-     {
-         var offer = await _offerService.checkAvailabilityOfOneOffer(id);
+    //Check la disponibilité d'un produit avant d'aller sur la page, route de vérificiation clément
+    [HttpGet]
+    [Route("checkOfferIsAvailable/{id}")]
+    public async Task<IActionResult> checkAvailabilityOfOneOffer(int id)
+    {
+        var offer = await _offerService.checkAvailabilityOfOneOffer(id);
 
-         return this.Ok(offer);
-     }
+        return this.Ok(offer);
+    }
 
-      [HttpGet]
-      [Route("availableOffer")]
-      public async Task<IActionResult> GetAvailableOffer()
-      {
-          var offer = await _offerService.GetAvailableOffers();
-
-        //    if (offer == null)
-        //    {
-        //        return BadRequest();
-        //    }
-          return this.Ok(offer);
-      }
-      [HttpGet]
-      [Route("unavailableOffer")]
-      public async Task<IActionResult> GetUnavailableOffer()
-      {
-          var offer = await _offerService.GetUnavailableOffers();
+    [HttpGet]
+    [Route("availableOffer")]
+    public async Task<IActionResult> GetAvailableOffer()
+    {
+        var offer = await _offerService.GetAvailableOffers();
 
         //    if (offer == null)
         //    {
         //        return BadRequest();
         //    }
-          return this.Ok(offer);
-      }
+        return this.Ok(offer);
+    }
+    [HttpGet]
+    [Route("unavailableOffer")]
+    public async Task<IActionResult> GetUnavailableOffer()
+    {
+        var offer = await _offerService.GetUnavailableOffers();
 
-     [HttpPost]
-      [Authorize (Roles = "Admin")]
-     public async Task<IActionResult> AddOne(OfferRegister request)
-     {
+        //    if (offer == null)
+        //    {
+        //        return BadRequest();
+        //    }
+        return this.Ok(offer);
+    }
 
-         var addedOffer = await _offerService.AddOffer(request);
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AddOne(OfferRegister request)
+    {
 
-         if (addedOffer == null)
-         {
-             return BadRequest();
-         }
-         return Ok(addedOffer);
-     }
+        var addedOffer = await _offerService.AddOffer(request);
 
- [Authorize (Roles = "Admin")]
-     [HttpPut]
-     [Route("{id}")]
-     public async Task<IActionResult> UpdateOffer(int id, OfferRegister request)
-     {
-         var updatedOffer = await _offerService.UpdateOffer(id, request);
+        if (addedOffer == null)
+        {
+            return BadRequest();
+        }
+        return Ok(addedOffer);
+    }
 
-         if (updatedOffer == null)
-         {
-             BadRequest();
-         }
 
-         return Ok(updatedOffer);
-     }
 
- [Authorize (Roles = "Admin")]
-     [HttpDelete]
-     [Route("{id}")]
-     public async Task<IActionResult> DeleteOffer(int id)
-     {
-         var offer = await this._offerService.DeleteOffer(id);
 
-         if (offer == null)
-         {
-             return BadRequest();
-         }
 
-         return Ok(offer);
-     }
+    [Authorize(Roles = "Admin")]
+    [HttpPut]
+    [Route("{id}")]
+    public async Task<IActionResult> UpdateOffer(int id, OfferRegister request)
+    {
+        var updatedOffer = await _offerService.UpdateOffer(id, request);
 
-      [Authorize (Roles = "Admin")]
+        if (updatedOffer == null)
+        {
+            BadRequest();
+        }
+
+        return Ok(updatedOffer);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpDelete]
+    [Route("{id}")]
+    public async Task<IActionResult> DeleteOffer(int id)
+    {
+        var offer = await this._offerService.DeleteOffer(id);
+
+        if (offer == null)
+        {
+            return BadRequest();
+        }
+
+        return Ok(offer);
+    }
+
+    [Authorize(Roles = "Admin")]
     [HttpPost("UploadFile")]
-     public async Task<String> UploadImage(IFormFile inputFile)
-     {
+    public async Task<String> UploadImage(IFormFile inputFile)
+    {
         // bool Results = false;
-        try {
+        try
+        {
             var file = Request.Form.Files[0];
             string fName = file.FileName;
-            
+
             string[] splitpath = file.FileName.Split('.');
             var myUniqueFileName = string.Format(@"{0}." + splitpath[1], DateTime.Now.Ticks);
             string path = Path.Combine("Images", myUniqueFileName);
             string absolutePath = Path.Combine(_environment.ContentRootPath, path);
-            if(System.IO.File.Exists(absolutePath))
+            if (System.IO.File.Exists(absolutePath))
             {
                 throw new Exception("file name already exist");
             }
@@ -172,20 +177,22 @@ public class OfferController : ControllerBase
             }
             // return $"{file.FileName} successfully uploaded to the Server";
             return path;
-        } 
-        catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             throw new Exception($"error : {ex}");
         }
-     }
+    }
 
-      [Authorize (Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [HttpGet("DeleteFile")]
-     public IActionResult DeleteImage(string path)
-     {
+    public IActionResult DeleteImage(string path)
+    {
         // bool Results = false;
-        try {
+        try
+        {
             var completePath = Path.Combine(_environment.ContentRootPath, path);
-            if(!System.IO.File.Exists(completePath))
+            if (!System.IO.File.Exists(completePath))
             {
                 throw new Exception("file doesn't exist");
             }
@@ -193,10 +200,11 @@ public class OfferController : ControllerBase
             System.IO.File.Delete(completePath);
             // return $"{file.FileName} successfully uploaded to the Server";
             return Ok("Image Deleted");
-        } 
-        catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             throw new Exception($"error : {ex}");
         }
-     }
+    }
 }
 

@@ -61,13 +61,34 @@ public class UserService : IUserService
     }
 
 
-    public async Task<User> UpdateUser(int id, UpdateRequest request)
+    public async Task<User> UpdateUserByAdmin(int id, UpdateRequestAdmin request)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
+        var newProduct = _mapper.Map(request, user);
+        if (user == null) return null;
+        user.Username = request.Username;
+        user.Address = request.Address;
+        user.LastName = request.LastName;
+        user.FirstName = request.FirstName;
+        user.RoleId = request.RoleId;
+        user.Phone = request.Phone;
+        user.Email = request.Email;
+
+        await _context.SaveChangesAsync();
+        return user;
+    }
+
+      public async Task<User> UpdateUserByUser(int id, UserUpdateRequest request)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
         var newProduct = _mapper.Map(request, user);
         if (user == null) return null;
         user.Username = request.Username;
         user.Email = request.Email;
+        user.Address = request.Address;
+        user.LastName = request.LastName;
+        user.FirstName = request.FirstName;
+
 
         await _context.SaveChangesAsync();
         return user;
@@ -154,20 +175,6 @@ public class UserService : IUserService
         _context.Users.Update(user);
         _context.SaveChanges();
     }
-
-    public void Update(int id, UpdateRequest model)
-    {
-        var user = GetUser(id);
-
-        // validate
-        if (model.Username != user.Username && _context.Users.Any(x => x.Username == model.Username))
-            throw new AppException("Username '" + model.Username + "' is already taken");
-        // copy model to user and save
-        _mapper.Map(model, user);
-        _context.Users.Update(user);
-        _context.SaveChanges();
-    }
-
 
     public IEnumerable<User> GetAll()
     {

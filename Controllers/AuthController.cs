@@ -8,11 +8,9 @@ using GuacAPI.Models.Users;
 using GuacAPI.Services.UserServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using GuacAPI.Services.EmailServices;
-using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
 
 namespace guacapi.Controllers
@@ -175,7 +173,7 @@ namespace guacapi.Controllers
                                 HttpOnly = true,
                                 Expires = expirationTime
                             };
-                            return Ok(new {user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone, user.RoleId, user.RefreshToken.AccessToken, user.RefreshToken.NewToken, user.RefreshToken.AccessTokenExpires, user.RefreshToken.NewTokenExpires, expiration = expirationTime.ToUnixTimeSeconds() });
+                            return Ok(new { user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone, user.RoleId, user.RefreshToken.AccessToken, user.RefreshToken.NewToken, user.RefreshToken.AccessTokenExpires, user.RefreshToken.NewTokenExpires, expiration = expirationTime.ToUnixTimeSeconds() });
                         }
 
                         var newRefreshToken = _jwtUtils.GenerateRefreshToken(user);
@@ -196,7 +194,7 @@ namespace guacapi.Controllers
                 }
                 catch (SecurityTokenException)
                 {
-                    return Unauthorized(new { message = "Unauthorized" });
+                    return Unauthorized(new { message = "Unauthorized " });
                 }
             }
 
@@ -248,14 +246,26 @@ namespace guacapi.Controllers
 
         [Authorize
         (Roles = "Admin")]
-        [HttpPut("UpdateUser/{id}")]
-        public async Task<IActionResult> Update(int id, UpdateRequest model)
+        [HttpPut("UpdateUserByAdmin/{id}")]
+        public async Task<IActionResult> Update(int id, UpdateRequestAdmin model)
         {
-            var updatedUser = await _userService.UpdateUser(id, model);
+            var updatedUser = await _userService.UpdateUserByAdmin(id, model);
             if (updatedUser == null)
                 return BadRequest(new { message = "User not found" });
             return Ok(updatedUser);
         }
+
+  [Authorize
+        (Roles = "Client")]
+        [HttpPut("UpdateUserByUser/{id}")]
+        public async Task<IActionResult> Update(int id, UserUpdateRequest model)
+        {
+            var updatedUser = await _userService.UpdateUserByUser(id, model);
+            if (updatedUser == null)
+                return BadRequest(new { message = "User not found" });
+            return Ok(updatedUser);
+        }
+        
 
         [Authorize(Roles = "Admin")]
         [HttpGet("GetUserByToken")]
