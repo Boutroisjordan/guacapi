@@ -38,9 +38,9 @@ namespace guacapi.Controllers
             _emailService = emailService;
 
         }
-    
 
-        [Authorize (Roles = "Admin")]
+
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         [Route("GetUserByUsername/{username}")]
         public async Task<IActionResult> GetUserByUsername(string username)
@@ -59,7 +59,7 @@ namespace guacapi.Controllers
 
             return Unauthorized(new { message = "Unauthorized" });
         }
-        [Authorize (Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         [Route("GetUserByEmail/{email}")]
         public async Task<IActionResult> GetUserByEmail(string email)
@@ -80,20 +80,20 @@ namespace guacapi.Controllers
         }
 
         [HttpGet("ConfirmEmail")]
-        public IActionResult VerifyUserMail(string token,string email) 
+        public IActionResult VerifyUserMail(string token, string email)
         {
-            if(token == null || email == null)
+            if (token == null || email == null)
             {
                 return BadRequest("Invalid client request");
             }
-             _userService.VerifyEmail(token, email);
-        
+            _userService.VerifyEmail(token, email);
+
             return Redirect("https://www.guacatube.fr");
         }
 
 
-   [Authorize
-        (Roles = "Admin")]
+        [Authorize
+             (Roles = "Admin")]
         [HttpDelete("delete/{id}")]
         public async Task<ActionResult> Delete(int id)
         {
@@ -107,9 +107,9 @@ namespace guacapi.Controllers
         }
 
 
-[Authorize (Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpGet("GetUsersByRoleId/{id}")]
-           public IActionResult GetUsersByRoleId(int id)
+        public IActionResult GetUsersByRoleId(int id)
         {
             var users = _userService.GetAllUsersWithRoleId(id);
             return Ok(users);
@@ -120,15 +120,17 @@ namespace guacapi.Controllers
         public IActionResult Register(RegisterRequest model)
         {
             var response = _userService.Register(model);
-            if(response != null) {
+            if (response != null)
+            {
                 var token = response.VerifyToken;
                 var confirmationLink = Url.Action(nameof(VerifyUserMail), "Auth", new { token, email = model.Email }, Request.Scheme);
                 var recipientName = model.FirstName + " " + model.LastName;
                 var contactEmail = "guacaprocesi@gmail.com";
-                var message = new MessageMail(new string[] { model.Email }, "Confirmation de votre compte", model.Username, contactEmail,recipientName, confirmationLink);
+                var message = new MessageMail(new string[] { model.Email }, "Confirmation de votre compte", model.Username, contactEmail, recipientName, confirmationLink);
                 _emailService.SendEmail(message);
                 return Created("User registered successfully", response);
-            } else
+            }
+            else
             {
                 return BadRequest(new { message = "User already exists" });
             }
@@ -155,7 +157,7 @@ namespace guacapi.Controllers
         public IActionResult RefreshToken(RefreshTokenRequest model)
         {
             var refreshToken = model.refreshToken;
-           
+
             if (refreshToken != null)
             {
                 try
@@ -173,7 +175,7 @@ namespace guacapi.Controllers
                                 HttpOnly = true,
                                 Expires = expirationTime
                             };
-                            return Ok(new { user.UserId, user.RefreshToken.AccessToken, user.RefreshToken.NewToken, user.RefreshToken.AccessTokenExpires, user.RefreshToken.NewTokenExpires , expiration = expirationTime.ToUnixTimeSeconds() });
+                            return Ok(new {user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone, user.RoleId, user.RefreshToken.AccessToken, user.RefreshToken.NewToken, user.RefreshToken.AccessTokenExpires, user.RefreshToken.NewTokenExpires, expiration = expirationTime.ToUnixTimeSeconds() });
                         }
 
                         var newRefreshToken = _jwtUtils.GenerateRefreshToken(user);
@@ -189,7 +191,7 @@ namespace guacapi.Controllers
                         };
                         Response.Cookies.Append("AccessToken", newRefreshToken.AccessToken, cookieOptions);
 
-                        return Ok(new { user.UserId, user.RefreshToken.AccessToken, user.RefreshToken.NewToken, user.RefreshToken.AccessTokenExpires, user.RefreshToken.NewTokenExpires });
+                        return Ok(new { user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone, user.RoleId, user.RefreshToken.AccessToken, user.RefreshToken.NewToken, user.RefreshToken.AccessTokenExpires, user.RefreshToken.NewTokenExpires });
                     }
                 }
                 catch (SecurityTokenException)
@@ -202,7 +204,7 @@ namespace guacapi.Controllers
         }
 
 
-        [Authorize (Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpGet("GetAllUsers")]
         public IActionResult GetAll()
         {
@@ -212,7 +214,7 @@ namespace guacapi.Controllers
         }
 
 
-        [Authorize (Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpGet("GetUserById/{id}")]
         public IActionResult GetById(int id)
         {
@@ -220,7 +222,7 @@ namespace guacapi.Controllers
             return Ok(byId);
         }
 
-        [Authorize (Roles = "Admin,Client")]
+        [Authorize(Roles = "Admin,Client")]
         [HttpGet("GetMesInfos")]
         public IActionResult GetMesInfos()
         {
@@ -232,11 +234,11 @@ namespace guacapi.Controllers
             {
                 return Unauthorized(new { message = "Unauthorized" });
             }
-            return Ok(new { user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone,user.RoleId});
+            return Ok(new { user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone, user.RoleId });
         }
 
 
-        [Authorize (Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpGet("GetRefreshById/{id}/refresh-tokens")]
         public IActionResult GetRefreshTokens(int id)
         {
@@ -255,7 +257,7 @@ namespace guacapi.Controllers
             return Ok(updatedUser);
         }
 
-        [Authorize (Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpGet("GetUserByToken")]
         public IActionResult GetUserByToken()
         {
@@ -368,7 +370,7 @@ namespace guacapi.Controllers
 
 
 
-      
+
     }
 
 
