@@ -176,6 +176,7 @@ public class UserService : IUserService
         _context.SaveChanges();
     }
 
+
     public IEnumerable<User> GetAll()
     {
         return _context.Users;

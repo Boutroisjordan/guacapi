@@ -255,17 +255,25 @@ namespace guacapi.Controllers
             return Ok(updatedUser);
         }
 
-  [Authorize
-        (Roles = "Client")]
-        [HttpPut("UpdateMesInfos/{id}")]
-        public async Task<IActionResult> Update(int id, UserUpdateRequest model)
+        [Authorize
+              (Roles = "Client")]
+        [HttpPut("UpdateMesInfos")]
+        public async Task<IActionResult> Update(UserUpdateRequest model)
         {
-            var updatedUser = await _userService.UpdateUserByUser(id, model);
+            var accessToken = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            if (accessToken == null)
+                return Unauthorized(new { message = "Unauthorized" });
+            var user = _userService.GetUserByRefreshToken(accessToken);
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Unauthorized" });
+            }
+            var updatedUser = await _userService.UpdateUserByUser(user.UserId, model);
             if (updatedUser == null)
                 return BadRequest(new { message = "User not found" });
             return Ok(updatedUser);
         }
-        
+
 
         [Authorize(Roles = "Admin")]
         [HttpGet("GetUserByToken")]
