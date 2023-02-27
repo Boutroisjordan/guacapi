@@ -257,7 +257,7 @@ namespace guacapi.Controllers
 
   [Authorize
         (Roles = "Client")]
-        [HttpPut("UpdateUserByUser/{id}")]
+        [HttpPut("UpdateMesInfos/{id}")]
         public async Task<IActionResult> Update(int id, UserUpdateRequest model)
         {
             var updatedUser = await _userService.UpdateUserByUser(id, model);
