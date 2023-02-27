@@ -6,7 +6,7 @@ namespace GuacAPI.Services.UserServices;
 public interface IUserService
 {
 
-   IEnumerable<User> GetAllUsersWithRoleId(int id);
+    IEnumerable<User> GetAllUsersWithRoleId(int id);
 
     Task<User> GetUserById(int id);
     Task<User> GetUserByUsername(string username);
@@ -19,7 +19,7 @@ public interface IUserService
     AuthenticateResponse Login(AuthenticateRequest model);
     User GetUserByRefreshToken(string token);
     void ResetPassword(string email);
-     void  VerifyEmail(string token,string email);
+    void VerifyEmail(string token, string email);
     IEnumerable<User> GetAll();
     User GetById(int id);
 }

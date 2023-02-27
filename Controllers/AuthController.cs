@@ -173,11 +173,12 @@ namespace guacapi.Controllers
                                 HttpOnly = true,
                                 Expires = expirationTime
                             };
-                            return Ok(new { user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone, user.RoleId, user.RefreshToken.AccessToken, user.RefreshToken.NewToken, user.RefreshToken.AccessTokenExpires, user.RefreshToken.NewTokenExpires, expiration = expirationTime.ToUnixTimeSeconds() });
+                            
+                            return Ok(new { user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone, user.RoleId, user.RefreshToken.AccessToken, RefreshToken = user.RefreshToken.NewToken, user.RefreshToken.AccessTokenExpires, RefreshTokenExpires = user.RefreshToken.NewTokenExpires, expiration = expirationTime.ToUnixTimeSeconds() });
                         }
 
                         var newRefreshToken = _jwtUtils.GenerateRefreshToken(user);
-                        user.RefreshToken.AccessTokenExpires = DateTime.UtcNow.AddHours(1);
+                        user.RefreshToken.AccessTokenExpires = newRefreshToken.AccessTokenExpires;
                         user.RefreshToken.AccessToken = newRefreshToken.AccessToken;
                         _context.Update(user);
                         _context.SaveChanges();
@@ -185,11 +186,12 @@ namespace guacapi.Controllers
                         var cookieOptions = new CookieOptions
                         {
                             HttpOnly = true,
-                            Expires = DateTime.UtcNow.AddHours(1)
+                            Expires = newRefreshToken.AccessTokenExpires
                         };
                         Response.Cookies.Append("AccessToken", newRefreshToken.AccessToken, cookieOptions);
+                        
 
-                        return Ok(new { user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone, user.RoleId, user.RefreshToken.AccessToken, user.RefreshToken.NewToken, user.RefreshToken.AccessTokenExpires, user.RefreshToken.NewTokenExpires });
+                        return Ok(new { user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone, user.RoleId, user.RefreshToken.AccessToken, refreshToken =  user.RefreshToken.NewToken, user.RefreshToken.AccessTokenExpires, refreshTokenExpires = user.RefreshToken.NewTokenExpires });
                     }
                 }
                 catch (SecurityTokenException)
@@ -362,10 +364,10 @@ namespace guacapi.Controllers
                     var cookieOptions = new CookieOptions
                     {
                         HttpOnly = true,
-                        Expires = DateTime.UtcNow.AddHours(1)
+                        Expires = newAccessToken.AccessTokenExpires
                     };
                     // update user with new AccessToken
-                    user.RefreshToken.AccessTokenExpires = DateTime.UtcNow.AddHours(1);
+                    user.RefreshToken.AccessTokenExpires = newAccessToken.AccessTokenExpires;
                     user.RefreshToken.AccessToken = newAccessToken.AccessToken;
                     _context.Update(user);
                     _context.SaveChanges();
