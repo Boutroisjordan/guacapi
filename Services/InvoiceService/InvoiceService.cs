@@ -46,7 +46,7 @@ public class InvoiceService : IInvoiceService
 
     public async Task<List<InvoiceFurnisher>> GetAllInvoicesFurnisher()
     {
-        var invoices = await _context.InvoicesFurnisher.ToListAsync();
+        var invoices = await _context.InvoicesFurnisher.Include(x => x.InvoicesFurnisherProduct).ThenInclude(x => x.Product).Include(x => x.Furnisher).ToListAsync();
 
         return invoices;
     }
