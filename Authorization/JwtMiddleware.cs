@@ -1,12 +1,8 @@
 using GuacAPI.Helpers;
-using GuacAPI.Models;
 using GuacAPI.Services.UserServices;
 using Microsoft.Extensions.Options;
 
 namespace GuacAPI.Authorization;
-
-using GuacAPI.Services;
-
 public class JwtMiddleware
 {
     private readonly RequestDelegate _next;
@@ -21,6 +17,11 @@ public class JwtMiddleware
 
     public async Task Invoke(HttpContext context, IUserService userService, IJwtUtils jwtUtils)
     {
+        if(context.Request.Path.Value.Contains("RefreshToken"))
+        {
+            await _next(context);
+            return;
+        }
         var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
         if (token != null)
         {

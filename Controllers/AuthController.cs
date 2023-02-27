@@ -40,7 +40,7 @@ namespace guacapi.Controllers
         }
     
 
-        [Authorize]
+        [Authorize (Roles = "Admin")]
         [HttpGet]
         [Route("GetUserByUsername/{username}")]
         public async Task<IActionResult> GetUserByUsername(string username)
@@ -59,7 +59,7 @@ namespace guacapi.Controllers
 
             return Unauthorized(new { message = "Unauthorized" });
         }
-        [Authorize]
+        [Authorize (Roles = "Admin")]
         [HttpGet]
         [Route("GetUserByEmail/{email}")]
         public async Task<IActionResult> GetUserByEmail(string email)
@@ -88,8 +88,7 @@ namespace guacapi.Controllers
             }
              _userService.VerifyEmail(token, email);
         
-            return Ok(new { message = "Email verified successfully" });
-
+            return Redirect("https://www.guacatube.fr");
         }
    [Authorize
         (Roles = "Admin")]
@@ -102,7 +101,7 @@ namespace guacapi.Controllers
                 return BadRequest();
             }
 
-            return Ok(new { message = "User deleted successfully" });
+            return Created("User deleted successfully", user);
         }
 
 [Authorize (Roles = "Admin")]
@@ -147,12 +146,11 @@ namespace guacapi.Controllers
 
         }
 
-
+        [Authorize (Roles = "Admin,Client")]
         [HttpPost("RefreshToken")]
-        public IActionResult RefreshToken()
+        public IActionResult RefreshToken(string refreshToken)
         {
-            var refreshToken = Request.Cookies["refreshToken"];
-
+           
             if (refreshToken != null)
             {
                 try
@@ -170,7 +168,7 @@ namespace guacapi.Controllers
                                 HttpOnly = true,
                                 Expires = expirationTime
                             };
-                            return Ok(new { token = user.RefreshToken.AccessToken, expiration = expirationTime.ToUnixTimeSeconds() });
+                            return Ok(new { user.UserId, user.RefreshToken.AccessToken, user.RefreshToken.NewToken, user.RefreshToken.AccessTokenExpires, user.RefreshToken.NewTokenExpires , expiration = expirationTime.ToUnixTimeSeconds() });
                         }
 
                         var newRefreshToken = _jwtUtils.GenerateRefreshToken(user);
@@ -186,9 +184,8 @@ namespace guacapi.Controllers
                         };
                         Response.Cookies.Append("AccessToken", newRefreshToken.AccessToken, cookieOptions);
 
-                        return Ok(newRefreshToken.AccessToken);
+                        return Ok(new { user.UserId, user.RefreshToken.AccessToken, user.RefreshToken.NewToken, user.RefreshToken.AccessTokenExpires, user.RefreshToken.NewTokenExpires });
                     }
-
                 }
                 catch (SecurityTokenException)
                 {
@@ -218,15 +215,14 @@ namespace guacapi.Controllers
             return Ok(byId);
         }
 
-
-          [Authorize]
+        [Authorize (Roles = "Admin,Client")]
         [HttpGet("GetMesInfos")]
         public IActionResult GetMesInfos()
         {
-            var refreshToken = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-            if (refreshToken == null)
+            var accessToken = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            if (accessToken == null)
                 return Unauthorized(new { message = "Unauthorized" });
-            var user = CheckToken(refreshToken);
+            var user = CheckToken(accessToken);
             if (user == null)
             {
                 return Unauthorized(new { message = "Unauthorized" });

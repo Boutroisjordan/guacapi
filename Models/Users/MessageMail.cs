@@ -1,7 +1,4 @@
-using System.Net.Mail;
-using System.Net.Mime;
 using MimeKit;
-using MimeKit.Utils;
 
 namespace GuacAPI.Models.Users
 {
@@ -29,7 +26,7 @@ var body = $"<html><head><style>" +
            "<body>" +
            "<h1>Confirmation de validation - GuacaGnole</h1>" +
            $"<p>Cher/Chère {recipientName},</p>" +
-           "<p>Nous sommes ravis de vous informer que votre compte a été validé avec succès sur notre plateforme GuacaGnole, spécialisée dans la vente de produits alimentaires mexicains de qualité supérieure.</p>" +
+           "<p>Nous sommes ravis de vous informer que votre compte a été validé avec succès sur notre plateforme GuacaGnole, spécialisée dans la vente d'alcools de qualité supérieure.</p>" +
            "<p>Votre compte vous permettra d'accéder à toutes les fonctionnalités de notre site, notamment la visualisation des produits, l'ajout de produits à votre panier d'achat, la gestion de vos commandes et le suivi de leur livraison.</p>" +
            "<p>Veuillez trouver ci-dessous votre nom d'utilisateur et votre mot de passe pour vous connecter à votre compte :</p>" +
            $"<p>Nom d'utilisateur : {userName}</p>" +

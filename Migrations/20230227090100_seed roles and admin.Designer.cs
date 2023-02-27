@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuacAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230226152958_register update")]
-    partial class registerupdate
+    [Migration("20230227090100_seed roles and admin")]
+    partial class seedrolesandadmin
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -105,6 +105,22 @@ namespace GuacAPI.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1,
+                            Address = "",
+                            CreatedAt = new DateTime(2023, 2, 27, 10, 1, 0, 136, DateTimeKind.Local).AddTicks(9786),
+                            Email = "guacaprocesi@gmail.com",
+                            FirstName = "admin",
+                            LastName = "admin",
+                            PasswordHash = "$2a$11$8zeHC3nziIvZw9Do9VZoPu0RRF3sVkoZ/Et5q.9pCO4HimH28bHRq",
+                            Phone = "00000000",
+                            RoleId = 1,
+                            Username = "guacadmin",
+                            VerifiedAt = new DateTime(2023, 2, 27, 10, 1, 0, 136, DateTimeKind.Local).AddTicks(9841)
+                        });
                 });
 
             modelBuilder.Entity("GuacAPI.Models.AlcoholType", b =>
@@ -1220,7 +1236,7 @@ namespace GuacAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Role");
+                    b.ToTable("Roles");
 
                     b.HasData(
                         new

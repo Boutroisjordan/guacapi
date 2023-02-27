@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GuacAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class registerupdate : Migration
+    public partial class seedrolesandadmin : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -115,7 +115,7 @@ namespace GuacAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Role",
+                name: "Roles",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -125,7 +125,7 @@ namespace GuacAPI.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Role", x => x.Id);
+                    table.PrimaryKey("PK_Roles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -226,9 +226,9 @@ namespace GuacAPI.Migrations
                 {
                     table.PrimaryKey("PK_Users", x => x.UserId);
                     table.ForeignKey(
-                        name: "FK_Users_Role_RoleId",
+                        name: "FK_Users_Roles_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "Role",
+                        principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -477,7 +477,7 @@ namespace GuacAPI.Migrations
                 values: new object[] { 1, "region 1" });
 
             migrationBuilder.InsertData(
-                table: "Role",
+                table: "Roles",
                 columns: new[] { "Id", "Description", "Name" },
                 values: new object[,]
                 {
@@ -532,6 +532,11 @@ namespace GuacAPI.Migrations
                 table: "Product",
                 columns: new[] { "ProductId", "AlcoholDegree", "AlcoholTypeId", "AppellationId", "DomainId", "FurnisherId", "ImageUrl", "Millesime", "Name", "Price", "Reference", "RegionId", "RestockOption", "Stock" },
                 values: new object[] { 1, 2f, 1, 1, 1, 1, "", 2010, "product 1", 12, "jndijfndjn", 1, true, 155 });
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "UserId", "Address", "CreatedAt", "Email", "FirstName", "LastName", "PasswordHash", "Phone", "RoleId", "Username", "VerifiedAt", "VerifyToken" },
+                values: new object[] { 1, "", new DateTime(2023, 2, 27, 10, 1, 0, 136, DateTimeKind.Local).AddTicks(9786), "guacaprocesi@gmail.com", "admin", "admin", "$2a$11$8zeHC3nziIvZw9Do9VZoPu0RRF3sVkoZ/Et5q.9pCO4HimH28bHRq", "00000000", 1, "guacadmin", new DateTime(2023, 2, 27, 10, 1, 0, 136, DateTimeKind.Local).AddTicks(9841), null });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Comment_OfferId",
@@ -662,7 +667,7 @@ namespace GuacAPI.Migrations
                 name: "appellation");
 
             migrationBuilder.DropTable(
-                name: "Role");
+                name: "Roles");
         }
     }
 }

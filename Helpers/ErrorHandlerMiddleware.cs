@@ -34,6 +34,11 @@ public class ErrorHandlerMiddleware
                     response.StatusCode = (int)HttpStatusCode.NotFound;
                     break;
 
+                // case forbidden error
+                case WebException e:
+                    response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    break;
+
                 case UnauthorizedAccessException e:
                     // not found error
                     response.StatusCode = (int)HttpStatusCode.Unauthorized;

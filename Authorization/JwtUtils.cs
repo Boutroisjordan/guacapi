@@ -8,6 +8,7 @@ namespace GuacAPI.Authorization;
 
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System.Data.Entity;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -32,105 +33,96 @@ public class JwtUtils : IJwtUtils
         _appSettings = appSettings.Value;
 
     }
-    // generate token that is valid for 7 days
-    // var tokenHandler = new JwtSecurityTokenHandler();
-    // if(_appSettings.Secret is null) {
-    //     throw new Exception("secret is null");
-    // }
-    // var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
-    // var tokenDescriptor = new SecurityTokenDescriptor
-    // {
-    //     Subject = new ClaimsIdentity(new[] { new Claim("id", user.UserId.ToString()) }),
-    //     Expires = DateTime.UtcNow.AddDays(7),
-    //     SigningCredentials =
-    //         new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-    // };
-    // var token = tokenHandler.CreateToken(tokenDescriptor);
-    // var tokenBdd = new RefreshToken
-    // {
-    //     Token = tokenHandler.WriteToken(token),
-    //     TokenExpires = DateTime.UtcNow.AddDays(7),
-    //     Created = DateTime.UtcNow,
-    // };
-    // return tokenHandler.WriteToken(token);        
+
     public RefreshToken GenerateAccessToken(User user)
-{
-    var tokenHandler = new JwtSecurityTokenHandler();
-    var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
-
-    // Crée un token d'accès valide pendant une heure
-    var tokenDescriptor = new SecurityTokenDescriptor
     {
-        Subject = new ClaimsIdentity(new[] { new Claim("id", user.UserId.ToString()) }),
-        Expires = DateTime.UtcNow.AddHours(8),
-        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-    };
-    var accessToken = tokenHandler.CreateToken(tokenDescriptor);
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
 
-    var refreshToken = _context.RefreshToken.SingleOrDefault(r => r.UserId == user.UserId);
+        // Crée un token d'accès valide pendant une heure
 
-  if (refreshToken != null && refreshToken.NewToken != null && refreshToken.NewTokenExpires > DateTime.UtcNow)
-{
-    if (refreshToken.AccessTokenExpires < DateTime.UtcNow)
-    {
-        // Mettre à jour le token d'accès expiré avec un nouveau token d'accès valide
-        accessToken = tokenHandler.CreateToken(tokenDescriptor);
-        refreshToken.AccessToken = tokenHandler.WriteToken(accessToken);
-        refreshToken.AccessTokenExpires = tokenDescriptor.Expires ?? throw new Exception("Could not create access token");
+var Role = _context.Roles.Include(r => r.Id).SingleOrDefault(r => r.Id == user.UserId).Name;
+Console.WriteLine("Role de l'utilisateur " + Role);
+
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new[] { new Claim("id", user.UserId.ToString()), new Claim(ClaimTypes.Role, Role) }),
+            Expires = DateTime.UtcNow.AddHours(8),
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        };
+        var accessToken = tokenHandler.CreateToken(tokenDescriptor);
+
+        var refreshToken = _context.RefreshToken.SingleOrDefault(r => r.UserId == user.UserId);
+
+        if (refreshToken != null && refreshToken.NewToken != null && refreshToken.NewTokenExpires > DateTime.UtcNow)
+        {
+            if (refreshToken.AccessTokenExpires < DateTime.UtcNow)
+            {
+                // Mettre à jour le token d'accès expiré avec un nouveau token d'accès valide
+                accessToken = tokenHandler.CreateToken(tokenDescriptor);
+                refreshToken.AccessToken = tokenHandler.WriteToken(accessToken);
+                refreshToken.AccessTokenExpires = tokenDescriptor.Expires ?? throw new Exception("Could not create access token");
+                _context.SaveChanges();
+            }
+            Console.WriteLine("refreshToken.AccessToken: " + refreshToken.AccessToken);
+            refreshToken.AccessTokenExpires = tokenDescriptor.Expires ?? throw new Exception("Could not create access token");
+            return refreshToken;
+        }
+
+
+        // Crée un token de rafraîchissement valide pendant 7 jours
+
+        var refreshTokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new[] { new Claim("id", user.UserId.ToString()), new Claim(ClaimTypes.Role, Role) }),
+            Expires = DateTime.UtcNow.AddDays(7),
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        };
+        var newRefreshToken = tokenHandler.CreateToken(refreshTokenDescriptor);
+
+        // Stocke le refresh token dans la base de données pour une persistance de connexion
+        var refreshTokenBdd = new RefreshToken
+        {
+            AccessToken = tokenHandler.WriteToken(accessToken),
+            AccessTokenExpires = tokenDescriptor.Expires ?? throw new Exception("Could not create access token"),
+            NewToken = tokenHandler.WriteToken(newRefreshToken),
+            NewTokenExpires = refreshTokenDescriptor.Expires ?? throw new Exception("Could not create refresh token"),
+            Created = DateTime.UtcNow,
+            UserId = user.UserId,
+        };
+        _context.RefreshToken.Add(refreshTokenBdd);
+
         _context.SaveChanges();
+
+        // Retourne les informations de token pour une utilisation immédiate
+        return new RefreshToken
+        {
+            AccessToken = tokenHandler.WriteToken(accessToken),
+            AccessTokenExpires = tokenDescriptor.Expires ?? throw new Exception("Could not create access token"),
+            NewToken = refreshTokenBdd.NewToken,
+            NewTokenExpires = refreshTokenBdd.NewTokenExpires,
+            Created = DateTime.UtcNow,
+        };
     }
-    Console.WriteLine("refreshToken.AccessToken: " + refreshToken.AccessToken);
-    refreshToken.AccessTokenExpires = tokenDescriptor.Expires ?? throw new Exception("Could not create access token");
-    return refreshToken;
-}
-
-
-
-    // Crée un token de rafraîchissement valide pendant 7 jours
-    var refreshTokenDescriptor = new SecurityTokenDescriptor
-    {
-        Subject = new ClaimsIdentity(new[] { new Claim("id", user.UserId.ToString()) }),
-        Expires = DateTime.UtcNow.AddDays(7),
-        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-    };
-    var newRefreshToken = tokenHandler.CreateToken(refreshTokenDescriptor);
-
-    // Stocke le refresh token dans la base de données pour une persistance de connexion
-    var refreshTokenBdd = new RefreshToken
-    {
-        AccessToken = tokenHandler.WriteToken(accessToken),
-        AccessTokenExpires = tokenDescriptor.Expires ?? throw new Exception("Could not create access token"),
-        NewToken = tokenHandler.WriteToken(newRefreshToken),
-        NewTokenExpires = refreshTokenDescriptor.Expires ?? throw new Exception("Could not create refresh token"),
-        Created = DateTime.UtcNow,
-        UserId = user.UserId,
-    };
-    _context.RefreshToken.Add(refreshTokenBdd);
-
-    _context.SaveChanges();
-
-    // Retourne les informations de token pour une utilisation immédiate
-    return new RefreshToken
-    {
-        AccessToken = tokenHandler.WriteToken(accessToken),
-        AccessTokenExpires = tokenDescriptor.Expires ?? throw new Exception("Could not create access token"),
-        NewToken = refreshTokenBdd.NewToken,
-        NewTokenExpires = refreshTokenBdd.NewTokenExpires,
-        Created = DateTime.UtcNow,
-    };
-}
 
 
 
     public string ValidateToken(string token)
     {
+        var tokenValidation = _context.RefreshToken.SingleOrDefault(r => r.AccessToken == token);
+        // refreshToken exception ici peut poser problème
+        if (tokenValidation is null)
+        {
+            throw new Exception("Token invalide car c'est pas le bon");
+        }
 
         var tokenHandler = new JwtSecurityTokenHandler();
         if (_appSettings.Secret is null)
         {
             throw new Exception("secret is null");
         }
-        var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+        var key = string.IsNullOrEmpty(_appSettings?.Secret) ? throw new Exception("secret is null") : Encoding.ASCII.GetBytes(_appSettings.Secret);
+
         try
         {
             tokenHandler.ValidateToken(token, new TokenValidationParameters
@@ -146,6 +138,7 @@ public class JwtUtils : IJwtUtils
             var jwtToken = (JwtSecurityToken)validatedToken;
             var userId = int.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
             var tokenBdd = _context.RefreshToken.SingleOrDefault(r => r.UserId == userId);
+
             // return user id from JWT token if validation successful
             return tokenBdd.AccessToken;
         }
@@ -164,7 +157,8 @@ public class JwtUtils : IJwtUtils
         // Create claims for refresh token
         var claims = new List<Claim>
     {
-        new Claim("id", user.UserId.ToString())
+        new Claim("id", user.UserId.ToString()),
+        new Claim(ClaimTypes.Role, _context.Roles.Include(r => r.Id).SingleOrDefault(r => r.Id == user.UserId).Name)
     };
         var refreshToken = _context.RefreshToken.SingleOrDefault(r => r.UserId == user.UserId);
 

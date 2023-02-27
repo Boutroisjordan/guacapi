@@ -1,14 +1,11 @@
-﻿using System.Security.Claims;
+﻿using System.Net;
 using AutoMapper;
-using Azure;
-using Azure.Core;
 using GuacAPI.Authorization;
 using GuacAPI.Context;
 using GuacAPI.Entities;
 using GuacAPI.Helpers;
 using GuacAPI.Models;
 using GuacAPI.Models.Users;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -63,7 +60,7 @@ public class UserService : IUserService
         return user;
     }
 
-
+    
     public async Task<User> UpdateUser(int id, UpdateRequest request)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
@@ -111,7 +108,7 @@ public class UserService : IUserService
         if (user == null || BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash) == false)
             throw new AppException("Username or password is incorrect");
        if(user.VerifiedAt == default(DateTime))
-            throw new AppException("Please verify your email address");
+            throw new WebException("Please verify your email address");
         var AccessToken = _jwtUtils.GenerateAccessToken(user);
 
         // Save changes to the database

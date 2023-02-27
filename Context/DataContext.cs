@@ -108,6 +108,7 @@ public class DataContext : DbContext
     public DbSet<OrderStatus> OrderStatus {get; set;}
     public DbSet<OrderOffer> OrderOffers {get; set;}
     public DbSet<RefreshToken> RefreshToken { get;  set; }
+    public DbSet<Role> Roles { get; set; }
 
 }
 
