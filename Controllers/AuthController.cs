@@ -256,7 +256,7 @@ namespace guacapi.Controllers
         }
 
         [Authorize
-              (Roles = "Client")]
+              (Roles = "Client,Admin")]
         [HttpPut("UpdateMesInfos")]
         public async Task<IActionResult> Update(UserUpdateRequest model)
         {
