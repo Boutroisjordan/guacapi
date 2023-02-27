@@ -73,48 +73,12 @@ public class InvoiceService : IInvoiceService
     public async Task<InvoiceFurnisher> UpdateInvoiceFurnisher(InvoiceFurnisherUpdate request, int id)
     {
         //Récupérer la facture
-        var entityInvoice = await _context.InvoicesFurnisher.Where(x => x.InvoiceFurnisherId == id).FirstOrDefaultAsync();
+        var entityInvoice = await _context.InvoicesFurnisher.Include(x => x.InvoicesFurnisherProduct).Where(x => x.InvoiceFurnisherId == id).FirstOrDefaultAsync();
 
         //Map OBJ Update dans une facture
-        InvoiceFurnisher invoiceFurnisher = _mapper.Map<InvoiceFurnisher>(request);
+        InvoiceFurnisher invoiceFurnisher = _mapper.Map(request, entityInvoice);
         invoiceFurnisher.InvoiceFurnisherId = id;
 
-        //Dans chaque Produit dans la facture
-        invoiceFurnisher.InvoicesFurnisherProduct.ForEach(product =>
-        {
-            //récupérer l'id de la facture et l'id du produit
-            var invoiceProduct = _context.InvoicesFurnisherProduct.FirstOrDefault(x => x.InvoiceFurnisherId == product.InvoiceFurnisherId && x.ProductId == product.ProductId);
-
-            //Si il existe alors lui afecter la valeur de la requête
-            if (invoiceProduct != null)
-            {
-                invoiceProduct.QuantityProduct = product.QuantityProduct;
-            }
-            else
-            {
-                //SI non, Vérifier que l'id facture existe et que l'id du produit existe et ajouter ce produit à la list de la facture
-                if (_context.InvoicesFurnisher.Any(x => x.InvoiceFurnisherId == product.InvoiceFurnisherId) == true && _context.Products.Any(x => x.ProductId == product.ProductId) == true)
-                {
-                    _context.InvoicesFurnisherProduct.Add(product);
-                }
-            }
-        });
-            //Vérifier si il manque un produit
-        var exceptItems = entityInvoice.InvoicesFurnisherProduct.Except(invoiceFurnisher.InvoicesFurnisherProduct);
-    //Si il en manque un alors il faut le supprimer
-        if (exceptItems != null)
-        {
-            foreach (var item in exceptItems)
-            {
-                _context.InvoicesFurnisherProduct.Remove(item);
-            }
-        }
-
-        //Mapper les deux listes
-        InvoiceFurnisher newOrder = _mapper.Map(entityInvoice, invoiceFurnisher);
-
-        entityInvoice.Date = invoiceFurnisher.Date;
-        entityInvoice.InvoiceNumber = invoiceFurnisher.InvoiceNumber;
 
     //sauvegarder
         await _context.SaveChangesAsync();
