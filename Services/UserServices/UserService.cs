@@ -42,7 +42,7 @@ public class UserService : IUserService
 
 
     //todo verifier si email deja existant
- public IEnumerable<User> GetAllUsersWithRoleId(int id)
+    public IEnumerable<User> GetAllUsersWithRoleId(int id)
     {
         var users = _context.Users.Where(u => u.RoleId == id).ToList();
         return users;
@@ -60,7 +60,7 @@ public class UserService : IUserService
         return user;
     }
 
-    
+
     public async Task<User> UpdateUser(int id, UpdateRequest request)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
@@ -68,7 +68,7 @@ public class UserService : IUserService
         if (user == null) return null;
         user.Username = request.Username;
         user.Email = request.Email;
-    
+
         await _context.SaveChangesAsync();
         return user;
     }
@@ -93,7 +93,7 @@ public class UserService : IUserService
         register.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
         register.RoleId = 2;
         register.VerifyToken = Guid.NewGuid().ToString();
-        
+
         _context.Users.Add(register);
         _context.SaveChanges();
 
@@ -107,7 +107,7 @@ public class UserService : IUserService
 
         if (user == null || BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash) == false)
             throw new AppException("Username or password is incorrect");
-       if(user.VerifiedAt == default(DateTime))
+        if (user.VerifiedAt == default(DateTime))
             throw new WebException("Please verify your email address");
         var AccessToken = _jwtUtils.GenerateAccessToken(user);
 
@@ -117,19 +117,21 @@ public class UserService : IUserService
         return new AuthenticateResponse(user, AccessToken.AccessToken, AccessToken.NewToken, AccessToken.AccessTokenExpires, AccessToken.NewTokenExpires);
     }
 
-public void VerifyEmail(string token, string email) {
-    var user = _context.Users.SingleOrDefault(u => u.VerifyToken == token && u.Email == email);
-    if (user == null) {
-        throw new AppException("Token is incorrect");
+    public void VerifyEmail(string token, string email)
+    {
+        var user = _context.Users.SingleOrDefault(u => u.VerifyToken == token && u.Email == email);
+        if (user == null)
+        {
+            throw new AppException("Token is incorrect");
+        }
+        user.VerifiedAt = DateTime.UtcNow;
+        user.VerifyToken = null;
+        _context.Users.Update(user);
+        _context.SaveChanges();
+
     }
-    user.VerifiedAt = DateTime.UtcNow;
-    user.VerifyToken = null;
-    _context.Users.Update(user);
-    _context.SaveChanges();
 
-}
 
-    
 
 
 
@@ -162,11 +164,6 @@ public void VerifyEmail(string token, string email) {
         // validate
         if (model.Username != user.Username && _context.Users.Any(x => x.Username == model.Username))
             throw new AppException("Username '" + model.Username + "' is already taken");
-
-        // hash password if it was entered
-        if (!string.IsNullOrEmpty(model.Password))
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
-
         // copy model to user and save
         _mapper.Map(model, user);
         _context.Users.Update(user);

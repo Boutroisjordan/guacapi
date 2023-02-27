@@ -151,11 +151,10 @@ namespace guacapi.Controllers
 
         }
 
-
-        [Authorize (Roles = "Admin,Client")]
         [HttpPost("RefreshToken")]
-        public IActionResult RefreshToken(string refreshToken)
+        public IActionResult RefreshToken(RefreshTokenRequest model)
         {
+            var refreshToken = model.refreshToken;
            
             if (refreshToken != null)
             {
@@ -269,7 +268,6 @@ namespace guacapi.Controllers
                 return Unauthorized(new { message = "Unauthorized" });
             }
             return Ok(new { user = user.RefreshToken });
-
         }
 
         // [HttpPost("ForgotPassword")]

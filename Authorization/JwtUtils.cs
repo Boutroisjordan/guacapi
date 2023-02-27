@@ -41,8 +41,8 @@ public class JwtUtils : IJwtUtils
 
         // Crée un token d'accès valide pendant une heure
 
-var Role = _context.Roles.Include(r => r.Id).SingleOrDefault(r => r.Id == user.UserId).Name;
-Console.WriteLine("Role de l'utilisateur " + Role);
+        var Role = _context.Roles.Include(r => r.Id).SingleOrDefault(r => r.Id == user.UserId).Name;
+        Console.WriteLine("Role de l'utilisateur " + Role);
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
