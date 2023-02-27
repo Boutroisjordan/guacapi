@@ -90,6 +90,8 @@ namespace guacapi.Controllers
         
             return Redirect("https://www.guacatube.fr");
         }
+
+
    [Authorize
         (Roles = "Admin")]
         [HttpDelete("delete/{id}")]
@@ -104,6 +106,7 @@ namespace guacapi.Controllers
             return Created("User deleted successfully", user);
         }
 
+
 [Authorize (Roles = "Admin")]
         [HttpGet("GetUsersByRoleId/{id}")]
            public IActionResult GetUsersByRoleId(int id)
@@ -111,6 +114,8 @@ namespace guacapi.Controllers
             var users = _userService.GetAllUsersWithRoleId(id);
             return Ok(users);
         }
+
+        [AllowAnonymous]
         [HttpPost("Register")]
         public IActionResult Register(RegisterRequest model)
         {
@@ -129,7 +134,7 @@ namespace guacapi.Controllers
             }
         }
 
-
+        [AllowAnonymous]
         [HttpPost("Login")]
         public IActionResult Authenticate(AuthenticateRequest model)
         {
@@ -138,13 +143,14 @@ namespace guacapi.Controllers
 
             if (response.RefreshToken != null)
             {
-                Console.WriteLine("RefreshToken: " + response.AccessToken);
                 SetTokenCookie(response.AccessToken, response.Id, response.RefreshToken, response.TokenExpires, response.RefreshExpires);
+                return Ok(response);
             }
 
-            return StatusCode(200, response);
+            return Unauthorized(new { message = "Username or password is incorrect" });
 
         }
+
 
         [Authorize (Roles = "Admin,Client")]
         [HttpPost("RefreshToken")]
