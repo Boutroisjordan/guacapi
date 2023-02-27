@@ -11,7 +11,7 @@ public class AuthenticateResponse
     public string LastName { get; set; }
     public string Email { get; set; }
     public int RoleId { get; set; }
-    
+    public string Address { get; set; }
     public string AccessToken { get; set; }
     public DateTime TokenExpires { get; set; }
     public DateTime RefreshExpires { get; set; }
@@ -26,6 +26,7 @@ public class AuthenticateResponse
         LastName = user.LastName;
         Email = user.Email;
         RoleId = user.RoleId;
+        Address = user.Address;
         AccessToken = accessToken;
         RefreshToken = refreshToken;
         TokenExpires = tokenExpires;
