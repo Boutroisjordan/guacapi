@@ -17,9 +17,10 @@ class AlcoholTypeEntityConfiguration : IEntityTypeConfiguration<AlcoholType>
         builder.HasData(
             new AlcoholType { AlcoholTypeId = 1, label = "red"},
             new AlcoholType { AlcoholTypeId = 2, label = "grand cru"},
-            new AlcoholType { AlcoholTypeId = 3, label = "white"},
-            new AlcoholType { AlcoholTypeId = 4, label = "sweet"},
-            new AlcoholType { AlcoholTypeId = 5, label = "sparkling"}
+            new AlcoholType { AlcoholTypeId = 3, label = "undefined"},
+            new AlcoholType { AlcoholTypeId = 4, label = "white"},
+            new AlcoholType { AlcoholTypeId = 5, label = "sweet"},
+            new AlcoholType { AlcoholTypeId = 6, label = "sparkling"}
         );
 
     }
