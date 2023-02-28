@@ -3,7 +3,7 @@ using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace GuacAPI.Services;
- 
+
 public class ProductOfferService : IProductOfferService
 {
     #region Fields
@@ -16,6 +16,7 @@ public class ProductOfferService : IProductOfferService
         this._context = context;
     }
 
+
      public async Task<List<ProductOffer>> GetAllProductOffers()
      {
           var offers = await _context.ProductOffers.Include(p => p.Product).ToListAsync();
@@ -27,6 +28,7 @@ public class ProductOfferService : IProductOfferService
         //  var offers = await _context.ProductOffers.Where(p => p.OfferId == id).ToListAsync();
          return offers;
      }
+
 
 //TODO l'édit des productOffer comme invoice furnisher 
          public async Task<ProductOffer> EditProductOffer(int id, int OfferId, ProductOffer request)
@@ -47,3 +49,4 @@ public class ProductOfferService : IProductOfferService
 
 
 }
+

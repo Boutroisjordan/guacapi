@@ -254,6 +254,7 @@ namespace guacapi.Controllers
         }
 
 
+
         /// <summary>
         /// Récupère les informations de l'utilisateur (par l'utilisateur)
         /// </summary>
@@ -271,7 +272,6 @@ namespace guacapi.Controllers
             }
             return Ok(new { user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone, user.RoleId });
         }
-
 
         /// <summary>
         /// Récupère tous les utilisatuer qui ont des Refreshtokens
