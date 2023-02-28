@@ -22,6 +22,104 @@ namespace GuacAPI.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("GuacAPI.Entities.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AccessToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("AccessTokenExpires")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("NewToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("NewTokenExpires")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("RefreshToken");
+                });
+
+            modelBuilder.Entity("GuacAPI.Entities.User", b =>
+                {
+                    b.Property<int>("UserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("VerifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("VerifyToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1,
+                            Address = "",
+                            CreatedAt = new DateTime(2023, 2, 27, 23, 36, 59, 327, DateTimeKind.Local).AddTicks(8190),
+                            Email = "guacaprocesi@gmail.com",
+                            FirstName = "admin",
+                            LastName = "admin",
+                            PasswordHash = "$2a$11$aM1ibExYTIdaeCG.ox6VE.NyBcNvN/A6pifwEbKr8Pdn8k9aBTpBS",
+                            Phone = "00000000",
+                            RoleId = 1,
+                            Username = "guacadmin",
+                            VerifiedAt = new DateTime(2023, 2, 27, 23, 36, 59, 327, DateTimeKind.Local).AddTicks(8240)
+                        });
+                });
+
             modelBuilder.Entity("GuacAPI.Models.AlcoholType", b =>
                 {
                     b.Property<int>("AlcoholTypeId")
@@ -37,6 +135,38 @@ namespace GuacAPI.Migrations
                     b.HasKey("AlcoholTypeId");
 
                     b.ToTable("alcohol_type", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            AlcoholTypeId = 1,
+                            label = "red"
+                        },
+                        new
+                        {
+                            AlcoholTypeId = 2,
+                            label = "grand cru"
+                        },
+                        new
+                        {
+                            AlcoholTypeId = 3,
+                            label = "undefined"
+                        },
+                        new
+                        {
+                            AlcoholTypeId = 4,
+                            label = "white"
+                        },
+                        new
+                        {
+                            AlcoholTypeId = 5,
+                            label = "sweet"
+                        },
+                        new
+                        {
+                            AlcoholTypeId = 6,
+                            label = "sparkling"
+                        });
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Appellation", b =>
@@ -53,6 +183,155 @@ namespace GuacAPI.Migrations
                     b.HasKey("AppellationId");
 
                     b.ToTable("appellation", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            AppellationId = 1,
+                            Name = "montrachet"
+                        },
+                        new
+                        {
+                            AppellationId = 2,
+                            Name = "meursault"
+                        },
+                        new
+                        {
+                            AppellationId = 3,
+                            Name = "corton-charlemagne"
+                        },
+                        new
+                        {
+                            AppellationId = 4,
+                            Name = "chardonnay"
+                        },
+                        new
+                        {
+                            AppellationId = 5,
+                            Name = "other"
+                        },
+                        new
+                        {
+                            AppellationId = 6,
+                            Name = "blanc"
+                        },
+                        new
+                        {
+                            AppellationId = 7,
+                            Name = "riesling"
+                        },
+                        new
+                        {
+                            AppellationId = 8,
+                            Name = "corton"
+                        },
+                        new
+                        {
+                            AppellationId = 9,
+                            Name = "chablis"
+                        },
+                        new
+                        {
+                            AppellationId = 10,
+                            Name = "puligny-montrachet"
+                        },
+                        new
+                        {
+                            AppellationId = 11,
+                            Name = "bordeaux"
+                        },
+                        new
+                        {
+                            AppellationId = 12,
+                            Name = "albariño"
+                        },
+                        new
+                        {
+                            AppellationId = 13,
+                            Name = "chassagne-montrachet"
+                        },
+                        new
+                        {
+                            AppellationId = 14,
+                            Name = "châteauneuf-du-pape"
+                        },
+                        new
+                        {
+                            AppellationId = 15,
+                            Name = "cuvée"
+                        },
+                        new
+                        {
+                            AppellationId = 16,
+                            Name = "alsace"
+                        },
+                        new
+                        {
+                            AppellationId = 17,
+                            Name = "rouge"
+                        },
+                        new
+                        {
+                            AppellationId = 18,
+                            Name = "viognier"
+                        },
+                        new
+                        {
+                            AppellationId = 19,
+                            Name = "hermitage"
+                        },
+                        new
+                        {
+                            AppellationId = 20,
+                            Name = "bonnezeaux"
+                        },
+                        new
+                        {
+                            AppellationId = 21,
+                            Name = "sancerre"
+                        },
+                        new
+                        {
+                            AppellationId = 22,
+                            Name = "rioja"
+                        },
+                        new
+                        {
+                            AppellationId = 23,
+                            Name = "roussanne"
+                        });
+                });
+
+            modelBuilder.Entity("GuacAPI.Models.Comment", b =>
+                {
+                    b.Property<int>("CommentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CommentId"));
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("OfferId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PreviousCommentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rate")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CommentId");
+
+                    b.HasIndex("OfferId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Comment", (string)null);
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Domain", b =>
@@ -69,6 +348,13 @@ namespace GuacAPI.Migrations
                     b.HasKey("DomainId");
 
                     b.ToTable("Domain", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            DomainId = 1,
+                            Name = "Domaine 1"
+                        });
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Furnisher", b =>
@@ -102,6 +388,557 @@ namespace GuacAPI.Migrations
                     b.HasKey("FurnisherId");
 
                     b.ToTable("Furnisher", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            FurnisherId = 1,
+                            City = "West Nehaborough",
+                            Name = "Gerhold Group",
+                            PostalCode = "37857-3192",
+                            Siret = "777882687108",
+                            Street = "Shayne Ridges"
+                        },
+                        new
+                        {
+                            FurnisherId = 2,
+                            City = "White Plains",
+                            Name = "Bahringer, Hoeger and Schmidt",
+                            PostalCode = "79893",
+                            Siret = "668635164541",
+                            Street = "Cruickshank Drive"
+                        },
+                        new
+                        {
+                            FurnisherId = 3,
+                            City = "Hansenstad",
+                            Name = "Runolfsdottir, Pollich and Leuschke",
+                            PostalCode = "69414",
+                            Siret = "608519234115",
+                            Street = "Santa Ford"
+                        },
+                        new
+                        {
+                            FurnisherId = 4,
+                            City = "Kissimmee",
+                            Name = "Considine, Leuschke and Veum",
+                            PostalCode = "35694-4531",
+                            Siret = "898202718476",
+                            Street = "O'Conner Flat"
+                        },
+                        new
+                        {
+                            FurnisherId = 5,
+                            City = "West Sidney",
+                            Name = "Littel Group",
+                            PostalCode = "00475-4444",
+                            Siret = "195898815118",
+                            Street = "Rippin Drive"
+                        },
+                        new
+                        {
+                            FurnisherId = 6,
+                            City = "Charlotte",
+                            Name = "Quigley - Pfeffer",
+                            PostalCode = "40802-5108",
+                            Siret = "732774063940",
+                            Street = "Hassan Port"
+                        },
+                        new
+                        {
+                            FurnisherId = 7,
+                            City = "New Ezequielbury",
+                            Name = "Jones - Crona",
+                            PostalCode = "79842-7277",
+                            Siret = "112436413622",
+                            Street = "Cormier Ford"
+                        },
+                        new
+                        {
+                            FurnisherId = 8,
+                            City = "Las Vegas",
+                            Name = "Emmerich, Davis and McKenzie",
+                            PostalCode = "21616",
+                            Siret = "392543474289",
+                            Street = "Amina Fall"
+                        },
+                        new
+                        {
+                            FurnisherId = 9,
+                            City = "Jacobsshire",
+                            Name = "Corwin, Considine and Hane",
+                            PostalCode = "89039",
+                            Siret = "364959358625",
+                            Street = "Gerry Estate"
+                        },
+                        new
+                        {
+                            FurnisherId = 10,
+                            City = "West Evert",
+                            Name = "Volkman - Frami",
+                            PostalCode = "17739",
+                            Siret = "641177102433",
+                            Street = "Kiehn Pines"
+                        },
+                        new
+                        {
+                            FurnisherId = 11,
+                            City = "Stefaniebury",
+                            Name = "Hermiston, Kutch and Vandervort",
+                            PostalCode = "31780",
+                            Siret = "933450980031",
+                            Street = "Kuhlman Mill"
+                        },
+                        new
+                        {
+                            FurnisherId = 12,
+                            City = "Jerdeworth",
+                            Name = "Corkery and Sons",
+                            PostalCode = "42606",
+                            Siret = "489556724926",
+                            Street = "Hoeger Land"
+                        },
+                        new
+                        {
+                            FurnisherId = 13,
+                            City = "Kulasbury",
+                            Name = "Kuhn - Heaney",
+                            PostalCode = "55898-4844",
+                            Siret = "588567648610",
+                            Street = "Brandy Lake"
+                        },
+                        new
+                        {
+                            FurnisherId = 14,
+                            City = "Cristianstead",
+                            Name = "Boyer, Zieme and Boyer",
+                            PostalCode = "10873-5688",
+                            Siret = "962400736745",
+                            Street = "Donnell Ramp"
+                        },
+                        new
+                        {
+                            FurnisherId = 15,
+                            City = "Cummerataport",
+                            Name = "Emmerich, Roob and Bailey",
+                            PostalCode = "39709-1993",
+                            Siret = "546796429516",
+                            Street = "Leuschke Highway"
+                        },
+                        new
+                        {
+                            FurnisherId = 16,
+                            City = "Thompsonville",
+                            Name = "Lynch LLC",
+                            PostalCode = "61366",
+                            Siret = "871958088892",
+                            Street = "Laurianne Fork"
+                        },
+                        new
+                        {
+                            FurnisherId = 17,
+                            City = "Jaquanmouth",
+                            Name = "Schneider LLC",
+                            PostalCode = "64590",
+                            Siret = "120265792694",
+                            Street = "Cristal Viaduct"
+                        },
+                        new
+                        {
+                            FurnisherId = 18,
+                            City = "West Carmine",
+                            Name = "Daniel, Lockman and Yundt",
+                            PostalCode = "97741-2729",
+                            Siret = "994578250139",
+                            Street = "Pacocha Row"
+                        },
+                        new
+                        {
+                            FurnisherId = 19,
+                            City = "Lake Edgarbury",
+                            Name = "Swaniawski, Hagenes and Sauer",
+                            PostalCode = "92158",
+                            Siret = "350262251499",
+                            Street = "Josh Tunnel"
+                        },
+                        new
+                        {
+                            FurnisherId = 20,
+                            City = "West Aldaworth",
+                            Name = "Lehner, Reichel and Frami",
+                            PostalCode = "12033",
+                            Siret = "784089780004",
+                            Street = "Lottie Unions"
+                        },
+                        new
+                        {
+                            FurnisherId = 21,
+                            City = "Dearborn Heights",
+                            Name = "Mills - Haley",
+                            PostalCode = "15908-0523",
+                            Siret = "747049226451",
+                            Street = "Jalen Extensions"
+                        },
+                        new
+                        {
+                            FurnisherId = 22,
+                            City = "Beckerboro",
+                            Name = "Lynch and Sons",
+                            PostalCode = "06199-2690",
+                            Siret = "763771335612",
+                            Street = "O'Keefe Lodge"
+                        },
+                        new
+                        {
+                            FurnisherId = 23,
+                            City = "Lake Opheliaside",
+                            Name = "Christiansen - Zieme",
+                            PostalCode = "63653-6867",
+                            Siret = "703487397458",
+                            Street = "Filiberto Port"
+                        },
+                        new
+                        {
+                            FurnisherId = 24,
+                            City = "New Marcia",
+                            Name = "Grant - Ratke",
+                            PostalCode = "67696-0516",
+                            Siret = "957838491555",
+                            Street = "Kitty Views"
+                        },
+                        new
+                        {
+                            FurnisherId = 25,
+                            City = "East Derontown",
+                            Name = "Mann, Funk and Jast",
+                            PostalCode = "10796",
+                            Siret = "877881137707",
+                            Street = "Mann Ports"
+                        },
+                        new
+                        {
+                            FurnisherId = 26,
+                            City = "West Jolieton",
+                            Name = "Hegmann Group",
+                            PostalCode = "96021-4286",
+                            Siret = "263796604728",
+                            Street = "Bogisich Locks"
+                        },
+                        new
+                        {
+                            FurnisherId = 27,
+                            City = "Waltham",
+                            Name = "Kirlin, Stroman and Baumbach",
+                            PostalCode = "61688",
+                            Siret = "293832653442",
+                            Street = "Klein Forges"
+                        },
+                        new
+                        {
+                            FurnisherId = 28,
+                            City = "Carrollberg",
+                            Name = "Graham - Ernser",
+                            PostalCode = "11817-9656",
+                            Siret = "613090654847",
+                            Street = "Cremin Manors"
+                        },
+                        new
+                        {
+                            FurnisherId = 29,
+                            City = "Vancouver",
+                            Name = "Welch Group",
+                            PostalCode = "73372-0715",
+                            Siret = "196336825822",
+                            Street = "Chance Prairie"
+                        },
+                        new
+                        {
+                            FurnisherId = 30,
+                            City = "Port Aurelia",
+                            Name = "Monahan LLC",
+                            PostalCode = "55354",
+                            Siret = "996030453130",
+                            Street = "Hettinger Land"
+                        },
+                        new
+                        {
+                            FurnisherId = 31,
+                            City = "Lynchport",
+                            Name = "Breitenberg Inc",
+                            PostalCode = "87664",
+                            Siret = "959290973480",
+                            Street = "Mylene Estate"
+                        },
+                        new
+                        {
+                            FurnisherId = 32,
+                            City = "Purdyberg",
+                            Name = "Kerluke LLC",
+                            PostalCode = "82177-0935",
+                            Siret = "194634752100",
+                            Street = "Hermann Lights"
+                        },
+                        new
+                        {
+                            FurnisherId = 33,
+                            City = "Concepcionworth",
+                            Name = "Wyman, Cruickshank and Schumm",
+                            PostalCode = "87519-6435",
+                            Siret = "143354522387",
+                            Street = "Goldner Light"
+                        },
+                        new
+                        {
+                            FurnisherId = 34,
+                            City = "New Caesar",
+                            Name = "VonRueden, Beahan and D'Amore",
+                            PostalCode = "32128",
+                            Siret = "332440535262",
+                            Street = "Hermann Hills"
+                        },
+                        new
+                        {
+                            FurnisherId = 35,
+                            City = "North Deron",
+                            Name = "Cormier, Koelpin and Connelly",
+                            PostalCode = "97262-0830",
+                            Siret = "782246492459",
+                            Street = "Myles Flats"
+                        },
+                        new
+                        {
+                            FurnisherId = 36,
+                            City = "Eddshire",
+                            Name = "Toy, Adams and Sauer",
+                            PostalCode = "17455-1134",
+                            Siret = "754222747062",
+                            Street = "Donnelly Hill"
+                        },
+                        new
+                        {
+                            FurnisherId = 37,
+                            City = "East Haroldstad",
+                            Name = "Cole Group",
+                            PostalCode = "58003-4951",
+                            Siret = "979269906961",
+                            Street = "Jessica Lights"
+                        },
+                        new
+                        {
+                            FurnisherId = 38,
+                            City = "East Samanthabury",
+                            Name = "Hayes - Hettinger",
+                            PostalCode = "93408",
+                            Siret = "818856528117",
+                            Street = "Rossie Mill"
+                        },
+                        new
+                        {
+                            FurnisherId = 39,
+                            City = "Rennercester",
+                            Name = "Hilpert - Cartwright",
+                            PostalCode = "03467-5084",
+                            Siret = "172071918538",
+                            Street = "Sedrick Drives"
+                        },
+                        new
+                        {
+                            FurnisherId = 40,
+                            City = "Schuppeburgh",
+                            Name = "Rowe - Towne",
+                            PostalCode = "54940-1867",
+                            Siret = "645248189793",
+                            Street = "Lebsack Fields"
+                        },
+                        new
+                        {
+                            FurnisherId = 41,
+                            City = "Taraboro",
+                            Name = "D'Amore Inc",
+                            PostalCode = "50016-2606",
+                            Siret = "739571662715",
+                            Street = "Mueller Fort"
+                        },
+                        new
+                        {
+                            FurnisherId = 42,
+                            City = "Louisaburgh",
+                            Name = "Ryan, Emard and Yundt",
+                            PostalCode = "15978-2482",
+                            Siret = "997142334936",
+                            Street = "Creola Meadows"
+                        },
+                        new
+                        {
+                            FurnisherId = 43,
+                            City = "Port Mohammadmouth",
+                            Name = "Cummerata LLC",
+                            PostalCode = "56846",
+                            Siret = "695194270589",
+                            Street = "Trantow Union"
+                        },
+                        new
+                        {
+                            FurnisherId = 44,
+                            City = "East Shawna",
+                            Name = "Mayert, Johnson and Roberts",
+                            PostalCode = "30244-5644",
+                            Siret = "642338519954",
+                            Street = "Ritchie Coves"
+                        },
+                        new
+                        {
+                            FurnisherId = 45,
+                            City = "North Las Vegas",
+                            Name = "Cartwright Inc",
+                            PostalCode = "58652-7445",
+                            Siret = "826268363756",
+                            Street = "Maya Mills"
+                        },
+                        new
+                        {
+                            FurnisherId = 46,
+                            City = "Fort Amely",
+                            Name = "Greenholt, Bahringer and Goldner",
+                            PostalCode = "79182-5457",
+                            Siret = "334360440694",
+                            Street = "Anahi Unions"
+                        },
+                        new
+                        {
+                            FurnisherId = 47,
+                            City = "East Maudeberg",
+                            Name = "Murphy - Bashirian",
+                            PostalCode = "06352",
+                            Siret = "473487405840",
+                            Street = "Beer Lane"
+                        },
+                        new
+                        {
+                            FurnisherId = 48,
+                            City = "Elenorabury",
+                            Name = "Wunsch Inc",
+                            PostalCode = "55744",
+                            Siret = "779631889285",
+                            Street = "Mayert Harbors"
+                        },
+                        new
+                        {
+                            FurnisherId = 49,
+                            City = "East Aleenworth",
+                            Name = "Considine - Champlin",
+                            PostalCode = "26690-3226",
+                            Siret = "892638472927",
+                            Street = "Huel Path"
+                        },
+                        new
+                        {
+                            FurnisherId = 50,
+                            City = "East Claudineport",
+                            Name = "Lindgren, Hills and Glover",
+                            PostalCode = "92901",
+                            Siret = "821718435681",
+                            Street = "Yundt Rapids"
+                        },
+                        new
+                        {
+                            FurnisherId = 51,
+                            City = "Fort Tyree",
+                            Name = "Braun - Heaney",
+                            PostalCode = "57129-4236",
+                            Siret = "821426938537",
+                            Street = "Bradley Dale"
+                        },
+                        new
+                        {
+                            FurnisherId = 52,
+                            City = "South Walter",
+                            Name = "Herzog, Olson and Runte",
+                            PostalCode = "26730-3953",
+                            Siret = "463404328626",
+                            Street = "Sarai Square"
+                        },
+                        new
+                        {
+                            FurnisherId = 53,
+                            City = "Borerfield",
+                            Name = "Vandervort - Cummerata",
+                            PostalCode = "13957-7836",
+                            Siret = "934682726602",
+                            Street = "Sonya Island"
+                        },
+                        new
+                        {
+                            FurnisherId = 54,
+                            City = "West Alexandraville",
+                            Name = "Gulgowski, Schaefer and Collins",
+                            PostalCode = "20215",
+                            Siret = "534315408679",
+                            Street = "McLaughlin Gateway"
+                        },
+                        new
+                        {
+                            FurnisherId = 55,
+                            City = "Clarafield",
+                            Name = "Koelpin, Lebsack and Schroeder",
+                            PostalCode = "38408",
+                            Siret = "341270012041",
+                            Street = "Abigail Ranch"
+                        },
+                        new
+                        {
+                            FurnisherId = 56,
+                            City = "East Tara",
+                            Name = "Pollich Inc",
+                            PostalCode = "72415",
+                            Siret = "895315341210",
+                            Street = "Padberg Fords"
+                        },
+                        new
+                        {
+                            FurnisherId = 57,
+                            City = "Rodrickville",
+                            Name = "Kovacek, Rosenbaum and Dare",
+                            PostalCode = "78918-0095",
+                            Siret = "787746716516",
+                            Street = "Margie Lock"
+                        },
+                        new
+                        {
+                            FurnisherId = 58,
+                            City = "New Davion",
+                            Name = "Herzog and Sons",
+                            PostalCode = "03285-1198",
+                            Siret = "444168259387",
+                            Street = "Fletcher Meadow"
+                        },
+                        new
+                        {
+                            FurnisherId = 59,
+                            City = "Johnsmouth",
+                            Name = "Marvin, Donnelly and Lindgren",
+                            PostalCode = "54057",
+                            Siret = "361836175072",
+                            Street = "Clemens Ranch"
+                        });
+                });
+
+            modelBuilder.Entity("GuacAPI.Models.InvoiceFurnisherProduct", b =>
+                {
+                    b.Property<int>("InvoiceFurnisherId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuantityProduct")
+                        .HasColumnType("int");
+
+                    b.HasKey("InvoiceFurnisherId", "ProductId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("InvoiceFurnisherProduct", (string)null);
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Offer", b =>
@@ -112,6 +949,9 @@ namespace GuacAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OfferId"));
 
+                    b.Property<DateTime?>("Deadline")
+                        .HasColumnType("date");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -121,8 +961,14 @@ namespace GuacAPI.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("isB2B")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("isDraft")
+                        .HasColumnType("bit");
 
                     b.HasKey("OfferId");
 
@@ -137,8 +983,8 @@ namespace GuacAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductId"));
 
-                    b.Property<decimal>("AlcoholDegree")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<float>("AlcoholDegree")
+                        .HasColumnType("real");
 
                     b.Property<int>("AlcoholTypeId")
                         .HasColumnType("int");
@@ -151,6 +997,10 @@ namespace GuacAPI.Migrations
 
                     b.Property<int>("FurnisherId")
                         .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Millesime")
                         .HasColumnType("int");
@@ -169,6 +1019,9 @@ namespace GuacAPI.Migrations
                     b.Property<int>("RegionId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("RestockOption")
+                        .HasColumnType("bit");
+
                     b.Property<int>("Stock")
                         .HasColumnType("int");
 
@@ -185,6 +1038,25 @@ namespace GuacAPI.Migrations
                     b.HasIndex("RegionId");
 
                     b.ToTable("Product", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            ProductId = 1,
+                            AlcoholDegree = 2f,
+                            AlcoholTypeId = 1,
+                            AppellationId = 1,
+                            DomainId = 1,
+                            FurnisherId = 1,
+                            ImageUrl = "",
+                            Millesime = 2010,
+                            Name = "product 1",
+                            Price = 12,
+                            Reference = "jndijfndjn",
+                            RegionId = 1,
+                            RestockOption = true,
+                            Stock = 155
+                        });
                 });
 
             modelBuilder.Entity("GuacAPI.Models.ProductOffer", b =>
@@ -220,9 +1092,135 @@ namespace GuacAPI.Migrations
                     b.HasKey("RegionID");
 
                     b.ToTable("Region", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            RegionID = 1,
+                            Name = "region 1"
+                        });
                 });
 
-            modelBuilder.Entity("GuacAPI.Models.User", b =>
+            modelBuilder.Entity("InvoiceFurnisher", b =>
+                {
+                    b.Property<int>("InvoiceFurnisherId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InvoiceFurnisherId"));
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FurnisherId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("InvoiceNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("InvoiceFurnisherId");
+
+                    b.HasIndex("FurnisherId");
+
+                    b.ToTable("InvoiceFurnisher", (string)null);
+                });
+
+            modelBuilder.Entity("Order", b =>
+                {
+                    b.Property<int>("OrderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
+
+                    b.Property<int>("OrderStatusId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Total")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("orderedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("OrderId");
+
+                    b.HasIndex("OrderStatusId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Order", (string)null);
+                });
+
+            modelBuilder.Entity("OrderOffer", b =>
+                {
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OfferId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("OrderId", "OfferId");
+
+                    b.HasIndex("OfferId");
+
+                    b.ToTable("OrderOffers");
+                });
+
+            modelBuilder.Entity("OrderStatus", b =>
+                {
+                    b.Property<int>("OrderStatusId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderStatusId"));
+
+                    b.Property<string>("OrderStatusName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("OrderStatusId");
+
+                    b.ToTable("OrderStatus", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            OrderStatusId = 1,
+                            OrderStatusName = "Non payer"
+                        },
+                        new
+                        {
+                            OrderStatusId = 2,
+                            OrderStatusName = "Payment refuser"
+                        },
+                        new
+                        {
+                            OrderStatusId = 3,
+                            OrderStatusName = "Payed"
+                        },
+                        new
+                        {
+                            OrderStatusId = 4,
+                            OrderStatusName = "En attente de Livraison"
+                        },
+                        new
+                        {
+                            OrderStatusId = 5,
+                            OrderStatusName = "Livré"
+                        },
+                        new
+                        {
+                            OrderStatusId = 6,
+                            OrderStatusName = "Annuler"
+                        });
+                });
+
+            modelBuilder.Entity("Role", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -230,51 +1228,95 @@ namespace GuacAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Email")
+                    b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FirstName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<byte[]>("PasswordHash")
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<byte[]>("PasswordSalt")
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<string>("Phone")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RefreshToken")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Role")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Token")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("TokenCreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("TokenExpires")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Username")
+                    b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Administrator",
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Client web",
+                            Name = "Client"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Fournisseur",
+                            Name = "Furnisher"
+                        });
+                });
+
+            modelBuilder.Entity("GuacAPI.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("GuacAPI.Entities.User", "User")
+                        .WithOne("RefreshToken")
+                        .HasForeignKey("GuacAPI.Entities.RefreshToken", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GuacAPI.Entities.User", b =>
+                {
+                    b.HasOne("Role", "Role")
+                        .WithMany("Users")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("GuacAPI.Models.Comment", b =>
+                {
+                    b.HasOne("GuacAPI.Models.Offer", "offer")
+                        .WithMany("Comments")
+                        .HasForeignKey("OfferId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GuacAPI.Entities.User", "user")
+                        .WithMany("Comments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("offer");
+
+                    b.Navigation("user");
+                });
+
+            modelBuilder.Entity("GuacAPI.Models.InvoiceFurnisherProduct", b =>
+                {
+                    b.HasOne("InvoiceFurnisher", "InvoiceFurnisher")
+                        .WithMany("InvoicesFurnisherProduct")
+                        .HasForeignKey("InvoiceFurnisherId")
+                        .IsRequired();
+
+                    b.HasOne("GuacAPI.Models.Product", "Product")
+                        .WithMany("InvoicesFurnisherProduct")
+                        .HasForeignKey("ProductId")
+                        .IsRequired();
+
+                    b.Navigation("InvoiceFurnisher");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Product", b =>
@@ -339,6 +1381,64 @@ namespace GuacAPI.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("InvoiceFurnisher", b =>
+                {
+                    b.HasOne("GuacAPI.Models.Furnisher", "Furnisher")
+                        .WithMany("Invoices")
+                        .HasForeignKey("FurnisherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Furnisher");
+                });
+
+            modelBuilder.Entity("Order", b =>
+                {
+                    b.HasOne("OrderStatus", "OrderStatus")
+                        .WithMany("Orders")
+                        .HasForeignKey("OrderStatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GuacAPI.Entities.User", "user")
+                        .WithMany("Orders")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("OrderStatus");
+
+                    b.Navigation("user");
+                });
+
+            modelBuilder.Entity("OrderOffer", b =>
+                {
+                    b.HasOne("GuacAPI.Models.Offer", "offer")
+                        .WithMany()
+                        .HasForeignKey("OfferId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Order", "order")
+                        .WithMany("OrderOffers")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("offer");
+
+                    b.Navigation("order");
+                });
+
+            modelBuilder.Entity("GuacAPI.Entities.User", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("Orders");
+
+                    b.Navigation("RefreshToken");
+                });
+
             modelBuilder.Entity("GuacAPI.Models.AlcoholType", b =>
                 {
                     b.Navigation("Products");
@@ -356,22 +1456,48 @@ namespace GuacAPI.Migrations
 
             modelBuilder.Entity("GuacAPI.Models.Furnisher", b =>
                 {
+                    b.Navigation("Invoices");
+
                     b.Navigation("Products");
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Offer", b =>
                 {
+                    b.Navigation("Comments");
+
                     b.Navigation("ProductOffers");
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Product", b =>
                 {
+                    b.Navigation("InvoicesFurnisherProduct");
+
                     b.Navigation("ProductOffers");
                 });
 
             modelBuilder.Entity("GuacAPI.Models.Region", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("InvoiceFurnisher", b =>
+                {
+                    b.Navigation("InvoicesFurnisherProduct");
+                });
+
+            modelBuilder.Entity("Order", b =>
+                {
+                    b.Navigation("OrderOffers");
+                });
+
+            modelBuilder.Entity("OrderStatus", b =>
+                {
+                    b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("Role", b =>
+                {
+                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,181 +1,212 @@
-﻿using System.Security.Claims;
+﻿using System.Net;
+using AutoMapper;
+using GuacAPI.Authorization;
 using GuacAPI.Context;
+using GuacAPI.Entities;
+using GuacAPI.Helpers;
 using GuacAPI.Models;
+using GuacAPI.Models.Users;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
-using System.Text;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
+using Microsoft.Extensions.Options;
 
 namespace GuacAPI.Services.UserServices;
 
 public class UserService : IUserService
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly DataContext _context;
-    private readonly IConfiguration _configuration;
 
-    public UserService(IHttpContextAccessor httpContextAccessor, DataContext context, IConfiguration configuration)
+    private readonly DataContext _context;
+    private readonly IJwtUtils _jwtUtils;
+    private readonly IMapper _mapper;
+    private readonly AppSettings _appSettings;
+
+    public UserService(DataContext context,
+        IJwtUtils jwtUtils, IMapper mapper, IOptions<AppSettings> appSettings)
     {
-        _httpContextAccessor = httpContextAccessor;
+
         _context = context;
-        _configuration = configuration;
+        _jwtUtils = jwtUtils;
+        _mapper = mapper;
+        _appSettings = appSettings.Value;
     }
 
     // pas mettre de variable dans la function, mais utiliser le _httpContextAccessor
 
-    public object? GetUserInfos()
+
+
+    public Task<User> GetUserById(int id)
     {
-        var username = _httpContextAccessor.HttpContext?.User.Identity?.Name;
-        var role = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value ??
-                   throw new ArgumentNullException(
-                       "_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role)?.Value");
-
-        //   var user = _context.Users.FirstOrDefault(u => u.Username == username);
-
-
-        return new { username, role };
+        GetUser(id);
+        var userId = _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
+        return userId;
     }
 
-    public async Task<List<User>> GetAllUsers()
-    {
-        var users = await _context.Users.ToListAsync();
-        return users;
-    }
-
-    public async Task<User?> GetUserById(int id)
-    {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
-        return user;
-    }
-    public async Task<User?> updateToken(UserDtoLogin request)
-    {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
-
-        if(user is null) {
-            throw new Exception("User doesn't exist");
-        }
-
-        string token = CreateToken(user);
-
-        user.Token = token;
-        // user.RefreshToken = request.RefreshToken;
-        // user.TokenExpires = request.TokenExpires;
-        // user.TokenCreatedAt = request.CreatedAt;
-        
-        await _context.SaveChangesAsync();
-        return user;
-    }
 
     //todo verifier si email deja existant
-
-    public async Task<User?> GetUserByUsername(string username)
+    public IEnumerable<User> GetAllUsersWithRoleId(int id)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+        var users = _context.Users.Where(u => u.RoleId == id).ToList();
+        return users;
+    }
+    public async Task<User> GetUserByUsername(string username)
+    {
+
+        var user = await _context.Users.Include(x => x.Role).FirstOrDefaultAsync(u => u.Username == username);
         return user;
     }
 
-    public async Task<User?> GetUserByEmail(string email)
+    public async Task<User> GetUserByEmail(string email)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         return user;
     }
 
 
-    public async Task<User?> UpdateUser(User request, int id)
+    public async Task<User> UpdateUserByAdmin(int id, UpdateRequestAdmin request)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
+        var newProduct = _mapper.Map(request, user);
         if (user == null) return null;
         user.Username = request.Username;
+        user.Address = request.Address;
+        user.LastName = request.LastName;
+        user.FirstName = request.FirstName;
+        user.RoleId = request.RoleId;
+        user.Phone = request.Phone;
+        user.Email = request.Email;
+
         await _context.SaveChangesAsync();
         return user;
     }
 
-    public async Task<User?> DeleteUser(int id)
+      public async Task<User> UpdateUserByUser(int id, UserUpdateRequest request)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
+        var newProduct = _mapper.Map(request, user);
+        if (user == null) return null;
+        user.Username = request.Username;
+        user.Email = request.Email;
+        user.Address = request.Address;
+        user.LastName = request.LastName;
+        user.FirstName = request.FirstName;
+
+
+        await _context.SaveChangesAsync();
+        return user;
+    }
+
+    public async Task<User> DeleteUser(int id)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id);
         if (user == null) return null;
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
         return user;
     }
 
-    public async Task<User?> Register(User user)
+    public RegisterResponse Register(RegisterRequest request)
     {
-        var register = new User
-        {
-            Username = user.Username,
-            Email = user.Email,
-            Phone = user.Phone,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            PasswordHash = user.PasswordHash,
-            PasswordSalt = user.PasswordSalt,
-            Role = user.Role
-        };
-        var savedRegister = _context.Users.Add(register).Entity;
-        await _context.SaveChangesAsync();
-        return savedRegister;
+        if (_context.Users.Any(x => x.Username == request.Username) ||
+            _context.Users.Any(x => x.Email == request.Email))
+            throw new AppException("Username '" + request.Username + "' is already taken" +
+                                   " or email '" + request.Email + "' is already taken");
+
+        var register = _mapper.Map<User>(request);
+        register.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+        register.RoleId = 2;
+        register.VerifyToken = Guid.NewGuid().ToString();
+
+        _context.Users.Add(register);
+        _context.SaveChanges();
+
+        return new RegisterResponse(register, register.VerifyToken);
     }
 
-     public async Task<bool> Login(string username, string password)
-     {
+    public AuthenticateResponse Login(AuthenticateRequest model)
+    {
+        var user = _context.Users.SingleOrDefault(u => u.Username == model.Username);
+        // var user = await _context.Users.Where(u => u.Username == model.Username).SingleOrDefaultAsync();
 
-         var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+        if (user == null || BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash) == false)
+            throw new AppException("Username or password is incorrect");
+        if (user.VerifiedAt == default(DateTime))
+            throw new WebException("Please verify your email address");
+        var AccessToken = _jwtUtils.GenerateAccessToken(user);
 
+        // Save changes to the database
+        _context.SaveChanges();
 
-         if(user is null) {
-            return false;
-         }
-         if(user.PasswordHash is null || user.PasswordSalt is null) {
-            return false;
-         }
-        
-        var result = VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt);
-        
-         return result;
-     }
+        return new AuthenticateResponse(user, AccessToken.AccessToken, AccessToken.NewToken, AccessToken.AccessTokenExpires, AccessToken.NewTokenExpires);
+    }
 
-        public bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+    public void VerifyEmail(string token, string email)
+    {
+        var user = _context.Users.SingleOrDefault(u => u.VerifyToken == token && u.Email == email);
+        if (user == null)
         {
-            using var hmac = new HMACSHA512(passwordSalt);
-            var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return computedHash.SequenceEqual(passwordHash);
+            throw new AppException("Token is incorrect");
         }
-        public async Task<bool> CheckUsernameAvailability(string username)
-        {
-            var checkUsername = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
-            if(checkUsername != null) {
-                return false;
-            }
+        user.VerifiedAt = DateTime.UtcNow;
+        user.VerifyToken = null;
+        _context.Users.Update(user);
+        _context.SaveChanges();
 
-            return true;
+    }
 
-        }
 
-        public string CreateToken(User user)
-        {
-            if (user.Username != null)
-            {
-                List<Claim> claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.Username),
-                    new Claim(ClaimTypes.Role, "Admin")
-                };
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                    _configuration.GetSection("AppSettings:Secret").Value ?? throw new InvalidOperationException()));
-                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
-                var token = new JwtSecurityToken(
-                    claims: claims,
-                    expires: DateTime.Now.AddDays(1),
-                    signingCredentials: creds);
-                var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-                return jwt;
-            }
+    public void ResetPassword(string email)
+    {
+        var user = _context.Users.SingleOrDefault(u => u.Email == email);
+        // validate
+        if (user == null) throw new AppException("Email '" + email + "' is not found");
+        user.VerifyToken = Guid.NewGuid().ToString();
+        _context.Users.Update(user);
+        _context.SaveChanges();
+    }
 
-            return String.Empty;
-        }
-//todo création d'admin de base
+    public void ChangePassword(ChangePasswordRequest model)
+    {
+        var user = _context.Users.SingleOrDefault(u => u.Email == model.Email);
+        // validate
+        if (user == null) throw new AppException("Email '" + model.Email + "' is not found");
 
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.ConfirmPassword);
+        user.VerifyToken = null;
+        _context.Users.Update(user);
+        _context.SaveChanges();
+    }
+
+
+
+
+    public IEnumerable<User> GetAll()
+    {
+        return _context.Users;
+    }
+
+    public User GetById(int id)
+    {
+        var user = _context.Users.Find(id);
+        if (user == null) throw new KeyNotFoundException("User not found");
+        return user;
+    }
+
+    public User GetUserByRefreshToken(string token)
+    {
+        Console.WriteLine("token: " + token);
+        var user = _context.Users.Include(u => u.RefreshToken)
+                              .FirstOrDefault(u => u.RefreshToken.AccessToken == token || u.RefreshToken.NewToken == token);
+        if (user == null) throw new KeyNotFoundException("Tous les tokens sont expirés");
+        return user;
+    }
+
+
+
+
+    private User GetUser(int id)
+    {
+        var user = _context.Users.Find(id);
+        if (user == null) throw new KeyNotFoundException("User not found");
+        return user;
+    }
 }

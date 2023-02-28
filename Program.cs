@@ -1,13 +1,21 @@
 ﻿using System.Text;
+using GuacAPI.Authorization;
 using Microsoft.EntityFrameworkCore;
-using GuacAPI.Models;
+
 using GuacAPI.Context;
 using GuacAPI.ExtensionMethods;
+using GuacAPI.Helpers;
+using GuacAPI.Services.UserServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
-
+using System.Text.Json.Serialization;
+using Microsoft.Extensions.FileProviders;
+using System.Reflection;
+using GuacAPI.Services.EmailServices;
+using GuacAPI.Models.Users;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +25,11 @@ builder.Services.AddControllers();
 
 //Db context
 builder.Services.AddDbContext<DataContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.EnableSensitiveDataLogging(true);
+});
+
 
 //Instancie la class DefaultProductRepository à chaque fois qu'il rencontre une Interface IProductRepository (interface ne s'intanscie pas toute seule)
 //builder.Services.AddScoped<IProductRepository, DefaultProductRepository>();
@@ -26,7 +38,16 @@ builder.Services.AddInjections(); //Inject all injection depandencies
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddAutoMapper(typeof(Program));
 
+// configure strongly typed settings object
+builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
+
+// configure DI for application services
+builder.Services.AddScoped<IJwtUtils, JwtUtils>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddMemoryCache();
 
 //permet d'ajouter du context http 
 builder.Services.AddHttpContextAccessor();
@@ -40,7 +61,13 @@ builder.Services.AddSwaggerGen(options =>
         Type = SecuritySchemeType.ApiKey
     });
     options.OperationFilter<SecurityRequirementsOperationFilter>();
+
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+
 });
+builder.Services.Configure<IdentityOptions>(
+    options => options.SignIn.RequireConfirmedEmail = true);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -56,6 +83,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 ValidateAudience = false
             };
     });
+
+
 builder.Services.AddCors(options =>
     options.AddDefaultPolicy(cors =>
     {
@@ -65,7 +94,11 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     }));
 
+builder.Services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
+var emailConfig = builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
+builder.Services.AddSingleton(emailConfig);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -75,14 +108,32 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     //app.UseHttpsRedirection();
 }
+// ---------------
 
+app.UseStaticFiles();// For the wwwroot folder
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+                Path.Combine(Directory.GetCurrentDirectory(), "Images")),
+    RequestPath = "/Images"
+});
+
+
+
+//---------------
 app.UseCors();
+app.UseMiddleware<ErrorHandlerMiddleware>();
+
+// custom jwt auth middleware
+app.UseMiddleware<JwtMiddleware>();
 
 app.UseAuthentication();
 
 app.UseAuthorization();
 
+// app.UseMiddleware<APIKeyMiddleware>(builder.Configuration.GetSection("ApiKey:Key").Value);
+
 app.MapControllers();
 
 app.Run();
-

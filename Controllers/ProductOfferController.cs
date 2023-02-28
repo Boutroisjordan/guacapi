@@ -2,9 +2,10 @@ using GuacAPI.Models;
 using GuacAPI.Context;
 using Microsoft.AspNetCore.Mvc;
 using GuacAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GuacAPI.Controllers;
-
+ 
 [Route("[controller]")]
 [ApiController]
 public class ProductOfferController : ControllerBase
@@ -55,6 +56,20 @@ public class ProductOfferController : ControllerBase
          }
          return Ok(offerList);
      }
+
+
+ [Authorize (Roles = "Admin")]
+    [HttpPut("productOffer/{OfferId}/{productId}")]
+    public async Task<IActionResult> EditProductOffer(int OfferId, int productId, ProductOffer request)
+    {
+
+        var addedProductOffer = await _productOfferService.EditProductOffer(OfferId, productId, request);
+        if (addedProductOffer == null)
+        {
+            return BadRequest();
+        }
+        return Ok(addedProductOffer);
+    }
 
 }
 

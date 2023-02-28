@@ -2,6 +2,7 @@ using GuacAPI.Models;
 using GuacAPI.Context;
 using Microsoft.AspNetCore.Mvc;
 using GuacAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GuacAPI.Controllers;
 
@@ -24,7 +25,9 @@ public class FurnisherController : ControllerBase
 
     #endregion
 
-
+    /// <summary>
+    /// Récupère tous les fournisseurs
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetAllFunishers()
     {
@@ -37,6 +40,9 @@ public class FurnisherController : ControllerBase
         return Ok(furnisherList);
     }
 
+    /// <summary>
+    /// Récupère le fournisseur par l'id
+    /// </summary>
     [HttpGet]
     [Route("{id}")]
     public async Task<IActionResult> GetFurnisherById(int id)
@@ -58,6 +64,33 @@ public class FurnisherController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Récupère les produits du fournisseur (deprecated)
+    /// </summary>
+    [HttpGet]
+    [Route("getProducts/{id}")]
+    public async Task<IActionResult> GetFurnisherProducts(int id)
+    {
+        try
+        {
+            if (id != 0)
+            {
+                var furnisher = await _furnisherService.GetProductsOfFurnisher(id);
+
+                return Ok(furnisher);
+            }
+
+            return BadRequest();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Récupère le fournisseur par son nom
+    /// </summary>
     [HttpGet]
     [Route("ByName/{name}")]
     public async Task<IActionResult> GetFurnisherByName(string name)
@@ -78,8 +111,12 @@ public class FurnisherController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Créer un fournisseur
+    /// </summary>
     [HttpPost]
-    public async Task<IActionResult> CreateFurnisher(Furnisher furnisher)
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> CreateFurnisher(FurnisherRegister furnisher)
     {
         try
         {
@@ -97,9 +134,13 @@ public class FurnisherController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Met à jour un fournisseur
+    /// </summary>
     [HttpPut]
+    [Authorize(Roles = "Admin")]
     [Route("{id}")]
-    public async Task<IActionResult> UpdateFurnisher(int id, Furnisher furnisher)
+    public async Task<IActionResult> UpdateFurnisher(int id, FurnisherRegister furnisher)
     {
         try
         {
@@ -122,7 +163,11 @@ public class FurnisherController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Supprime un fournisseur
+    /// </summary>
     [HttpDelete]
+    [Authorize(Roles = "Admin")]
     [Route("{id}")]
     public async Task<IActionResult> DeleteFurnisher(int id)
     {

@@ -1,9 +1,8 @@
 using GuacAPI.Models;
 using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
-
 namespace GuacAPI.Services;
-
+ 
 public class AppellationService : IAppellationService
 {
     #region Fields
@@ -18,7 +17,7 @@ public class AppellationService : IAppellationService
         this._context = context;
     }
 
-    public async Task<List<Appellation>?> GetAppellations()
+    public async Task<List<Appellation>> GetAppellations()
     {
         var appellations = await _context.Appellations.ToListAsync();
 
@@ -26,7 +25,7 @@ public class AppellationService : IAppellationService
         return appellations;
     }
 
-    public async Task<Appellation?> GetAppellationById(int id)
+    public async Task<Appellation> GetAppellationById(int id)
     {
         var appellationByid = await _context.Appellations.Include(p => p.Products).Where(a => a.AppellationId == id)
             .FirstOrDefaultAsync();
@@ -39,7 +38,7 @@ public class AppellationService : IAppellationService
         return appellationByid;
     }
 
-    public async Task<Appellation?> GetAppellationByName(string name)
+    public async Task<Appellation> GetAppellationByName(string name)
     {
         var appelationName = await _context.Appellations.FirstOrDefaultAsync(a => a.Name == name);
         if (appelationName == null)
@@ -50,7 +49,7 @@ public class AppellationService : IAppellationService
         return appelationName;
     }
 
-    public async Task<Appellation?> CreateAppellation(Appellation appellation)
+    public async Task<Appellation> CreateAppellation(Appellation appellation)
     {
         if (appellation is null)
         {
@@ -67,7 +66,7 @@ public class AppellationService : IAppellationService
     }
 
 
-    public async Task<Appellation?> UpdateAppellation(int id, Appellation request)
+    public async Task<Appellation> UpdateAppellation(int id, Appellation request)
     {
 
             var appellation = _context.Appellations.Find(id);
@@ -81,7 +80,7 @@ public class AppellationService : IAppellationService
             return appellation;
     }
 
-    public async Task<Appellation?> DeleteAppellation(int id)
+    public async Task<Appellation> DeleteAppellation(int id)
     {
         // return await Task.Run(() =>
         // {

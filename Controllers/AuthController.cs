@@ -1,289 +1,444 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
+
+using GuacAPI.Authorization;
+using GuacAPI.Context;
+using GuacAPI.Entities;
+using GuacAPI.Helpers;
 using GuacAPI.Models;
+using GuacAPI.Models.Users;
 using GuacAPI.Services.UserServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using GuacAPI.Services.EmailServices;
+using System.Security.Cryptography;
 
 namespace guacapi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {
-        public static User user = new User();
-        private readonly IConfiguration _configuration;
-        public static UserReturnDto userReturnDto = new UserReturnDto();
         private readonly IUserService _userService;
+        private readonly IJwtUtils _jwtUtils;
+        private readonly AppSettings _appSettings;
+        private readonly DataContext _context;
+        private readonly IEmailService _emailService;
 
-        public AuthController(IConfiguration configuration, IUserService userService)
+
+
+        public AuthController(IUserService userService, IJwtUtils jwtUtils, IOptions<AppSettings> appSettings, DataContext context, IEmailService emailService)
         {
-            _configuration = configuration;
             _userService = userService;
+            _jwtUtils = jwtUtils;
+            _appSettings = appSettings.Value;
+            _context = context;
+            _emailService = emailService;
+
         }
 
-        [HttpGet, Authorize]
-        public ActionResult<object> GetUser()
-        {
-            // on peut aussi faire un FindFirstValue(ClaimTypes.NameIdentifier)
-
-            var infos = _userService.GetUserInfos();
-            return Ok(infos);
-        }
-
-        [HttpGet, Authorize]
-        [Route("GetAllUsers")]
-        public async Task<IActionResult> GetAllUsers()
-        {
-            var infos = await _userService.GetAllUsers();
-            if (infos == null)
-            {
-                return BadRequest();
-            }
-
-            return Ok(infos);
-        }
-
-        [HttpGet, Authorize]
-        [Route("GetUserById/{id}")]
-        public async Task<IActionResult> GetUserById(int id)
-        {
-            var infos = await _userService.GetUserById(id);
-            if (infos == null)
-            {
-                return BadRequest();
-            }
-
-            return Ok(infos);
-        }
-
-        [HttpGet, Authorize]
+        /// <summary>
+        /// Récupère informations Users par son nom
+        /// </summary>
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
         [Route("GetUserByUsername/{username}")]
         public async Task<IActionResult> GetUserByUsername(string username)
         {
-            var infos = await _userService.GetUserByUsername(username);
-            if (infos == null)
+            var refreshToken = Request.Cookies["refreshToken"];
+            if (refreshToken != null)
             {
-                return BadRequest();
+                var infos = await _userService.GetUserByUsername(username);
+                if (infos == null)
+                {
+                    return BadRequest();
+                }
+
+                return Ok(infos);
             }
 
-            return Ok(infos);
+            return Unauthorized(new { message = "Unauthorized" });
         }
 
-        [HttpGet, Authorize]
+        /// <summary>
+        /// Récupère informations Users par son email
+        /// </summary>
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
         [Route("GetUserByEmail/{email}")]
         public async Task<IActionResult> GetUserByEmail(string email)
         {
-            var infos = await _userService.GetUserByEmail(email);
-            if (infos == null)
+            var refreshToken = Request.Cookies["refreshToken"];
+            if (refreshToken != null)
+            {
+                var infos = await _userService.GetUserByEmail(email);
+                if (infos == null)
+                {
+                    return BadRequest();
+                }
+
+                return Ok(infos);
+            }
+
+            return Unauthorized(new { message = "Unauthorized" });
+        }
+
+
+        /// <summary>
+        /// Confirm email (route test)
+        /// </summary>
+        [HttpGet("ConfirmEmail")]
+        public IActionResult VerifyUserMail(string token, string email)
+        {
+            if (token == null || email == null)
+            {
+                return BadRequest("Invalid client request");
+            }
+            _userService.VerifyEmail(token, email);
+
+            return Redirect("https://www.guacatube.fr");
+        }
+
+
+        /// <summary>
+        /// Supprime un utilisateur
+        /// </summary>
+        [Authorize
+             (Roles = "Admin")]
+        [HttpDelete("delete/{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var user = await _userService.DeleteUser(id);
+            if (user == null)
             {
                 return BadRequest();
             }
 
-            return Ok(infos);
+            return Created("User deleted successfully", user);
         }
 
-        [HttpPost("register")]
-        public async Task<ActionResult<User>> Register(UserDtoRegister request)
+
+        /// <summary>
+        /// Récupère les Users par leur role id
+        /// </summary>
+        [Authorize(Roles = "Admin")]
+        [HttpGet("GetUsersByRoleId/{id}")]
+        public IActionResult GetUsersByRoleId(int id)
         {
-            if (request.Password == null)
-            {
-                return BadRequest("Password is required");
-            }
-            if (request.Username == null)
-            {
-                return BadRequest("Username is required");
-            }
-
-            var checkUsername = await _userService.CheckUsernameAvailability(request.Username);
-
-            if(checkUsername == false) {
-                return BadRequest("Username is already use, take another username");
-            }
-
-            CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
-            user.PasswordHash = passwordHash;
-            user.PasswordSalt = passwordSalt;
-            user.Username = request.Username;
-            user.Email = request.Email;
-            user.FirstName = request.FirstName;
-            user.Phone = request.Phone;
-            user.Role = "Admin";
-            user.LastName = request.LastName;
-            userReturnDto.FirstName = request.FirstName;
-            userReturnDto.LastName = request.LastName;
-            userReturnDto.Username = request.Username;
-            userReturnDto.Role = "Admin";
-
-            user = await _userService.Register(user) ?? throw new InvalidOperationException();
-            return Ok(userReturnDto);
+            var users = _userService.GetAllUsersWithRoleId(id);
+            return Ok(users);
         }
 
-        [HttpPost("login")]
-
-        public async Task<ActionResult> Login(UserDtoLogin request)
-
+        /// <summary>
+        /// Création d'un user
+        /// </summary>
+        [AllowAnonymous]
+        [HttpPost("Register")]
+        public IActionResult Register(RegisterRequest model)
         {
-             if (request.Password == null)
-             {
-                 return BadRequest("Password is required");
-             }
-
-             if (request.Username == null)
-             {
-                 return BadRequest("Username is required");
-             }
-
-            // if (request.Username != user.Username)
-            // {
-            //     return BadRequest("Username is incorrect");
-            // }
-
-            // if (user.PasswordSalt != null && user.PasswordHash != null &&
-            //     !VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
-            // {
-            //     return BadRequest("Password is incorrect");
-            // }
-
-
-
-
-
-        //Todo : check all username pour pas pouvoir créer un usernam qui existe déjà pour pouvoir récupérer le user par son username.  
-        // Récupérer le password salt appelle verifyPassWordHash
-
-            
-
-             var result = await _userService.Login(request.Username, request.Password);
-
-              if(result is false) {
-                 return BadRequest("Bad credentials");
-              }
-
-
-            //  string token = CreateToken(user);
-
-            //Refresh token en attente 
-            //  var refreshToken = GenerateRefreshToken();
-            //  SetRefreshToken(refreshToken);
-            //  user.TokenExpires = DateTime.Now.AddMinutes(5);
-            //  user.TokenCreatedAt = DateTime.Now;
-
-            //  refresh token expires in 7 days
-             var upToken = await _userService.updateToken(request);
-            return Ok(upToken);
+            var response = _userService.Register(model);
+            if (response != null)
+            {
+                var token = response.VerifyToken;
+                var confirmationLink = Url.Action(nameof(VerifyUserMail), "Auth", new { token, email = model.Email }, Request.Scheme);
+                var recipientName = model.FirstName + " " + model.LastName;
+                var contactEmail = "guacaprocesi@gmail.com";
+                var message = new MessageMail(new string[] { model.Email }, "Confirmation de votre compte", model.Username, contactEmail, recipientName, confirmationLink);
+                _emailService.SendEmail(message);
+                return Created("User registered successfully", response);
+            }
+            else
+            {
+                return BadRequest(new { message = "User already exists" });
+            }
         }
 
-        // [HttpPost("refreshToken")]
-        // public ActionResult<string> RefreshToken()
-        // {
-        //     var refreshToken = Request.Cookies["refreshToken"];
-        //     if (user.RefreshToken != null && !user.RefreshToken.Equals(refreshToken))
-        //     {
-        //         return Unauthorized("Invalid refresh token");
-        //     }
-        //     else if (user.TokenExpires < DateTime.Now)
-        //     {
-        //         return Unauthorized("Token expired");
-        //     }
 
-        //     string token = CreateToken(user);
-        //     var newRefreshToken = GenerateRefreshToken();
-        //     SetRefreshToken(newRefreshToken);
-        //     user.TokenExpires = DateTime.Now.AddDays(7);
-        //     user.TokenCreatedAt = DateTime.Now;
-        //     user.RefreshToken = newRefreshToken.Token;
-        //     user = _userService.Register(user) ?? throw new InvalidOperationException();
-        //     return Ok(token);
+        /// <summary>
+        /// Route d'authentificaton
+        /// </summary>
+        [AllowAnonymous]
+        [HttpPost("Login")]
+        public IActionResult Authenticate(AuthenticateRequest model)
+        {
+            // Supprimer tous les cookies de token
+            var response = _userService.Login(model);
+
+            if (response.RefreshToken != null)
+            {
+                SetTokenCookie(response.AccessToken, response.Id, response.RefreshToken, response.TokenExpires, response.RefreshExpires);
+                return Ok(response);
+            }
+
+            return Unauthorized(new { message = "Username or password is incorrect" });
+
+        }
+
+
+        /// <summary>
+        /// Regènre un Refreshtoken
+        /// </summary>
+        [HttpPost("RefreshToken")]
+        public IActionResult RefreshToken(RefreshTokenRequest model)
+        {
+            var refreshToken = model.refreshToken;
+
+            if (refreshToken != null)
+            {
+                try
+                {
+                    var user = _userService.GetUserByRefreshToken(refreshToken);
+
+                    if (user != null)
+                    {
+                        if (user.RefreshToken != null && user.RefreshToken.AccessToken != null && user.RefreshToken.AccessTokenExpires > DateTime.UtcNow)
+                        {
+                            var timeLeft = (int)(user.RefreshToken.AccessTokenExpires - DateTime.UtcNow).TotalSeconds;
+                            var expirationTime = DateTimeOffset.UtcNow.AddSeconds(timeLeft);
+                            var CookieOptions = new CookieOptions
+                            {
+                                HttpOnly = true,
+                                Expires = expirationTime
+                            };
+
+                            return Ok(new { user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone, user.RoleId, user.RefreshToken.AccessToken, refreshToken = user.RefreshToken.NewToken, tokenExpires =  user.RefreshToken.AccessTokenExpires, refreshExpires = user.RefreshToken.NewTokenExpires, expiration = expirationTime.ToUnixTimeSeconds() });
+                        }
+
+                        var newRefreshToken = _jwtUtils.GenerateRefreshToken(user);
+                        user.RefreshToken.AccessTokenExpires = newRefreshToken.AccessTokenExpires;
+                        user.RefreshToken.AccessToken = newRefreshToken.AccessToken;
+                        _context.Update(user);
+                        _context.SaveChanges();
+
+                        var cookieOptions = new CookieOptions
+                        {
+                            HttpOnly = true,
+                            Expires = newRefreshToken.AccessTokenExpires
+                        };
+                        Response.Cookies.Append("AccessToken", newRefreshToken.AccessToken, cookieOptions);
+
+                        return Ok(new { user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone, user.RoleId, user.RefreshToken.AccessToken, refreshToken = user.RefreshToken.NewToken, tokenExpires = user.RefreshToken.AccessTokenExpires, refreshExpires = user.RefreshToken.NewTokenExpires });
+                    }
+                }
+                catch (SecurityTokenException)
+                {
+                    return Unauthorized(new { message = "Unauthorized " });
+                }
+            }
+            return Unauthorized(new { message = "Unauthorized" });
+        }
+
+
+        /// <summary>
+        /// Récupère tous les users
+        /// </summary>
+        [Authorize(Roles = "Admin")]
+        [HttpGet("GetAllUsers")]
+        public IActionResult GetAll()
+        {
+
+            var users = _userService.GetAll();
+            return Ok(users);
+        }
+
+
+        /// <summary>
+        /// Récupère un user par l'id
+        /// </summary>
+        [Authorize(Roles = "Admin")]
+        [HttpGet("GetUserById/{id}")]
+        public IActionResult GetById(int id)
+        {
+            var byId = _userService.GetById(id);
+            return Ok(byId);
+        }
+
+
+
+        /// <summary>
+        /// Récupère les informations de l'utilisateur (par l'utilisateur)
+        /// </summary>
+        [Authorize(Roles = "Admin,Client")]
+        [HttpGet("GetMesInfos")]
+        public IActionResult GetMesInfos()
+        {
+            var accessToken = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            if (accessToken == null)
+                return Unauthorized(new { message = "Unauthorized" });
+            var user = CheckToken(accessToken);
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Unauthorized" });
+            }
+            return Ok(new { user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone, user.RoleId });
+        }
+
+        /// <summary>
+        /// Récupère tous les utilisatuer qui ont des Refreshtokens
+        /// </summary>
+        [Authorize(Roles = "Admin")]
+        [HttpGet("GetRefreshById/{id}/refresh-tokens")]
+        public IActionResult GetRefreshTokens(int id)
+        {
+            var user = _userService.GetById(id);
+            return Ok(user.RefreshToken);
+        }
+
+
+        /// <summary>
+        /// Met à jour un user par l'admin
+        /// </summary>
+        [Authorize
+        (Roles = "Admin")]
+        [HttpPut("UpdateUserByAdmin/{id}")]
+        public async Task<IActionResult> Update(int id, UpdateRequestAdmin model)
+        {
+            var updatedUser = await _userService.UpdateUserByAdmin(id, model);
+            if (updatedUser == null)
+                return BadRequest(new { message = "User not found" });
+            return Ok(updatedUser);
+        }
+
+        /// <summary>
+        /// Met à jour un user (par l'user)
+        /// </summary>
+        [Authorize
+              (Roles = "Client,Admin")]
+        [HttpPut("UpdateMesInfos")]
+        public async Task<IActionResult> Update(UserUpdateRequest model)
+        {
+            var accessToken = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            if (accessToken == null)
+                return Unauthorized(new { message = "Unauthorized" });
+            var user = _userService.GetUserByRefreshToken(accessToken);
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Unauthorized" });
+            }
+            var updatedUser = await _userService.UpdateUserByUser(user.UserId, model);
+            if (updatedUser == null)
+                return BadRequest(new { message = "User not found" });
+            return Ok(updatedUser);
+        }
+
+        /// <summary>
+        /// Récupère un user par token
+        /// </summary>
+        [Authorize(Roles = "Admin")]
+        [HttpGet("GetUserByToken")]
+        public IActionResult GetUserByToken()
+        {
+            var refreshToken = Request.Cookies["AccessToken"] ?? Request.Cookies["refreshToken"];
+            if (refreshToken == null)
+                return Unauthorized(new { message = "Unauthorized" });
+            var user = CheckToken(refreshToken);
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Unauthorized" });
+            }
+            return Ok(new { user = user.RefreshToken });
+        }
+
+        // [HttpPost("ForgotPassword")]
+        // public IActionResult ForgotPassword([Required] string email) {
+        //         if(email == null)
+        //         {
+        //             return BadRequest(new { message = "Email is required" });
+        //         }
+        //         _userService.ResetPassword(email);
+        //         return Ok(new { message = "Email sent successfully" });
+
         // }
 
+        // helper methods
 
-        [HttpPost("logout")]
-        public ActionResult Logout()
+        private void SetTokenCookie(string token, int id, string refreshToken, DateTime tokenExpires, DateTime newTokenExpires)
         {
-            user.RefreshToken = null;
-            user.TokenExpires = DateTime.Now;
-            return Ok();
-        }
+            // append cookie with refresh token to the http response
 
-
-        [HttpDelete("delete")]
-        public async Task<ActionResult> Delete()
-        {
-            user = await _userService.DeleteUser(user.Id) ?? throw new InvalidOperationException();
-            return Ok(user);
-        }
-
-        private RefreshToken GenerateRefreshToken()
-        {
-            var refreshToken = new RefreshToken()
+            var cookieOptionsRefresh = new CookieOptions
             {
-                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
-                Expires = DateTime.UtcNow.AddDays(7),
-                Created = DateTime.UtcNow
+                HttpOnly = false,
+                Secure = true,
+                Expires = newTokenExpires
             };
-            return refreshToken;
-        }
+            Response.Cookies.Append("refreshToken", refreshToken, cookieOptionsRefresh);
 
-        private void SetRefreshToken(RefreshToken newRefreshToken)
-        {
             var cookieOptions = new CookieOptions
             {
-                //enlever en https
-                HttpOnly = true,
-                Expires = newRefreshToken.Expires,
+                HttpOnly = false,
+                Secure = true,
+                Expires = tokenExpires
             };
-
-            if (newRefreshToken.Token != null)
-            {
-                Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
-                user.RefreshToken = newRefreshToken.Token;
-
-                user.TokenCreatedAt = newRefreshToken.Created;
-                user.TokenExpires = newRefreshToken.Expires;
-            }
-
-
+            Response.Cookies.Append("AccessToken", token, cookieOptions);
 
         }
 
-        // Claims properties are used to store user information anything you want to store in the token
-        private string CreateToken(User user)
+        private string CreateRandomToken()
         {
-            if (user.Username != null)
+            var token = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
             {
-                List<Claim> claims = new List<Claim>
+                rng.GetBytes(token);
+                return Convert.ToBase64String(token);
+            }
+
+        }
+
+        private User CheckToken(string token)
+        {
+
+            if (token != null)
+            {
+                Console.WriteLine("token : " + token);
+                var user = _userService.GetUserByRefreshToken(token);
+                if (user.RefreshToken.AccessToken != null && user.RefreshToken.AccessTokenExpires > DateTime.UtcNow)
                 {
-                    new Claim(ClaimTypes.Name, user.Username),
-                    new Claim(ClaimTypes.Role, "Admin")
-                };
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                    _configuration.GetSection("AppSettings:Secret").Value ?? throw new InvalidOperationException()));
-                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+                    var timeLeft = (int)(user.RefreshToken.AccessTokenExpires - DateTime.UtcNow).TotalSeconds;
+                    var expirationTime = DateTimeOffset.UtcNow.AddSeconds(timeLeft);
+                    var cookieOptions = new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Expires = expirationTime
+                    };
+                    Response.Cookies.Append("AccessToken", user.RefreshToken.AccessToken, cookieOptions);
+                    return user;
+                }
+                else if (user.RefreshToken.AccessToken != null && user.RefreshToken.AccessTokenExpires < DateTime.UtcNow && user.RefreshToken.NewTokenExpires > DateTime.UtcNow && user.RefreshToken.NewToken != null)
+                {
+                    // generate new AccessToken for user 
+                    var newAccessToken = _jwtUtils.GenerateAccessToken(user);
+                    var cookieOptions = new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Expires = newAccessToken.AccessTokenExpires
+                    };
+                    // update user with new AccessToken
+                    user.RefreshToken.AccessTokenExpires = newAccessToken.AccessTokenExpires;
+                    user.RefreshToken.AccessToken = newAccessToken.AccessToken;
+                    _context.Update(user);
+                    _context.SaveChanges();
+                    // append cookie with new AccessToken to the http response
 
-                var token = new JwtSecurityToken(
-                    claims: claims,
-                    expires: DateTime.Now.AddDays(1),
-                    signingCredentials: creds);
-                var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-                return jwt;
+                    Response.Cookies.Append("AccessToken", newAccessToken.AccessToken, cookieOptions);
+                    return user;
+                }
+                else
+                {
+                    throw new UnauthorizedAccessException("Access token not found or expired.");
+                }
+
             }
+            throw new UnauthorizedAccessException("Invalid access token.");
 
-            return String.Empty;
         }
 
-        private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
-        {
-            using (var hmac = new HMACSHA512())
-            {
-                passwordSalt = hmac.Key;
-                passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-            }
-        }
+
+
+
 
 
     }
+
+
 }

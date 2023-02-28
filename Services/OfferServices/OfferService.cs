@@ -1,6 +1,9 @@
 using GuacAPI.Models;
 using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
+using AutoMapper;
+using GuacAPI.Helpers;
 
 namespace GuacAPI.Services;
 
@@ -9,18 +12,26 @@ public class OfferService : IOfferService
     #region Fields
     private readonly DataContext _context;
     private readonly IProductService _productService;
+    private readonly IMapper _mapper;
     #endregion
 
     // #region Constructors
-    public OfferService(DataContext context, IProductService productService)
+    public OfferService(DataContext context, IProductService productService, IMapper mapper)
     {
         this._context = context;
         this._productService = productService;
+        this._mapper = mapper;
     }
 
-    public async Task<List<Offer>?> GetAllOffers()
+    public async Task<List<Offer>> GetAllOffers()
     {
-        var offers = await _context.Offers.ToListAsync();
+        var offers = await _context.Offers.Include(x => x.ProductOffers)
+       .ThenInclude(x => x.Product).ToListAsync();
+        return offers;
+    }
+    public async Task<List<Offer>> GetDraftOffer()
+    {
+        var offers = await _context.Offers.Where(x => x.isDraft == true).ToListAsync();
         return offers;
     }
 
@@ -42,12 +53,29 @@ public class OfferService : IOfferService
 
         return offer;
     }
+    public async Task<Boolean> checkAvailabilityOfOneOffer(int id)
+    {
+        var offer = await _context.Offers
+        .Include(o => o.ProductOffers)
+        .ThenInclude(x => x.Product)
+        .Where(x => x.ProductOffers.Any(item => item.Product != null && (item.Product.Stock - item.QuantityProduct >= 0 || item.Product.RestockOption == true)) == true && x.OfferId == id)
+        .Where(x => x.Deadline == null || x.Deadline > DateTime.Now)
+        .Where(x => x.isDraft == false)
+        .ToListAsync();
+
+        if (offer is null)
+        {
+            return false;
+        }
+
+        return true;
+    }
     public async Task<List<Offer>> GetUnavailableOffers()
     {
         var offer = await _context.Offers
         .Include(o => o.ProductOffers)
         .ThenInclude(x => x.Product)
-        .Where(x => x.ProductOffers.Any(item => item.Product != null && item.Product.Stock - item.QuantityProduct >= 0) == false)
+        .Where(x => x.ProductOffers.Any(item => item.Product != null && (item.Product.Stock - item.QuantityProduct >= 0 && item.Product.RestockOption == false)) || x.Deadline < DateTime.Now && x.Deadline != null)
         .ToListAsync();
 
         if (offer is null)
@@ -64,9 +92,10 @@ public class OfferService : IOfferService
 
 
 
-    public async Task<Offer?> GetOfferById(int id)
+    public async Task<Offer> GetOfferById(int id)
     {
-        var offer = await _context.Offers.Include(o => o.ProductOffers)
+        var offer = await _context.Offers.Include(i => i.Comments)
+        .Include(o => o.ProductOffers)
          .ThenInclude(x => x.Product)
          .Where(x => x.OfferId == id)
          .FirstOrDefaultAsync();
@@ -80,75 +109,38 @@ public class OfferService : IOfferService
     }
 
 
-    public async Task<Offer> AddOffer(Offer offer)
+    public async Task<Offer> AddOffer(OfferRegister request)
     {
 
+        var offer = _mapper.Map<Offer>(request);
 
-        // Ajouter l'offre à la base de données
         var addedOffer = _context.Offers.Add(offer).Entity;
-
-
-        if (offer.ProductOffers != null)
-        {
-
-            foreach (var productOffer in offer.ProductOffers)
-            {
-                productOffer.OfferId = addedOffer.OfferId;
-                _context.ProductOffers.Add(productOffer);
-            }
-            await _context.SaveChangesAsync();
-        }
-
+        await _context.SaveChangesAsync();
 
         return addedOffer;
     }
 
-     public async Task<Offer?> UpdateOffer(int id, Offer request)
-     {
+    public async Task<Offer> UpdateOffer(int id, OfferRegister request)
+    {
 
+         //Trouve l'offre
+        var entityOffers = _context.Offers.Include(x => x.ProductOffers).Where(x => x.OfferId == id).FirstOrDefault();
 
-        var offer = await _context.Offers
-            .Include(o => o.ProductOffers)
-            .FirstOrDefaultAsync(o => o.OfferId == id);
-
-        if (offer == null)
-        {
-            throw new Exception("Offre introuvable");
-        }
-
-        offer.Name = request.Name;
-        offer.Description = request.Description;
-        offer.Price = request.Price;
-        offer.ImageUrl = request.ImageUrl;
-
-        foreach (var productOffer in request.ProductOffers)
-        {
-            var existingProductOffer = offer.ProductOffers
-                .FirstOrDefault(po => po.OfferId == id && po.ProductId == productOffer.ProductId);
-
-            if (existingProductOffer != null)
-            {
-                existingProductOffer.QuantityProduct = productOffer.QuantityProduct;
-                existingProductOffer.ProductId = productOffer.ProductId;
-                existingProductOffer.OfferId = id;
-            }
-            else
-            {
-                offer.ProductOffers.Add(new ProductOffer
-                {
-                    QuantityProduct = productOffer.QuantityProduct,
-                    ProductId = productOffer.ProductId,
-                    OfferId = id
-                });
-            }
-        }
+        //Map Update dans une offre
+        Offer offer = _mapper.Map(request, entityOffers);
+        offer.OfferId = id;
 
         await _context.SaveChangesAsync();
 
-        return offer;
-}
+        return entityOffers;
+        // return newOffer;
+    }
 
-    public async Task<Offer?> DeleteOffer(int id)
+
+
+
+
+    public async Task<Offer> DeleteOffer(int id)
     {
 
         var offer = await _context.Offers.Include(x => x.ProductOffers).FirstOrDefaultAsync(x => x.OfferId == id);

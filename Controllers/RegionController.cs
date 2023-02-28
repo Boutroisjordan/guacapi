@@ -2,6 +2,7 @@ using GuacAPI.Models;
 using GuacAPI.Context;
 using Microsoft.AspNetCore.Mvc;
 using GuacAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GuacAPI.Controllers;
 
@@ -24,9 +25,11 @@ public class RegionController : ControllerBase
 
     #endregion
 
-
+    /// <summary>
+    /// Récupère les regions
+    /// </summary>
     [HttpGet]
-    public async Task<IActionResult> GetAllFunishers()
+    public async Task<IActionResult> GetAllRegions()
     {
         var regionList = await _regionService.GetAllRegions();
         if (regionList == null)
@@ -40,6 +43,9 @@ public class RegionController : ControllerBase
         return Ok(regionList);
     }
 
+    /// <summary>
+    /// Récupère une région par son id
+    /// </summary>
     [HttpGet]
     [Route("{id}")]
     public async Task<IActionResult> GetOneRegion(int id)
@@ -53,15 +59,16 @@ public class RegionController : ControllerBase
         return this.Ok(region);
     }
 
+    /// <summary>
+    /// Ajoute une région
+    /// </summary>
     [HttpPost]
-    public async Task<IActionResult> AddOne(Region request)
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AddOne(RegionRegister request)
     {
         IActionResult result = this.BadRequest();
 
-        var addedRegion = await _regionService.AddRegion(new Region()
-        {
-            Name = request.Name
-        });
+        var addedRegion = await _regionService.AddRegion(request);
 
         if (addedRegion == null)
         {
@@ -70,10 +77,14 @@ public class RegionController : ControllerBase
         return Ok(addedRegion);
     }
 
+    /// <summary>
+    /// Met à jour une région
+    /// </summary>
     [HttpPut]
+    [Authorize(Roles = "Admin")]
     [Route("{id}")]
 
-    public async Task<IActionResult> UpdateRegion(int id, Region request)
+    public async Task<IActionResult> UpdateRegion(int id, RegionRegister request)
     {
         var updatedRegion = await _regionService.UpdateRegion(id, request);
 
@@ -85,7 +96,11 @@ public class RegionController : ControllerBase
         return Ok(updatedRegion);
     }
 
+    /// <summary>
+    /// Supprime une région
+    /// </summary>
     [HttpDelete]
+    [Authorize(Roles = "Admin")]
     [Route("{id}")]
     public async Task<IActionResult> DeleteRegion(int id)
     {

@@ -1,95 +1,114 @@
 using GuacAPI.Models;
 using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
-
+using AutoMapper;
+using GuacAPI.Helpers;
 namespace GuacAPI.Services;
-
+ 
 public class ProductService : IProductService
 {
     #region Fields
     private readonly DataContext _context;
+    private readonly IMapper _mapper;
 
         // private readonly IOfferService _offerService;
     #endregion
 
     // #region Constructors
-    public ProductService(DataContext context)
+    public ProductService(DataContext context, IMapper mapper)
     {
         this._context = context;
-        // this._offerService = offerService;
+        this._mapper = mapper;
     }
 
-    public async Task<List<Product>?> GetAllProducts()
+    public async Task<List<Product>> GetAllProducts()
     {
         var products = await _context.Products.ToListAsync();
         return products;
     }
 
 
-    public async Task<Product?> GetOne(int id)
+    public async Task<Product> GetOne(int id)
     {
          var product = await _context.Products.FindAsync(id);
         return product;
     }
 
-    public async Task<Product> AddProduct(Product request)
+    public async Task<Product> GetByName(string name)
+    {
+         var product = await _context.Products.FirstOrDefaultAsync(x => x.Name == name);
+         if(product is null) {
+            throw new Exception("Product not found");
+         }
+        return product;
+    }
+
+    public async Task<Product> AddProduct(ProductRegister request)
     {
 
-        var furnisherById = await _context.Furnishers.FindAsync(request.FurnisherId);
+        // var furnisherById = await _context.Furnishers.FindAsync(request.FurnisherId);
 
-        Product addedProduct = new Product()
-        {
-            Name = request.Name,
-            Price = request.Price,
-            Stock = request.Stock,
-            Millesime = request.Millesime,
-            AlcoholDegree = request.AlcoholDegree,
-            AlcoholTypeId = request.AlcoholTypeId,
-            Reference = request.Reference,
-            FurnisherId = request.FurnisherId,
-            DomainId = request.DomainId,
-            RegionId = request.RegionId,
-            AppellationId = request.AppellationId,
-            furnisher = furnisherById
+        Product product = _mapper.Map<Product>(request);
+
+        var saveProduct = await _context.Products.AddAsync(product);
+        await _context.SaveChangesAsync();
+        
+        //Créer une offre unique lors de la création d'un produit
+        List<ProductOffer> ListProductOffer = new List<ProductOffer>() {
+            new ProductOffer() {
+                ProductId = saveProduct.Entity.ProductId,
+                QuantityProduct = 1
+            }
         };
 
 
-        var saveProduct = _context.Products.Add(addedProduct).Entity;
+        Offer offerunit = new Offer() {
+            Name = saveProduct.Entity.Name,
+            isB2B = false,
+            isDraft = false,
+            Price = product.Price,
+            ImageUrl = product.ImageUrl,
+            ProductOffers = ListProductOffer
+        };
+
+        
+        _context.Offers.Add(offerunit);
         await _context.SaveChangesAsync();
 
-        return saveProduct;
+        return saveProduct.Entity;
+    
     }
-
-    public async Task<Product?> UpdateProduct(int id, Product request)
+    
+        public async Task<Product> UpdateProduct(int id, ProductRegister request)
     {
 
         var product = await _context.Products.FindAsync(id);
 
-        if (product != null)
-        {
+        var newProduct = _mapper.Map(request, product);
 
-            product.Name = request.Name;
-            product.Price = request.Price;
-            product.Stock = request.Stock;
-            product.Millesime = request.Millesime;
-            product.AlcoholDegree = request.AlcoholDegree;
-            product.AlcoholTypeId = request.AlcoholTypeId;
-            product.Reference = request.Reference;
-            product.FurnisherId = request.FurnisherId;
-            product.DomainId = request.DomainId;
-            product.RegionId = request.RegionId;
-            product.AppellationId = request.AppellationId;
+        // if (product != null)
+        // {
+
+            // product.Name = request.Name;
+            // product.Price = request.Price;
+            // product.Stock = request.Stock;
+            // product.Millesime = request.Millesime;
+            // product.AlcoholDegree = request.AlcoholDegree;
+            // product.AlcoholTypeId = request.AlcoholTypeId;
+            // product.Reference = request.Reference;
+            // product.FurnisherId = request.FurnisherId;
+            // product.DomainId = request.DomainId;
+            // product.RegionId = request.RegionId;
+            // product.AppellationId = request.AppellationId;
 
 
             await _context.SaveChangesAsync();
-
             return product;
-        }
-
-        return null;
+        // }
     }
 
-    public async Task<List<Product>?> DeleteProduct(int id)
+
+    public async Task<List<Product>> DeleteProduct(int id)
     {
         var product = await _context.Products.FindAsync(id);
         if (product is null)

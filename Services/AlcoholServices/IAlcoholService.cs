@@ -1,7 +1,7 @@
 using GuacAPI.Models;
 
 namespace GuacAPI.Services;
-
+ 
 public interface IAlcoholService
 
 {
@@ -11,12 +11,12 @@ public interface IAlcoholService
     //Ad one Product in database
     // Product AddOne(Product item);
 
-    Task<List<AlcoholType>?> GetAllTypes();
+    Task<List<AlcoholType>> GetAllTypes();
     Task<AlcoholType> GetAlcoholTypeById(int id);
     Task<AlcoholType> GetAlcoholByLabel(string label);
 
-    Task<AlcoholType?> AddAlcoholType(AlcoholType alcohol);
+    Task<AlcoholType> AddAlcoholType(AlcoholTypeRegister alcohol);
 
-    Task<AlcoholType?> UpdateAlcoholType(int id, AlcoholType alcohol);
-    Task<AlcoholType?> DeleteAlcoholType(int id);
+    Task<AlcoholType> UpdateAlcoholType(int id, AlcoholTypeRegister alcohol);
+    Task<AlcoholType> DeleteAlcoholType(int id);
 }

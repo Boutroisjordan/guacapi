@@ -1,25 +1,29 @@
 using GuacAPI.Models;
 using GuacAPI.Context;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
+using GuacAPI.Helpers;
 
 namespace GuacAPI.Services;
-
+ 
 public class AlcoholService : IAlcoholService
 {
     #region Fields
 
     private readonly DataContext _context;
+    private readonly IMapper _mapper;
 
     #endregion
 
     // #region Constructors
-    public AlcoholService(DataContext context)
+    public AlcoholService(DataContext context, IMapper mapper)
     {
         this._context = context;
+        this._mapper = mapper;
     }
 
 
-    public async Task<List<AlcoholType>?> GetAllTypes()
+    public async Task<List<AlcoholType>> GetAllTypes()
     {
         var alcohol = await _context.AlcoholTypes.ToListAsync();
         return alcohol;
@@ -48,55 +52,45 @@ public class AlcoholService : IAlcoholService
         return alcoholName;
     }
 
-    public async Task<AlcoholType?> AddAlcoholType(AlcoholType alcohol)
+    public async Task<AlcoholType> AddAlcoholType(AlcoholTypeRegister alcohol)
     {
         if (alcohol is null)
         {
             return null;
         }
 
-        var addedAlcohol = new AlcoholType {
-            label = alcohol.label
-        };
+        AlcoholType alcoholType = _mapper.Map<AlcoholType>(alcohol);
         
 
-        var savedAlcohol = _context.AlcoholTypes.Add(addedAlcohol).Entity;
+        var savedAlcohol = _context.AlcoholTypes.Add(alcoholType).Entity;
         await _context.SaveChangesAsync();
         return savedAlcohol;
     }
 
-    public async Task<AlcoholType?> UpdateAlcoholType(int id, AlcoholType request)
+    public async Task<AlcoholType> UpdateAlcoholType(int id, AlcoholTypeRegister request)
     {
 
-        // return await Task.Run(() =>
-        // {}
             var alcohol = await _context.AlcoholTypes.FindAsync(id);
             if (alcohol == null)
             {
-                return null;
+                throw new Exception("No AlcholType with this id exist");
             }
 
-            alcohol.label = request.label;
-            // alcohol.AlcoholTypeId = request.AlcoholTypeId;
+            AlcoholType alcoholType = _mapper.Map(request, alcohol);
             await _context.SaveChangesAsync();
             return alcohol;
     }
 
-    public async Task<AlcoholType?> DeleteAlcoholType(int id)
+    public async Task<AlcoholType> DeleteAlcoholType(int id)
     {
-        // return await Task.Run(() =>
-        // {
+
             var alcohol = await _context.AlcoholTypes.FindAsync(id);
             if (alcohol == null)
             {
-                return null;
-                // throw new ArgumentException("Alcohol not found");
-
+                throw new ArgumentException("Alcohol not found");
             }
-
             _context.AlcoholTypes.Remove(alcohol);
             await _context.SaveChangesAsync();
             return alcohol;
-        // });
     }
 }

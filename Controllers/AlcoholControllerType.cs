@@ -13,22 +13,26 @@ public class AlcoholControllerType : ControllerBase
     #region Fields
 
     private IAlcoholService _alcoholService;
+    private readonly IConfiguration _configuration;
 
     #endregion
 
     #region Constructor
 
-    public AlcoholControllerType(IAlcoholService alcoholService)
+    public AlcoholControllerType(IAlcoholService alcoholService, IConfiguration configuration)
     {
         _alcoholService = alcoholService;
+        _configuration = configuration;
     }
 
     #endregion
 
     #region methods
 
+    /// <summary>
+    /// Récupère tous les types d'alcool
+    /// </summary>
     [HttpGet]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAllTypes()
     {
         var types = await _alcoholService.GetAllTypes();
@@ -45,6 +49,9 @@ public class AlcoholControllerType : ControllerBase
         return Ok(types);
     }
 
+    /// <summary>
+    /// Récupère tous les types d'alcool
+    /// </summary>
     [HttpGet]
     [Route("{id}")]
     public async Task<IActionResult> GetAlcoholTypeById(int id)
@@ -58,6 +65,9 @@ public class AlcoholControllerType : ControllerBase
         return Ok(type);
     }
 
+    /// <summary>
+    /// Récupère un type d'alcool
+    /// </summary>
     [HttpGet]
     [Route("GetByLabel/{label}")]
     public async Task<IActionResult> GetAlcoholByLabel(string label)
@@ -71,8 +81,12 @@ public class AlcoholControllerType : ControllerBase
         return Ok(typeLabel);
     }
 
+    /// <summary>
+    /// Créer un type d'alcool
+    /// </summary>
+    [Authorize(Roles = "Admin")]
     [HttpPost]
-    public async Task<IActionResult> AddAlcoholType(AlcoholType type)
+    public async Task<IActionResult> AddAlcoholType(AlcoholTypeRegister type)
     {
         var addAlcohol = await _alcoholService.AddAlcoholType(type);
 
@@ -84,9 +98,13 @@ public class AlcoholControllerType : ControllerBase
         return Ok(addAlcohol);
     }
 
+    /// <summary>
+    /// Met à jour un type d'alcool
+    /// </summary>
+    [Authorize(Roles = "Admin")]
     [HttpPut]
     [Route("{id}")]
-    public async Task<IActionResult> UpdateAlcoholType(int id, AlcoholType type)
+    public async Task<IActionResult> UpdateAlcoholType(int id, AlcoholTypeRegister type)
     {
         if (id <= 0)
         {
@@ -103,6 +121,10 @@ public class AlcoholControllerType : ControllerBase
         return Ok(updateAlcohol);
     }
 
+    /// <summary>
+    /// Supprime un type d'alcool
+    /// </summary>
+    [Authorize(Roles = "Admin")]
     [HttpDelete]
     [Route("{id}")]
     public async Task<IActionResult> DeleteAlcoholType(int id)

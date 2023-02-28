@@ -14,10 +14,11 @@ class DomainEntityConfiguration : IEntityTypeConfiguration<Domain>
         //Primary key de la table
         builder.HasKey(item => item.DomainId);
 
+        builder.HasData(
+            new Domain { DomainId = 1, Name = "Domaine 1"}
+        );
+
     }
     #endregion
 
 }
-
-//https://medium.com/net-core/build-a-restful-web-api-with-asp-net-core-6-30747197e229 le blog
-// https://www.youtube.com/watch?v=fAsZP70uiic video

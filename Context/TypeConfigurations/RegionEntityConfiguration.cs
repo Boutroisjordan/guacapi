@@ -14,10 +14,11 @@ class RegionEntityConfiguration : IEntityTypeConfiguration<Region>
         //Primary key de la table
         builder.HasKey(item => item.RegionID);
 
+        builder.HasData(
+            new Region { RegionID = 1, Name = "region 1" }
+        );
+
     }
     #endregion
 
 }
-
-//https://medium.com/net-core/build-a-restful-web-api-with-asp-net-core-6-30747197e229 le blog
-// https://www.youtube.com/watch?v=fAsZP70uiic video
