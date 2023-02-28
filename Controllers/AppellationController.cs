@@ -25,7 +25,9 @@ public class AppellationController : ControllerBase
     #endregion
 
     #region Methods
-
+    /// <summary>
+    /// Récupère toute les appellations
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetAppellations()
     {
@@ -40,6 +42,9 @@ public class AppellationController : ControllerBase
         return Ok(result);
     }
 
+    /// <summary>
+    /// Récupère une appellation
+    /// </summary>
     [HttpGet]
     [Route("{id}")]
     public async Task<IActionResult> GetAppellationById(int id)
@@ -53,6 +58,9 @@ public class AppellationController : ControllerBase
         return Ok(result);
     }
 
+    /// <summary>
+    /// Récupère une appellation par son nom
+    /// </summary>
     [HttpGet]
     [Route("GetByName/{name}")]
     public async Task<IActionResult> GetAppellationByName(string name)
@@ -65,6 +73,9 @@ public class AppellationController : ControllerBase
         return Ok(result);
     }
     
+    /// <summary>
+    /// Créer une appellation 
+    /// </summary>
    [Authorize (Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> CreateAppellation(Appellation appellation)
@@ -78,6 +89,9 @@ public class AppellationController : ControllerBase
         return Ok(result);
     }
 
+    /// <summary>
+    /// Met à jour une appellation 
+    /// </summary>
  [Authorize (Roles = "Admin")]
     [HttpPut]
     [Route("{id}")]
@@ -91,6 +105,9 @@ public class AppellationController : ControllerBase
         return Ok(result);
     }
 
+    /// <summary>
+    /// Supprime une appellation 
+    /// </summary>
  [Authorize (Roles = "Admin")]
     [HttpDelete]
     [Route("{id}")]

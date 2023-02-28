@@ -25,7 +25,9 @@ public class DomainController : ControllerBase
 
     #endregion
 
-
+    /// <summary>
+    /// Récupère tous les domaines
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetAllDomains()
     {
@@ -37,6 +39,9 @@ public class DomainController : ControllerBase
         return Ok(domainList);
     }
 
+    /// <summary>
+    /// Récupère un domaine par son id
+    /// </summary>
     [HttpGet]
     [Route("{id}")]
     public async Task<IActionResult> GetDomainById(int id)
@@ -49,6 +54,9 @@ public class DomainController : ControllerBase
         return Ok(domain);
     }
 
+    /// <summary>
+    /// Récupère un domaine par son nom
+    /// </summary>
     [HttpGet]
     [Route("GetByName/{name}")]
     public IActionResult GetDomainByName(string name)
@@ -57,6 +65,9 @@ public class DomainController : ControllerBase
         return Ok(domain);
     }
 
+    /// <summary>
+    /// Ajoute un domaine 
+    /// </summary>
  [Authorize (Roles = "Admin")]
     [HttpPost]
     
@@ -73,6 +84,9 @@ public class DomainController : ControllerBase
         return Ok(domain);
     }
 
+    /// <summary>
+    /// Met à jour un domaine
+    /// </summary>
     [HttpPut]
      [Authorize (Roles = "Admin")]
     [Route("{id}")]
@@ -88,6 +102,9 @@ public class DomainController : ControllerBase
         return Ok(domain);
     }
 
+    /// <summary>
+    /// Supprime un domaine 
+    /// </summary>
  [Authorize (Roles = "Admin")]
     [HttpDelete]
     [Route("{id}")]
@@ -101,7 +118,6 @@ public class DomainController : ControllerBase
             {
                 return BadRequest();
             }
-
 
         return Ok(domain);
     }

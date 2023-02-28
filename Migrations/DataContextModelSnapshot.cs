@@ -108,15 +108,15 @@ namespace GuacAPI.Migrations
                         {
                             UserId = 1,
                             Address = "",
-                            CreatedAt = new DateTime(2023, 2, 27, 14, 38, 31, 332, DateTimeKind.Local).AddTicks(7390),
+                            CreatedAt = new DateTime(2023, 2, 27, 23, 36, 59, 327, DateTimeKind.Local).AddTicks(8190),
                             Email = "guacaprocesi@gmail.com",
                             FirstName = "admin",
                             LastName = "admin",
-                            PasswordHash = "$2a$11$8I/ML9XqJR/0CRbh9CUZH.vofgejV4aWoNA6zqF4T8TCkLeX31yhC",
+                            PasswordHash = "$2a$11$aM1ibExYTIdaeCG.ox6VE.NyBcNvN/A6pifwEbKr8Pdn8k9aBTpBS",
                             Phone = "00000000",
                             RoleId = 1,
                             Username = "guacadmin",
-                            VerifiedAt = new DateTime(2023, 2, 27, 14, 38, 31, 332, DateTimeKind.Local).AddTicks(7440)
+                            VerifiedAt = new DateTime(2023, 2, 27, 23, 36, 59, 327, DateTimeKind.Local).AddTicks(8240)
                         });
                 });
 
@@ -150,16 +150,21 @@ namespace GuacAPI.Migrations
                         new
                         {
                             AlcoholTypeId = 3,
-                            label = "white"
+                            label = "undefined"
                         },
                         new
                         {
                             AlcoholTypeId = 4,
-                            label = "sweet"
+                            label = "white"
                         },
                         new
                         {
                             AlcoholTypeId = 5,
+                            label = "sweet"
+                        },
+                        new
+                        {
+                            AlcoholTypeId = 6,
                             label = "sparkling"
                         });
                 });

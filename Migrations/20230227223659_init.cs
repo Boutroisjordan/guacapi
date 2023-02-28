@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GuacAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class seedrolesandadmin : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -493,9 +493,10 @@ namespace GuacAPI.Migrations
                 {
                     { 1, "red" },
                     { 2, "grand cru" },
-                    { 3, "white" },
-                    { 4, "sweet" },
-                    { 5, "sparkling" }
+                    { 3, "undefined" },
+                    { 4, "white" },
+                    { 5, "sweet" },
+                    { 6, "sparkling" }
                 });
 
             migrationBuilder.InsertData(
@@ -536,7 +537,7 @@ namespace GuacAPI.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "UserId", "Address", "CreatedAt", "Email", "FirstName", "LastName", "PasswordHash", "Phone", "RoleId", "Username", "VerifiedAt", "VerifyToken" },
-                values: new object[] { 1, "", new DateTime(2023, 2, 27, 10, 1, 0, 136, DateTimeKind.Local).AddTicks(9786), "guacaprocesi@gmail.com", "admin", "admin", "$2a$11$8zeHC3nziIvZw9Do9VZoPu0RRF3sVkoZ/Et5q.9pCO4HimH28bHRq", "00000000", 1, "guacadmin", new DateTime(2023, 2, 27, 10, 1, 0, 136, DateTimeKind.Local).AddTicks(9841), null });
+                values: new object[] { 1, "", new DateTime(2023, 2, 27, 23, 36, 59, 327, DateTimeKind.Local).AddTicks(8190), "guacaprocesi@gmail.com", "admin", "admin", "$2a$11$aM1ibExYTIdaeCG.ox6VE.NyBcNvN/A6pifwEbKr8Pdn8k9aBTpBS", "00000000", 1, "guacadmin", new DateTime(2023, 2, 27, 23, 36, 59, 327, DateTimeKind.Local).AddTicks(8240), null });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Comment_OfferId",

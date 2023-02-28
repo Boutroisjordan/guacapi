@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Swashbuckle.AspNetCore;
 
 namespace GuacAPI.Controllers;
- 
+
 [Route("[controller]")]
 [ApiController]
 public class ProductController : ControllerBase
@@ -28,9 +28,10 @@ public class ProductController : ControllerBase
 
     #endregion
 
-    // [HttpGet,AllowAnonymous]
-    [HttpGet]
-    // [SwaggerOperation(Description = "Obtient une liste de tous les articles")]
+    /// <summary>
+    /// Récupère tous les produits
+    /// </summary>
+    [HttpGet] 
     public async Task<IActionResult> GetAllProducts()
     {
         var productList = await _productService.GetAllProducts();
@@ -46,6 +47,9 @@ public class ProductController : ControllerBase
         return Ok(productList);
     }
 
+    /// <summary>
+    /// Récupère un produitpar son id
+    /// </summary>
     [HttpGet]
     [Route("{id}")]
     public async Task<IActionResult> GetOneProduct(int id)
@@ -59,6 +63,10 @@ public class ProductController : ControllerBase
 
         return Ok(product);
     }
+
+    /// <summary>
+    /// Récupère un produit par son nom
+    /// </summary>
     [HttpGet]
     [Route("byName/{name}")]
     public async Task<IActionResult> GetByName(string name)
@@ -73,17 +81,22 @@ public class ProductController : ControllerBase
         return Ok(product);
     }
 
+    /// <summary>
+    /// Récupère le stock d'un produit
+    /// </summary>
     [HttpGet]
     [Route("stock/{id}")]
-        public async Task<IActionResult> GetStock(int id)
-        {
-            var productStock = await _productService.CheckStock(id);
+    public async Task<IActionResult> GetStock(int id)
+    {
+        var productStock = await _productService.CheckStock(id);
 
-            return Ok(productStock);
-        }
+        return Ok(productStock);
+    }
 
-
-         [Authorize (Roles = "Admin")]
+    /// <summary>
+    /// Ajoute un produit
+    /// </summary>
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> AddOne(ProductRegister request)
     {
@@ -97,9 +110,11 @@ public class ProductController : ControllerBase
         return Ok(addedProduct);
     }
 
+    /// <summary>
+    /// Met à jour un produit
+    /// </summary>
     [HttpPut]
-
-     [Authorize (Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [Route("{id}")]
     public async Task<IActionResult> UpdateProduct(int id, ProductRegister request)
     {
@@ -113,7 +128,9 @@ public class ProductController : ControllerBase
         return Ok(updatedProduct);
     }
 
-
+    /// <summary>
+    /// Suppirme un produit
+    /// </summary>
     [HttpDelete, Authorize(Roles = "Admin")]
     [Route("{id}")]
     public async Task<IActionResult> DeleteProduct(int id)

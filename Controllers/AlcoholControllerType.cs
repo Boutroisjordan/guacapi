@@ -28,6 +28,10 @@ public class AlcoholControllerType : ControllerBase
     #endregion
 
     #region methods
+
+    /// <summary>
+    /// Récupère tous les types d'alcool
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetAllTypes()
     {
@@ -44,6 +48,10 @@ public class AlcoholControllerType : ControllerBase
 
         return Ok(types);
     }
+
+    /// <summary>
+    /// Récupère tous les types d'alcool
+    /// </summary>
     [HttpGet]
     [Route("{id}")]
     public async Task<IActionResult> GetAlcoholTypeById(int id)
@@ -56,6 +64,10 @@ public class AlcoholControllerType : ControllerBase
         var type = await _alcoholService.GetAlcoholTypeById(id);
         return Ok(type);
     }
+
+    /// <summary>
+    /// Récupère un type d'alcool
+    /// </summary>
     [HttpGet]
     [Route("GetByLabel/{label}")]
     public async Task<IActionResult> GetAlcoholByLabel(string label)
@@ -68,7 +80,11 @@ public class AlcoholControllerType : ControllerBase
         var typeLabel = await _alcoholService.GetAlcoholByLabel(label);
         return Ok(typeLabel);
     }
-    [Authorize (Roles = "Admin")]
+
+    /// <summary>
+    /// Créer un type d'alcool
+    /// </summary>
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> AddAlcoholType(AlcoholTypeRegister type)
     {
@@ -81,7 +97,11 @@ public class AlcoholControllerType : ControllerBase
 
         return Ok(addAlcohol);
     }
-    [Authorize (Roles = "Admin")]
+
+    /// <summary>
+    /// Met à jour un type d'alcool
+    /// </summary>
+    [Authorize(Roles = "Admin")]
     [HttpPut]
     [Route("{id}")]
     public async Task<IActionResult> UpdateAlcoholType(int id, AlcoholTypeRegister type)
@@ -100,8 +120,12 @@ public class AlcoholControllerType : ControllerBase
 
         return Ok(updateAlcohol);
     }
- [Authorize (Roles = "Admin")]
-     [HttpDelete]
+
+    /// <summary>
+    /// Supprime un type d'alcool
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpDelete]
     [Route("{id}")]
     public async Task<IActionResult> DeleteAlcoholType(int id)
     {

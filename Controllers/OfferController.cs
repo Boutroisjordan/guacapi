@@ -28,6 +28,9 @@ public class OfferController : ControllerBase
 
     #endregion
 
+    /// <summary>
+    /// Récupère toutes les offres
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> GetAllOffers()
     {
@@ -42,6 +45,10 @@ public class OfferController : ControllerBase
         }
         return Ok(offerList);
     }
+
+    /// <summary>
+    /// Récupère toutes les offres brouillon
+    /// </summary>
     [HttpGet("draft")]
     public async Task<IActionResult> GetAllDraftOffers()
     {
@@ -57,6 +64,9 @@ public class OfferController : ControllerBase
         return Ok(offerList);
     }
 
+    /// <summary>
+    /// Récupère une offre
+    /// </summary>
     [HttpGet]
     [Route("{id}")]
     public async Task<IActionResult> GetOneOffer(int id)
@@ -70,7 +80,9 @@ public class OfferController : ControllerBase
         return this.Ok(offer);
     }
 
-    //Check la disponibilité d'un produit avant d'aller sur la page, route de vérificiation clément
+    /// <summary>
+    /// Vérifie la disponibilité d'une offre
+    /// </summary>
     [HttpGet]
     [Route("checkOfferIsAvailable/{id}")]
     public async Task<IActionResult> checkAvailabilityOfOneOffer(int id)
@@ -80,6 +92,9 @@ public class OfferController : ControllerBase
         return this.Ok(offer);
     }
 
+    /// <summary>
+    /// Récupère les offres valables (deadline, stock, restock auto)
+    /// </summary>
     [HttpGet]
     [Route("availableOffer")]
     public async Task<IActionResult> GetAvailableOffer()
@@ -92,6 +107,10 @@ public class OfferController : ControllerBase
         //    }
         return this.Ok(offer);
     }
+
+    /// <summary>
+    /// Récupère les offres non valables 
+    /// </summary>
     [HttpGet]
     [Route("unavailableOffer")]
     public async Task<IActionResult> GetUnavailableOffer()
@@ -105,6 +124,9 @@ public class OfferController : ControllerBase
         return this.Ok(offer);
     }
 
+    /// <summary>
+    /// Ajoute une offre
+    /// </summary>
     [HttpPost]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddOne(OfferRegister request)
@@ -119,10 +141,9 @@ public class OfferController : ControllerBase
         return Ok(addedOffer);
     }
 
-
-
-
-
+    /// <summary>
+    /// Met à jour une offre
+    /// </summary>
     [Authorize(Roles = "Admin")]
     [HttpPut]
     [Route("{id}")]
@@ -138,6 +159,9 @@ public class OfferController : ControllerBase
         return Ok(updatedOffer);
     }
 
+    /// <summary>
+    /// Supprime une offre
+    /// </summary>
     [Authorize(Roles = "Admin")]
     [HttpDelete]
     [Route("{id}")]
@@ -153,6 +177,9 @@ public class OfferController : ControllerBase
         return Ok(offer);
     }
 
+    /// <summary>
+    /// Télécharge une image et renvoi son lien stocker sur le serveur
+    /// </summary>
     [Authorize(Roles = "Admin")]
     [HttpPost("UploadFile")]
     public async Task<String> UploadImage(IFormFile inputFile)
@@ -184,11 +211,14 @@ public class OfferController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Supprime une image
+    /// </summary>
     [Authorize(Roles = "Admin")]
     [HttpGet("DeleteFile")]
     public IActionResult DeleteImage(string path)
     {
-        // bool Results = false;
+
         try
         {
             var completePath = Path.Combine(_environment.ContentRootPath, path);
@@ -198,7 +228,6 @@ public class OfferController : ControllerBase
             }
 
             System.IO.File.Delete(completePath);
-            // return $"{file.FileName} successfully uploaded to the Server";
             return Ok("Image Deleted");
         }
         catch (Exception ex)

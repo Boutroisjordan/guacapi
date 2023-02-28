@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GuacAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230227090100_seed roles and admin")]
-    partial class seedrolesandadmin
+    [Migration("20230227223659_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -111,15 +111,15 @@ namespace GuacAPI.Migrations
                         {
                             UserId = 1,
                             Address = "",
-                            CreatedAt = new DateTime(2023, 2, 27, 10, 1, 0, 136, DateTimeKind.Local).AddTicks(9786),
+                            CreatedAt = new DateTime(2023, 2, 27, 23, 36, 59, 327, DateTimeKind.Local).AddTicks(8190),
                             Email = "guacaprocesi@gmail.com",
                             FirstName = "admin",
                             LastName = "admin",
-                            PasswordHash = "$2a$11$8zeHC3nziIvZw9Do9VZoPu0RRF3sVkoZ/Et5q.9pCO4HimH28bHRq",
+                            PasswordHash = "$2a$11$aM1ibExYTIdaeCG.ox6VE.NyBcNvN/A6pifwEbKr8Pdn8k9aBTpBS",
                             Phone = "00000000",
                             RoleId = 1,
                             Username = "guacadmin",
-                            VerifiedAt = new DateTime(2023, 2, 27, 10, 1, 0, 136, DateTimeKind.Local).AddTicks(9841)
+                            VerifiedAt = new DateTime(2023, 2, 27, 23, 36, 59, 327, DateTimeKind.Local).AddTicks(8240)
                         });
                 });
 
@@ -153,16 +153,21 @@ namespace GuacAPI.Migrations
                         new
                         {
                             AlcoholTypeId = 3,
-                            label = "white"
+                            label = "undefined"
                         },
                         new
                         {
                             AlcoholTypeId = 4,
-                            label = "sweet"
+                            label = "white"
                         },
                         new
                         {
                             AlcoholTypeId = 5,
+                            label = "sweet"
+                        },
+                        new
+                        {
+                            AlcoholTypeId = 6,
                             label = "sparkling"
                         });
                 });

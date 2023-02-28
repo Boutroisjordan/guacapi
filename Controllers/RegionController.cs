@@ -5,7 +5,7 @@ using GuacAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 
 namespace GuacAPI.Controllers;
- 
+
 [Route("[controller]")]
 [ApiController]
 public class RegionController : ControllerBase
@@ -25,9 +25,11 @@ public class RegionController : ControllerBase
 
     #endregion
 
-
+    /// <summary>
+    /// Récupère les regions
+    /// </summary>
     [HttpGet]
-    public async Task<IActionResult> GetAllFunishers()
+    public async Task<IActionResult> GetAllRegions()
     {
         var regionList = await _regionService.GetAllRegions();
         if (regionList == null)
@@ -41,6 +43,9 @@ public class RegionController : ControllerBase
         return Ok(regionList);
     }
 
+    /// <summary>
+    /// Récupère une région par son id
+    /// </summary>
     [HttpGet]
     [Route("{id}")]
     public async Task<IActionResult> GetOneRegion(int id)
@@ -54,8 +59,11 @@ public class RegionController : ControllerBase
         return this.Ok(region);
     }
 
+    /// <summary>
+    /// Ajoute une région
+    /// </summary>
     [HttpPost]
-     [Authorize (Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddOne(RegionRegister request)
     {
         IActionResult result = this.BadRequest();
@@ -69,8 +77,11 @@ public class RegionController : ControllerBase
         return Ok(addedRegion);
     }
 
+    /// <summary>
+    /// Met à jour une région
+    /// </summary>
     [HttpPut]
-     [Authorize (Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [Route("{id}")]
 
     public async Task<IActionResult> UpdateRegion(int id, RegionRegister request)
@@ -85,8 +96,11 @@ public class RegionController : ControllerBase
         return Ok(updatedRegion);
     }
 
+    /// <summary>
+    /// Supprime une région
+    /// </summary>
     [HttpDelete]
-     [Authorize (Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [Route("{id}")]
     public async Task<IActionResult> DeleteRegion(int id)
     {

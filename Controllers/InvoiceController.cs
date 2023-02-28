@@ -29,7 +29,9 @@ public class InvoiceController : ControllerBase
         this._invoiceServiceProduct = invoiceServiceProduct;
         this._mapper = mapper;
     }
-
+    /// <summary>
+    /// Génère un pdf à partir d'une facture
+    /// </summary>
     [HttpGet("pdf")]
     public async Task<IActionResult> GetPdf(int id)
     {
@@ -98,6 +100,9 @@ public class InvoiceController : ControllerBase
         return File(response, "application/pdf", Filename);
     }
 
+    /// <summary>
+    /// Récupère toutes les factures fournisseurs
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> getAll()
     {
@@ -110,7 +115,10 @@ public class InvoiceController : ControllerBase
         }
         return Ok(invoices);
     }
-    
+
+    /// <summary>
+    /// Récupère une factures
+    /// </summary>
     [HttpGet("{id}")]
     public async Task<IActionResult> getOne(int id)
     {
@@ -124,7 +132,9 @@ public class InvoiceController : ControllerBase
         return Ok(invoices);
     }
 
-
+    /// <summary>
+    /// Récupère toutes les produit de factures
+    /// </summary>
     [HttpGet("invoiceProduct")]
     public async Task<IActionResult> GetAll()
     {
@@ -139,18 +149,8 @@ public class InvoiceController : ControllerBase
     }
 
     /// <summary>
-    /// Create a invoice, a command for Furnishers
+    /// Création d'une une facture pour fournisseur
     /// </summary>
-    /// <remarks>
-    /// Sample request:
-    ///
-    ///     POST /Invoice furnisher
-    ///     {
-    ///         "invoiceNumber" : "string",
-    ///         "Date": current datetime already bind,
-    ///         "FurnisherId": int,
-    ///       }    
-    ///</remarks>
     [HttpPost]
     public async Task<IActionResult> AddOne(InvoiceFurnisherRegister invoice)
     {
@@ -166,18 +166,8 @@ public class InvoiceController : ControllerBase
 
 
     /// <summary>
-    /// Create a invoiceProduct, InvoiceProduct
+    /// Ajoute un produit à une facture
     /// </summary>
-    /// <remarks>
-    /// Sample request:
-    ///
-    ///     POST /Invoice furnisher
-    ///     {
-    ///           "quantityProduct": 340,
-    ///           "invoiceFurnisherId": 19,
-    ///           "productId": 1
-    ///       }    
-    ///</remarks>
     [HttpPost("invoiceProduct")]
     public async Task<IActionResult> AddProductInvoice(InvoiceFurnisherProduct invoice)
     {
@@ -192,13 +182,8 @@ public class InvoiceController : ControllerBase
 
 
     /// <summary>
-    /// Create a invoiceProduct, InvoiceProduct
+    /// Modifie le produit d'une facture
     /// </summary>
-    /// <remarks>
-    /// Tu ne peux pas modifier les deux ID parce que cela fait partis de leur primary key.
-    /// Tu peux en revanche changer la quantité ou supprimer le produit.
-    ///
-    ///</remarks>
     [HttpPut("invoiceProduct/{invoiceFurnisherId}/{productId}")]
      [Authorize (Roles = "Admin")]
     public async Task<IActionResult> EditProductInvoice(int productId, int invoiceFurnisherId, InvoiceFurnisherProduct invoice)
@@ -212,6 +197,9 @@ public class InvoiceController : ControllerBase
         return Ok(addedOffer);
     }
 
+    /// <summary>
+    /// Modifie une facture
+    /// </summary>
     [HttpPut("{id}")]
      [Authorize (Roles = "Admin")]
     public async Task<IActionResult> Update(int id, InvoiceFurnisherUpdate invoice)
@@ -226,7 +214,9 @@ public class InvoiceController : ControllerBase
         return Ok(addedInvoice);
     }
 
-
+    /// <summary>
+    /// Supprime une facture
+    /// </summary>
     [HttpDelete("{invoiceFurnisherId}/{productId}")]
      [Authorize (Roles = "Admin")]
     public async Task<IActionResult> DeleteProductInvoice(int productId, int invoiceFurnisherId)
