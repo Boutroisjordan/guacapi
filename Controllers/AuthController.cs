@@ -37,7 +37,9 @@ namespace guacapi.Controllers
 
         }
 
-
+        /// <summary>
+        /// Récupère informations Users par son nom
+        /// </summary>
         [Authorize(Roles = "Admin")]
         [HttpGet]
         [Route("GetUserByUsername/{username}")]
@@ -57,6 +59,10 @@ namespace guacapi.Controllers
 
             return Unauthorized(new { message = "Unauthorized" });
         }
+
+        /// <summary>
+        /// Récupère informations Users par son email
+        /// </summary>
         [Authorize(Roles = "Admin")]
         [HttpGet]
         [Route("GetUserByEmail/{email}")]
@@ -77,6 +83,10 @@ namespace guacapi.Controllers
             return Unauthorized(new { message = "Unauthorized" });
         }
 
+
+        /// <summary>
+        /// Confirm email (route test)
+        /// </summary>
         [HttpGet("ConfirmEmail")]
         public IActionResult VerifyUserMail(string token, string email)
         {
@@ -90,6 +100,9 @@ namespace guacapi.Controllers
         }
 
 
+        /// <summary>
+        /// Supprime un utilisateur
+        /// </summary>
         [Authorize
              (Roles = "Admin")]
         [HttpDelete("delete/{id}")]
@@ -105,6 +118,9 @@ namespace guacapi.Controllers
         }
 
 
+        /// <summary>
+        /// Récupère les Users par leur role id
+        /// </summary>
         [Authorize(Roles = "Admin")]
         [HttpGet("GetUsersByRoleId/{id}")]
         public IActionResult GetUsersByRoleId(int id)
@@ -113,6 +129,9 @@ namespace guacapi.Controllers
             return Ok(users);
         }
 
+        /// <summary>
+        /// Création d'un user
+        /// </summary>
         [AllowAnonymous]
         [HttpPost("Register")]
         public IActionResult Register(RegisterRequest model)
@@ -134,6 +153,10 @@ namespace guacapi.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Route d'authentificaton
+        /// </summary>
         [AllowAnonymous]
         [HttpPost("Login")]
         public IActionResult Authenticate(AuthenticateRequest model)
@@ -151,6 +174,10 @@ namespace guacapi.Controllers
 
         }
 
+
+        /// <summary>
+        /// Regènre un Refreshtoken
+        /// </summary>
         [HttpPost("RefreshToken")]
         public IActionResult RefreshToken(RefreshTokenRequest model)
         {
@@ -202,6 +229,9 @@ namespace guacapi.Controllers
         }
 
 
+        /// <summary>
+        /// Récupère tous les users
+        /// </summary>
         [Authorize(Roles = "Admin")]
         [HttpGet("GetAllUsers")]
         public IActionResult GetAll()
@@ -212,6 +242,9 @@ namespace guacapi.Controllers
         }
 
 
+        /// <summary>
+        /// Récupère un user par l'id
+        /// </summary>
         [Authorize(Roles = "Admin")]
         [HttpGet("GetUserById/{id}")]
         public IActionResult GetById(int id)
@@ -220,6 +253,10 @@ namespace guacapi.Controllers
             return Ok(byId);
         }
 
+
+        /// <summary>
+        /// Récupère les informations de l'utilisateur (par l'utilisateur)
+        /// </summary>
         [Authorize(Roles = "Admin,Client")]
         [HttpGet("GetMesInfos")]
         public IActionResult GetMesInfos()
@@ -236,6 +273,9 @@ namespace guacapi.Controllers
         }
 
 
+        /// <summary>
+        /// Récupère tous les utilisatuer qui ont des Refreshtokens
+        /// </summary>
         [Authorize(Roles = "Admin")]
         [HttpGet("GetRefreshById/{id}/refresh-tokens")]
         public IActionResult GetRefreshTokens(int id)
@@ -244,6 +284,10 @@ namespace guacapi.Controllers
             return Ok(user.RefreshToken);
         }
 
+
+        /// <summary>
+        /// Met à jour un user par l'admin
+        /// </summary>
         [Authorize
         (Roles = "Admin")]
         [HttpPut("UpdateUserByAdmin/{id}")]
@@ -255,6 +299,9 @@ namespace guacapi.Controllers
             return Ok(updatedUser);
         }
 
+        /// <summary>
+        /// Met à jour un user (par l'user)
+        /// </summary>
         [Authorize
               (Roles = "Client,Admin")]
         [HttpPut("UpdateMesInfos")]
@@ -274,7 +321,9 @@ namespace guacapi.Controllers
             return Ok(updatedUser);
         }
 
-
+        /// <summary>
+        /// Récupère un user par token
+        /// </summary>
         [Authorize(Roles = "Admin")]
         [HttpGet("GetUserByToken")]
         public IActionResult GetUserByToken()
