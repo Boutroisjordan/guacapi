@@ -5,7 +5,7 @@ using GuacAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 
 namespace GuacAPI.Controllers;
- 
+
 [Route("[controller]")]
 [ApiController]
 public class DomainController : ControllerBase
@@ -32,7 +32,7 @@ public class DomainController : ControllerBase
     public async Task<IActionResult> GetAllDomains()
     {
         var domainList = await _domainService.GetAllDomains();
-        if(domainList.Count == 0)
+        if (domainList.Count == 0)
         {
             return NoContent();
         }
@@ -47,7 +47,7 @@ public class DomainController : ControllerBase
     public async Task<IActionResult> GetDomainById(int id)
     {
         var domain = await _domainService.GetDomainById(id);
-        if(domain == null)
+        if (domain == null)
         {
             return BadRequest();
         }
@@ -68,18 +68,18 @@ public class DomainController : ControllerBase
     /// <summary>
     /// Ajoute un domaine 
     /// </summary>
- [Authorize (Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [HttpPost]
-    
+
     public async Task<IActionResult> AddDomain(DomainRegister request)
     {
 
         var domain = await _domainService.AddDomain(request);
 
-            if(domain is null) 
-            {
-                return BadRequest();
-            }
+        if (domain is null)
+        {
+            return BadRequest();
+        }
 
         return Ok(domain);
     }
@@ -88,36 +88,36 @@ public class DomainController : ControllerBase
     /// Met à jour un domaine
     /// </summary>
     [HttpPut]
-     [Authorize (Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [Route("{id}")]
     public async Task<IActionResult> UpdateDomain(int id, DomainRegister request)
     {
 
         var domain = await _domainService.UpdateDomain(id, request);
 
-            if(domain is null) 
-            {
-                return BadRequest();
-            }
+        if (domain is null)
+        {
+            return BadRequest();
+        }
         return Ok(domain);
     }
 
     /// <summary>
     /// Supprime un domaine 
     /// </summary>
- [Authorize (Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [HttpDelete]
     [Route("{id}")]
     public async Task<IActionResult> DeleteDomain(int id)
     {
         IActionResult response = BadRequest();
 
-            var domain = await _domainService.DeleteDomain(id);
+        var domain = await _domainService.DeleteDomain(id);
 
-            if(domain is null) 
-            {
-                return BadRequest();
-            }
+        if (domain is null)
+        {
+            return BadRequest();
+        }
 
         return Ok(domain);
     }

@@ -173,7 +173,7 @@ namespace guacapi.Controllers
                                 HttpOnly = true,
                                 Expires = expirationTime
                             };
-                            
+
                             return Ok(new { user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone, user.RoleId, user.RefreshToken.AccessToken, RefreshToken = user.RefreshToken.NewToken, user.RefreshToken.AccessTokenExpires, RefreshTokenExpires = user.RefreshToken.NewTokenExpires, expiration = expirationTime.ToUnixTimeSeconds() });
                         }
 
@@ -189,9 +189,9 @@ namespace guacapi.Controllers
                             Expires = newRefreshToken.AccessTokenExpires
                         };
                         Response.Cookies.Append("AccessToken", newRefreshToken.AccessToken, cookieOptions);
-                        
 
-                        return Ok(new { user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone, user.RoleId, user.RefreshToken.AccessToken, refreshToken =  user.RefreshToken.NewToken, user.RefreshToken.AccessTokenExpires, refreshTokenExpires = user.RefreshToken.NewTokenExpires });
+
+                        return Ok(new { user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone, user.RoleId, user.RefreshToken.AccessToken, refreshToken = user.RefreshToken.NewToken, user.RefreshToken.AccessTokenExpires, refreshTokenExpires = user.RefreshToken.NewTokenExpires });
                     }
                 }
                 catch (SecurityTokenException)
@@ -385,10 +385,6 @@ namespace guacapi.Controllers
             throw new UnauthorizedAccessException("Invalid access token.");
 
         }
-
-
-
-
 
 
     }
