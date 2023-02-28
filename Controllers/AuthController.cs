@@ -174,7 +174,7 @@ namespace guacapi.Controllers
                                 Expires = expirationTime
                             };
 
-                            return Ok(new { user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone, user.RoleId, user.RefreshToken.AccessToken, RefreshToken = user.RefreshToken.NewToken, user.RefreshToken.AccessTokenExpires, RefreshTokenExpires = user.RefreshToken.NewTokenExpires, expiration = expirationTime.ToUnixTimeSeconds() });
+                            return Ok(new { user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone, user.RoleId, user.RefreshToken.AccessToken, refreshToken = user.RefreshToken.NewToken, tokenExpires =  user.RefreshToken.AccessTokenExpires, refreshExpires = user.RefreshToken.NewTokenExpires, expiration = expirationTime.ToUnixTimeSeconds() });
                         }
 
                         var newRefreshToken = _jwtUtils.GenerateRefreshToken(user);
@@ -190,8 +190,7 @@ namespace guacapi.Controllers
                         };
                         Response.Cookies.Append("AccessToken", newRefreshToken.AccessToken, cookieOptions);
 
-
-                        return Ok(new { user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone, user.RoleId, user.RefreshToken.AccessToken, refreshToken = user.RefreshToken.NewToken, user.RefreshToken.AccessTokenExpires, refreshTokenExpires = user.RefreshToken.NewTokenExpires });
+                        return Ok(new { user = user.Username, user.Address, user.Email, user.FirstName, user.LastName, user.Phone, user.RoleId, user.RefreshToken.AccessToken, refreshToken = user.RefreshToken.NewToken, tokenExpires = user.RefreshToken.AccessTokenExpires, refreshExpires = user.RefreshToken.NewTokenExpires });
                     }
                 }
                 catch (SecurityTokenException)
@@ -199,7 +198,6 @@ namespace guacapi.Controllers
                     return Unauthorized(new { message = "Unauthorized " });
                 }
             }
-
             return Unauthorized(new { message = "Unauthorized" });
         }
 
@@ -385,6 +383,10 @@ namespace guacapi.Controllers
             throw new UnauthorizedAccessException("Invalid access token.");
 
         }
+
+
+
+
 
 
     }
